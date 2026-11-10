@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semana de las Carreras 2026 & Tarreo Gamer | TI & Diseño Digital</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            inacap: {
+              red: '#C8102E',
+              darkred: '#9B0014',
+              gray: '#F4F5F7',
+              dark: '#0F172A'
+            },
+            terror: {
+              DEFAULT: '#DC2626',
+              dark: '#991B1B',
+              light: '#FEE2E2',
+              glow: 'rgba(220, 38, 38, 0.4)'
+            },
+            shooter: {
+              DEFAULT: '#2563EB',
+              dark: '#1E40AF',
+              light: '#DBEAFE',
+              glow: 'rgba(37, 99, 235, 0.4)'
+            },
+            action: {
+              DEFAULT: '#16A34A',
+              dark: '#166534',
+              light: '#DCFCE7',
+              glow: 'rgba(22, 163, 74, 0.4)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+    .text-glow-red {
+      text-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+    }
+    .text-glow-blue {
+      text-shadow: 0 0 15px rgba(37, 99, 235, 0.6);
+    }
+    .text-glow-green {
+      text-shadow: 0 0 15px rgba(22, 163, 74, 0.6);
+    }
+    /* Smooth transitions */
+    .tab-transition {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C8102E;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-red-600 selection:text-white">
+
+  <!-- MINIMALIST HEADER -->
+  <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-900 sticky top-0 z-40">
+    <div class="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
+      
+      <!-- Logo & Brand Minimal -->
+      <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="navigate('inicio')">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#E30613]"></span>
+          <span class="font-heading font-black text-white text-base tracking-tight">TI & DISEÑO</span>
+        </div>
+        <div class="h-4 w-px bg-slate-800"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-300">Semana de las Carreras 2026</span>
+          <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">• Informática • Analista • Telecom • Diseño Web</span>
+        </div>
+      </div>
+
+      <!-- Live Ticker Minimal / Compact -->
+      <div id="announcement-banner" class="hidden md:flex items-center gap-2 text-xs text-slate-400 bg-slate-900/40 border border-slate-800/60 px-3 py-1 rounded-full max-w-md truncate">
+        <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0"></span>
+        <span id="announcement-text" class="truncate font-normal text-slate-300 text-[11px]">Cargando avisos oficiales...</span>
+      </div>
+
+      <!-- Quick Actions Minimal -->
+      <div class="flex items-center gap-2 shrink-0">
+        
+
+        
+      </div>
+
+    </div>
+
+    <!-- Minimal Sub-Navbar (Pills sobrios) -->
+    <div class="border-t border-slate-900/80 bg-slate-950/95 overflow-x-auto scrollbar-none">
+      <div class="container mx-auto px-4 flex items-center space-x-1 py-1.5 text-xs whitespace-nowrap min-w-max">
+        <button onclick="navigate('inicio')" id="nav-inicio" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+          <span>Posiciones</span>
+        </button>
+        <button onclick="navigate('actividades')" id="nav-actividades" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
+          <span>Actividades 19</span>
+        </button>
+        <button onclick="navigate('desafios')" id="nav-desafios" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Desafíos Creativos</span>
+        </button>
+        <button onclick="navigate('mialianza')" id="nav-mialianza" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          <span>Mi Alianza</span>
+        </button>
+        <button onclick="navigate('reglas')" id="nav-reglas" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+          <span>Reglas & FAQ</span>
+        </button>
+        <button onclick="navigate('premios')" id="nav-premios" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i>
+          <span>Premios</span>
+        </button>
+        
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 container mx-auto px-4 py-6" id="app-container">
+    <!-- Views rendered dynamically -->
+  </main>
+
+  <!-- MODAL PARA DETALLE DE CÁLCULO DE ACTIVIDADES -->
+  <div id="calc-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeCalcModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      <div id="calc-modal-content">
+        <!-- Content injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+    <div class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-400">Semana de las Carreras 2026</span>
+        <span>•</span>
+        <span>Área Tecnologías de la Información, Telecomunicaciones y Diseño Digital</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>Informática • Telecomunicaciones • Analista • Diseño Web</span>
+        <span>•</span>
+        <span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 281 Estudiantes Registrados</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT APPLICATION LOGIC -->
+  <script src="/app.js"></script>
+</body>
+</html>

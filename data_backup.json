@@ -1,0 +1,1192 @@
+{
+  "alliances": {
+    "Terror": {
+      "name": "Terror",
+      "color": "#DC2626",
+      "carrera": "Informática, Telecomunicaciones y Analista",
+      "totalStudents": 126,
+      "desafio": "Videojuego de terror con IA"
+    },
+    "Shooter": {
+      "name": "Shooter",
+      "color": "#2563EB",
+      "carrera": "Informática, Telecomunicaciones y Analista",
+      "totalStudents": 126,
+      "desafio": "Asistente con IA"
+    },
+    "Action": {
+      "name": "Action",
+      "color": "#16A34A",
+      "carrera": "Diseño Digital Web e Industria Digital",
+      "totalStudents": 29,
+      "desafio": "Collage digital fotográfico"
+    }
+  },
+  "activities": [
+    {
+      "id": "retro",
+      "name": "Torneo retro (Mortal Kombat)",
+      "group": "Juegos",
+      "maxPoints": 3000,
+      "pointsDistribution": [
+        3000,
+        1800,
+        900
+      ],
+      "location": "Pared de la cancha (Controles Arcade USB)",
+      "time": "10:00 - 11:00 (60 min - Primera actividad del día)",
+      "status": "Terminada",
+      "type": "places",
+      "description": "Torneo en controles arcade USB con Mortal Kombat. 4 jugadores titulares + 1 suplente por alianza (12 titulares en total). Se juegan 3 enfrentamientos entre alianzas: Terror vs Shooter, Terror vs Action y Shooter vs Action (orden sorteado). Cada enfrentamiento consta de 4 duelos 1v1 al mejor de 3 rondas (gana quien gane 2 rondas). Cada jugador combate 2 veces (una contra cada alianza rival, nunca contra su propia alianza). Cada duelo ganado suma 1 victoria para la alianza (máx 8 victorias). Gana la alianza con más victorias acumuladas. En caso de empate en victorias, desempata la mayor cantidad de rondas ganadas; si persiste el empate, se disputa un duelo extra de desempate con jugadores elegidos por sorteo. Puntaje: 1º 3.000 pts, 2º 1.800 pts, 3º 900 pts.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "tacataca",
+      "name": "Taca-taca",
+      "group": "Juegos",
+      "maxPoints": 1000,
+      "pointsDistribution": [
+        1000,
+        600,
+        300
+      ],
+      "location": "Pared de la cancha (Mesas Taca-taca)",
+      "time": "10:30 - 11:30 (40 a 60 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "4 mesas DAE en juego abierto a 5 goles por partido. Duplas de una misma alianza contra duplas de otra alianza. Quien pierde cede la mesa. Máximo 2 partidos por persona.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "pingpong",
+      "name": "Ping pong",
+      "group": "Juegos",
+      "maxPoints": 1000,
+      "pointsDistribution": [
+        1000,
+        600,
+        300
+      ],
+      "location": "Pared de la cancha (Mesas Ping pong)",
+      "time": "10:30 - 11:30 (40 a 60 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "2 mesas DAE en juego abierto a 7 puntos por partido. Duplas de una misma alianza contra duplas de otra alianza. Quien pierde cede la mesa. Máximo 2 partidos por persona.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "gymkanas",
+      "name": "Gymkanas",
+      "group": "Gymkanas",
+      "maxPoints": 3000,
+      "pointsDistribution": null,
+      "location": "Pared de la cancha",
+      "time": "09:30 - 11:30 (60 a 90 min, abiertas)",
+      "status": "Pendiente",
+      "type": "gymkana",
+      "description": "4 puestos abiertos de destreza. Cada participante gana 1 punto por intentar el puesto y 1 por resolverlo (máx 8 por persona). Puntos de la alianza = 3.000 * (promedio / 8).",
+      "participantCards": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": "",
+      "averages": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      }
+    },
+    {
+      "id": "babyfutbol",
+      "name": "Baby fútbol",
+      "group": "Deportes",
+      "maxPoints": 4000,
+      "pointsDistribution": [
+        4000,
+        2400,
+        1200
+      ],
+      "location": "Centro de la cancha",
+      "time": "11:15 - 11:50 (35 min)",
+      "status": "Pendiente",
+      "type": "match_table",
+      "description": "Partidos 5 contra 5 con arquero. 3 partidos de 8 min (Terror vs Shooter, Shooter vs Action, Action vs Terror). Victoria 3 pts, Empate 1, Derrota 0.",
+      "matches": [
+        {
+          "team1": "Terror",
+          "team2": "Shooter",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "team1": "Shooter",
+          "team2": "Action",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "team1": "Action",
+          "team2": "Terror",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "table": {
+        "Terror": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        },
+        "Shooter": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        },
+        "Action": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "quemadas",
+      "name": "Quemadas",
+      "group": "Deportes",
+      "maxPoints": 4000,
+      "pointsDistribution": [
+        4000,
+        2400,
+        1200
+      ],
+      "location": "Centro de la cancha",
+      "time": "11:55 - 12:40 (45 min)",
+      "status": "Pendiente",
+      "type": "match_table",
+      "description": "8 contra 8 con balones blandos. En cada ronda juegan integrantes distintos para que roten. 3 partidos todos contra todos (Terror vs Shooter, Shooter vs Action, Action vs Terror). Cada partido tiene 3 rondas y lo gana la alianza con más rondas. Una ronda parte sin límite de tiempo y termina cuando eliminan a todos los jugadores de una alianza. Si la ronda se alarga demasiado, quien anima o la organización puede fijar un tiempo límite en el momento y avisarlo en voz alta; al terminar ese tiempo, gana quien tenga más jugadores en pie (o empata si hay igual cantidad). Balones blandos, sin pegar a la cabeza. Si se atrapa la pelota, queda eliminado quien la lanzó. Un árbitro por partido. Tabla: Victoria 3, Empate 1, Derrota 0. Desempate: más rondas ganadas, luego más jugadores en pie.",
+      "matches": [
+        {
+          "team1": "Terror",
+          "team2": "Shooter",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "team1": "Shooter",
+          "team2": "Action",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "team1": "Action",
+          "team2": "Terror",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "table": {
+        "Terror": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        },
+        "Shooter": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        },
+        "Action": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "trivia",
+      "name": "Trivia de carrera",
+      "group": "Mente y ambiente",
+      "maxPoints": 2000,
+      "pointsDistribution": [
+        2000,
+        1200,
+        600
+      ],
+      "location": "Esquina tranquila de la cancha",
+      "time": "10:15 - 10:30 (15 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "Preguntas técnicas y de historia institucional. Por aciertos o lugares obtenidos.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "canto",
+      "name": "Si te la sabes, canta",
+      "group": "Mente y ambiente",
+      "maxPoints": 1500,
+      "pointsDistribution": [
+        1500,
+        900,
+        450
+      ],
+      "location": "Centro de la cancha",
+      "time": "12:40 - 12:55 (12 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "Canciones conocidas por alianzas. Desafío de canto con jurado/aplausómetro.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "barra",
+      "name": "Barra y ruido",
+      "group": "Mente y ambiente",
+      "maxPoints": 1500,
+      "pointsDistribution": [
+        1500,
+        900,
+        450
+      ],
+      "location": "Centro de la cancha",
+      "time": "3 mediciones durante el día (5 min c/u)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "3 mediciones con decibelímetro a la misma distancia durante el día (10 segundos por alianza). Se promedian las 3.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    }
+  ],
+  "creativeChallenges": {
+    "status": {
+      "Terror": {
+        "delivered": false,
+        "deliveryTime": null,
+        "evaluated": false
+      },
+      "Shooter": {
+        "delivered": false,
+        "deliveryTime": null,
+        "evaluated": false
+      },
+      "Action": {
+        "delivered": false,
+        "deliveryTime": null,
+        "evaluated": false
+      }
+    },
+    "rubrics": {
+      "Terror": {
+        "docente1": {},
+        "docente2": {},
+        "docente1Nota": null,
+        "docente2Nota": null,
+        "notaPromedio": null,
+        "discrepancyAlert": false,
+        "criterios": [
+          {
+            "id": "c1",
+            "code": "2.1.1",
+            "nombre": "Jugabilidad y diversión",
+            "peso": 25,
+            "desc": "Reglas claras, controles que responden con fluidez, objetivo definido y curva de dificultad adecuada. Se entiende rápido y motiva a jugar otra vez."
+          },
+          {
+            "id": "c2",
+            "code": "2.1.2",
+            "nombre": "Historia y ambientación de terror",
+            "peso": 20,
+            "desc": "Hilo conductor, personajes o contexto narrativo, atmósfera envolvente y coherencia audiovisual de terror (imagen, iluminación y sonido)."
+          },
+          {
+            "id": "c3",
+            "code": "2.1.3",
+            "nombre": "Profundidad y mecánicas",
+            "peso": 20,
+            "desc": "Variedad de mecánicas jugables, progresión de desafíos, decisiones del jugador y rejugabilidad que invite a repetir la experiencia."
+          },
+          {
+            "id": "c4",
+            "code": "2.1.4",
+            "nombre": "Creatividad e integración de IA",
+            "peso": 15,
+            "desc": "Idea propia u original, uso inteligente de herramientas de IA generativa para assets, diálogos, lógica o narrativa."
+          },
+          {
+            "id": "c5",
+            "code": "2.1.5",
+            "nombre": "Calidad técnica y presentación",
+            "peso": 20,
+            "desc": "Estabilidad de ejecución sin caídas, interfaz legible, acabado cuidado, con pantalla de inicio y cierre claros."
+          }
+        ]
+      },
+      "Shooter": {
+        "docente1": {},
+        "docente2": {},
+        "docente1Nota": null,
+        "docente2Nota": null,
+        "notaPromedio": null,
+        "discrepancyAlert": false,
+        "criterios": [
+          {
+            "id": "c1",
+            "code": "2.2.1",
+            "nombre": "Respuestas correctas e información útil",
+            "peso": 30,
+            "desc": "Responde correctamente preguntas sobre la sede, ramos, trámites y vida estudiantil con datos reales y precisos."
+          },
+          {
+            "id": "c2",
+            "code": "2.2.2",
+            "nombre": "Honestidad y manejo de preguntas trampa",
+            "peso": 25,
+            "desc": "Reconoce con transparencia lo que no sabe y no inventa datos erróneos. Ante la pregunta trampa sugiere canales oficiales."
+          },
+          {
+            "id": "c3",
+            "code": "2.2.3",
+            "nombre": "Claridad, concisión y tono",
+            "peso": 20,
+            "desc": "Respuestas breves, ordenadas, empáticas y con excelente redacción. Se entiende a la primera lectura."
+          },
+          {
+            "id": "c4",
+            "code": "2.2.4",
+            "nombre": "Experiencia de uso y velocidad",
+            "peso": 25,
+            "desc": "Interfaz accesible y rápida, carga sin trabas, buena disposición visual y personalidad adecuada para soporte estudiantil."
+          }
+        ]
+      },
+      "Action": {
+        "docente1": {},
+        "docente2": {},
+        "docente1Nota": null,
+        "docente2Nota": null,
+        "notaPromedio": null,
+        "discrepancyAlert": false,
+        "criterios": [
+          {
+            "id": "c1",
+            "code": "2.3.1",
+            "nombre": "Calidad fotográfica original",
+            "peso": 15,
+            "desc": "Nitidez, iluminación, variedad de ángulos y encuadres de fotografías 100% originales capturadas en la sede."
+          },
+          {
+            "id": "c2",
+            "code": "2.3.2",
+            "nombre": "Composición y creatividad visual",
+            "peso": 25,
+            "desc": "Integración armónica de fotografías, equilibrio, contraste, manejo tipográfico, texturas y recursos gráficos."
+          },
+          {
+            "id": "c3",
+            "code": "2.3.3",
+            "nombre": "Concepto e identidad de sede",
+            "peso": 20,
+            "desc": "Claridad del concepto visual, transmisión de la vida estudiantil y propuesta estética con identidad propia."
+          },
+          {
+            "id": "c4",
+            "code": "2.3.4",
+            "nombre": "Técnica digital y software de diseño",
+            "peso": 20,
+            "desc": "Dominio de herramientas de edición y montaje digital, recortes limpios, tratamiento de color y resolución óptima."
+          },
+          {
+            "id": "c5",
+            "code": "2.3.5",
+            "nombre": "Organización y archivos editables",
+            "peso": 20,
+            "desc": "Estructura organizada de capas y grupos, nombres claros y entrega de archivos fuente editables (PSD/AI) y exportación final."
+          }
+        ]
+      }
+    },
+    "favoriteAlliance": null,
+    "pointsAwarded": {
+      "Terror": 0,
+      "Shooter": 0,
+      "Action": 0
+    }
+  },
+  "tarreoCopa": {
+    "cazatesoros": {
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "status": "Pendiente",
+      "tesoros": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "allZeroTie": false
+    },
+    "justdance": {
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "status": "Pendiente",
+      "places": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      }
+    },
+    "mimica": {
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "status": "Pendiente",
+      "places": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      }
+    }
+  },
+  "tarreoIndividual": {
+    "fortniteSignups": [],
+    "fortniteWaitlist": [],
+    "valorantSignups": [],
+    "brawlSignups": [],
+    "minecraftSignups": [],
+    "leaderboard": []
+  },
+  "sorpresas": [],
+  "sanciones": [],
+  "reclamos": [],
+  "announcements": [
+    {
+      "id": 1794273404207,
+      "text": "Semana de las Carreras 2026 • Informática, Telecomunicaciones y Diseño Digital • Inicio oficial 19 de Noviembre",
+      "timestamp": "2026-11-10T01:16:44.207Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "timestamp": "2026-11-10T01:30:34.886Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T01:24:39.261Z",
+      "action": "Registro de resultados: Torneo retro (Mortal Kombat)",
+      "user": "Superadministrador (Jefatura/Soporte) [admin]",
+      "details": {
+        "results": {
+          "Terror": "2",
+          "Shooter": "1",
+          "Action": "3"
+        },
+        "pointsAwarded": {
+          "Terror": 1800,
+          "Shooter": 3000,
+          "Action": 900
+        }
+      }
+    }
+  ],
+  "activityParticipants": {
+    "retro": {
+      "activityId": "retro",
+      "name": "Torneo retro (Mortal Kombat)",
+      "quotaPerAlliance": 5,
+      "isClosed": true,
+      "closedAt": "2026-11-10T01:24:26.189Z",
+      "closedBy": "Superadministrador (Jefatura/Soporte)",
+      "lists": {
+        "Terror": [
+          {
+            "studentId": "ter-1",
+            "name": "Juan Pablo Romualdo Aguilera Ahumada",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Terror",
+            "score": null,
+            "addedAt": "2026-11-10T01:23:44.530Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "ter-2",
+            "name": "Scarlett Lisett Aguilera Godoy",
+            "carrera": "Analista Programador",
+            "alliance": "Terror",
+            "score": null,
+            "addedAt": "2026-11-10T01:23:50.950Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "ter-3",
+            "name": "Diego Nicolás Alderete Arroyo",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Terror",
+            "score": null,
+            "addedAt": "2026-11-10T01:23:51.942Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "ter-4",
+            "name": "Brayan Antonio Andrade Pinto",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Terror",
+            "score": null,
+            "addedAt": "2026-11-10T01:23:52.802Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "ter-5",
+            "name": "Benjamín Alexander Astudillo Vega",
+            "carrera": "Analista Programador",
+            "alliance": "Terror",
+            "score": null,
+            "addedAt": "2026-11-10T01:23:54.189Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          }
+        ],
+        "Shooter": [
+          {
+            "studentId": "sho-1",
+            "name": "Miguel Angel Aguas Barahona",
+            "carrera": "Analista Programador",
+            "alliance": "Shooter",
+            "score": null,
+            "addedAt": "2026-11-10T01:23:59.915Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "sho-2",
+            "name": "Gabriel Ignacio Alfaro Taborga",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Shooter",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:00.703Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "sho-3",
+            "name": "Natalie Sabina Alveal Muñoz",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Shooter",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:01.299Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "sho-4",
+            "name": "David Ignacio Andrade Rodríguez",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Shooter",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:01.969Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "sho-5",
+            "name": "Juan Miguel Apalmo Peña",
+            "carrera": "Ingeniería en Informática",
+            "alliance": "Shooter",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:03.113Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          }
+        ],
+        "Action": [
+          {
+            "studentId": "act-1",
+            "name": "Angel Elías Alcaíno Valenzuela",
+            "carrera": "Diseño e Industria Digital",
+            "alliance": "Action",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:08.145Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "act-2",
+            "name": "Sofía Andrea Berríos Soto",
+            "carrera": "Diseño e Industria Digital",
+            "alliance": "Action",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:08.700Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "act-3",
+            "name": "Eileen Maite Monserrat Bracamonte Gallardo",
+            "carrera": "Diseño e Industria Digital",
+            "alliance": "Action",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:09.196Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "act-4",
+            "name": "Aarón Apolo Bravo Schirmer",
+            "carrera": "Diseño e Industria Digital",
+            "alliance": "Action",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:09.698Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          },
+          {
+            "studentId": "act-5",
+            "name": "Gonzalo Alexander Bórquez Valencia",
+            "carrera": "Diseño e Industria Digital",
+            "alliance": "Action",
+            "score": null,
+            "addedAt": "2026-11-10T01:24:10.202Z",
+            "addedBy": "Superadministrador (Jefatura/Soporte)",
+            "correctionReason": null
+          }
+        ]
+      },
+      "audit": [
+        {
+          "timestamp": "2026-11-10T01:24:26.189Z",
+          "action": "Cierre Oficial de Lista de Participantes",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Actividad finalizada"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:10.202Z",
+          "action": "Participante agregado: Gonzalo Alexander Bórquez Valencia (Action)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:09.698Z",
+          "action": "Participante agregado: Aarón Apolo Bravo Schirmer (Action)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:09.196Z",
+          "action": "Participante agregado: Eileen Maite Monserrat Bracamonte Gallardo (Action)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:08.700Z",
+          "action": "Participante agregado: Sofía Andrea Berríos Soto (Action)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:08.145Z",
+          "action": "Participante agregado: Angel Elías Alcaíno Valenzuela (Action)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:03.113Z",
+          "action": "Participante agregado: Juan Miguel Apalmo Peña (Shooter)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:01.969Z",
+          "action": "Participante agregado: David Ignacio Andrade Rodríguez (Shooter)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:01.299Z",
+          "action": "Participante agregado: Natalie Sabina Alveal Muñoz (Shooter)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:24:00.703Z",
+          "action": "Participante agregado: Gabriel Ignacio Alfaro Taborga (Shooter)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:59.915Z",
+          "action": "Participante agregado: Miguel Angel Aguas Barahona (Shooter)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:56.667Z",
+          "action": "Participante eliminado: Nicolás Alfredo Atienzo Leyton (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Eliminación estándar"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:54.769Z",
+          "action": "Participante agregado: Nicolás Alfredo Atienzo Leyton (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:54.189Z",
+          "action": "Participante agregado: Benjamín Alexander Astudillo Vega (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:52.802Z",
+          "action": "Participante agregado: Brayan Antonio Andrade Pinto (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:51.942Z",
+          "action": "Participante agregado: Diego Nicolás Alderete Arroyo (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:50.950Z",
+          "action": "Participante agregado: Scarlett Lisett Aguilera Godoy (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        },
+        {
+          "timestamp": "2026-11-10T01:23:44.530Z",
+          "action": "Participante agregado: Juan Pablo Romualdo Aguilera Ahumada (Terror)",
+          "user": "Superadministrador (Jefatura/Soporte) [admin]",
+          "reason": "Registro inicial"
+        }
+      ]
+    },
+    "gymkanas": {
+      "activityId": "gymkanas",
+      "name": "Gymkanas",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "babyfutbol": {
+      "activityId": "babyfutbol",
+      "name": "Baby fútbol",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "quemadas": {
+      "activityId": "quemadas",
+      "name": "Quemadas",
+      "quotaPerAlliance": 8,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "trivia": {
+      "activityId": "trivia",
+      "name": "Trivia de carrera",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "canto": {
+      "activityId": "canto",
+      "name": "Si te la sabes, canta",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "barra": {
+      "activityId": "barra",
+      "name": "Barra y ruido",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "sorpresas": {
+      "activityId": "sorpresas",
+      "name": "Actividades sorpresa",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "tacataca": {
+      "activityId": "tacataca",
+      "name": "Taca-taca",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "pingpong": {
+      "activityId": "pingpong",
+      "name": "Ping pong",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    }
+  },
+  "activityScheduleLogs": {
+    "retro": {
+      "name": "Torneo retro (Mortal Kombat)",
+      "planned": "10:00 - 11:00 (60 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "gymkanas": {
+      "name": "Gymkanas en cancha",
+      "planned": "09:30 - 11:30 (120 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "babyfutbol": {
+      "name": "Baby fútbol",
+      "planned": "11:15 - 12:00 (45 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "quemadas": {
+      "name": "Quemadas",
+      "planned": "11:55 - 12:40 (45 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "trivia": {
+      "name": "Trivia de carrera",
+      "planned": "10:15 - 10:30 (15 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "canto": {
+      "name": "Si te la sabes, canta",
+      "planned": "12:40 - 12:55 (15 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "barra": {
+      "name": "Barra y decibelímetro",
+      "planned": "3 mediciones (180 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "tacataca": {
+      "name": "Taca-taca",
+      "planned": "10:30 - 11:30 (60 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "pingpong": {
+      "name": "Ping pong",
+      "planned": "10:30 - 11:30 (60 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    }
+  },
+  "tarreoResults": {
+    "attendance": {
+      "day19": 0,
+      "day20_tarreo_registered": 0,
+      "day20_tarreo_attended": 0,
+      "day20_tarreo_noShows": 0,
+      "day21_closing": 0
+    },
+    "individualTournaments": [
+      {
+        "game": "Valorant (5v5 Spike Rush)",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      },
+      {
+        "game": "Fortnite (Battle Royale Solo)",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      },
+      {
+        "game": "Super Smash Bros Brawl (Wii)",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      },
+      {
+        "game": "Minecraft Speedrun Challenge",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      }
+    ],
+    "mvp": {
+      "studentName": "Por definir",
+      "alliance": "-",
+      "carrera": "-",
+      "achievement": "Pendiente de votación al cierre de la noche gamer"
+    },
+    "security": {
+      "expulsions": 0,
+      "emergencyExits": 0,
+      "minorInfractions": 0,
+      "notes": "Sin incidencias registradas."
+    }
+  },
+  "logisticsResources": [
+    {
+      "id": 1,
+      "item": "Mesas de Ping Pong y Taca-Taca (2 unidades)",
+      "provider": "DAE",
+      "status": "Solicitado / En preparación",
+      "responsible": "Encargado de Deportes DAE"
+    },
+    {
+      "id": 2,
+      "item": "Balones blandos certificados (Baby fútbol y Quemadas)",
+      "provider": "DAE",
+      "status": "Solicitado / En preparación",
+      "responsible": "Pañol DAE"
+    },
+    {
+      "id": 3,
+      "item": "Controles Arcade USB y Proyector Cancha",
+      "provider": "Jefatura de Carrera",
+      "status": "Solicitado / En preparación",
+      "responsible": "Coordinación Informática"
+    },
+    {
+      "id": 4,
+      "item": "Switches Gigabit y cableado estructurado Tarreo",
+      "provider": "Jefatura de Carrera",
+      "status": "Solicitado / En preparación",
+      "responsible": "Soporte Técnico Informática"
+    },
+    {
+      "id": 5,
+      "item": "Consola Wii, mandos y sensores Just Dance",
+      "provider": "Delegación Estudiantil",
+      "status": "Solicitado / En preparación",
+      "responsible": "Delegados de Alianza"
+    },
+    {
+      "id": 6,
+      "item": "Sistema de amplificación y micrófonos inalámbricos",
+      "provider": "Sede Antofagasta",
+      "status": "Solicitado / En preparación",
+      "responsible": "Audiovisual Sede"
+    }
+  ],
+  "technicalIncidents": []
+}

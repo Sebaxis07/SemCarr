@@ -1,0 +1,1447 @@
+{
+  "alliances": {
+    "Terror": {
+      "name": "Terror",
+      "color": "#DC2626",
+      "carrera": "Informática, Telecomunicaciones y Analista",
+      "totalStudents": 126,
+      "desafio": "Videojuego de terror con IA"
+    },
+    "Shooter": {
+      "name": "Shooter",
+      "color": "#2563EB",
+      "carrera": "Informática, Telecomunicaciones y Analista",
+      "totalStudents": 126,
+      "desafio": "Asistente con IA"
+    },
+    "Action": {
+      "name": "Action",
+      "color": "#16A34A",
+      "carrera": "Diseño Digital Web e Industria Digital",
+      "totalStudents": 29,
+      "desafio": "Collage digital fotográfico"
+    }
+  },
+  "activities": [
+    {
+      "id": "retro",
+      "name": "Torneo retro (Mortal Kombat)",
+      "group": "Juegos",
+      "maxPoints": 3000,
+      "pointsDistribution": [
+        3000,
+        1800,
+        900
+      ],
+      "location": "Pared de la cancha (Controles Arcade USB)",
+      "time": "10:00 - 11:00 (60 min - Primera actividad del día)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "Torneo en controles arcade USB con Mortal Kombat. 4 jugadores titulares + 1 suplente por alianza (12 titulares en total). Se juegan 3 enfrentamientos entre alianzas: Terror vs Shooter, Terror vs Action y Shooter vs Action (orden sorteado). Cada enfrentamiento consta de 4 duelos 1v1 al mejor de 3 rondas (gana quien gane 2 rondas). Cada jugador combate 2 veces (una contra cada alianza rival, nunca contra su propia alianza). Cada duelo ganado suma 1 victoria para la alianza (máx 8 victorias). Gana la alianza con más victorias acumuladas. En caso de empate en victorias, desempata la mayor cantidad de rondas ganadas; si persiste el empate, se disputa un duelo extra de desempate con jugadores elegidos por sorteo. Puntaje: 1º 3.000 pts, 2º 1.800 pts, 3º 900 pts.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "tacataca",
+      "name": "Taca-taca",
+      "group": "Juegos",
+      "maxPoints": 1000,
+      "pointsDistribution": [
+        1000,
+        600,
+        300
+      ],
+      "location": "Pared de la cancha (Mesas Taca-taca)",
+      "time": "10:30 - 11:30 (40 a 60 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "4 mesas DAE en juego abierto a 5 goles por partido. Duplas de una misma alianza contra duplas de otra alianza. Quien pierde cede la mesa. Máximo 2 partidos por persona.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "pingpong",
+      "name": "Ping pong",
+      "group": "Juegos",
+      "maxPoints": 1000,
+      "pointsDistribution": [
+        1000,
+        600,
+        300
+      ],
+      "location": "Pared de la cancha (Mesas Ping pong)",
+      "time": "10:30 - 11:30 (40 a 60 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "2 mesas DAE en juego abierto a 7 puntos por partido. Duplas de una misma alianza contra duplas de otra alianza. Quien pierde cede la mesa. Máximo 2 partidos por persona.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "gymkanas",
+      "name": "Gymkanas",
+      "group": "Gymkanas",
+      "maxPoints": 3000,
+      "pointsDistribution": null,
+      "location": "Pared de la cancha",
+      "time": "09:30 - 11:30 (60 a 90 min, abiertas)",
+      "status": "Pendiente",
+      "type": "gymkana",
+      "description": "4 puestos abiertos de destreza. Cada participante gana 1 punto por intentar el puesto y 1 por resolverlo (máx 8 por persona). Puntos de la alianza = 3.000 * (promedio / 8).",
+      "participantCards": {
+        "Terror": [
+          7
+        ],
+        "Shooter": [
+          5,
+          6,
+          4
+        ],
+        "Action": [
+          7,
+          8,
+          8
+        ]
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": "",
+      "averages": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      }
+    },
+    {
+      "id": "babyfutbol",
+      "name": "Baby fútbol",
+      "group": "Deportes",
+      "maxPoints": 4000,
+      "pointsDistribution": [
+        4000,
+        2400,
+        1200
+      ],
+      "location": "Centro de la cancha",
+      "time": "11:15 - 11:50 (35 min)",
+      "status": "Pendiente",
+      "type": "match_table",
+      "description": "Partidos 5 contra 5 con arquero. 3 partidos de 8 min (Terror vs Shooter, Shooter vs Action, Action vs Terror). Victoria 3 pts, Empate 1, Derrota 0.",
+      "matches": [
+        {
+          "team1": "Terror",
+          "team2": "Shooter",
+          "score1": 3,
+          "score2": 1
+        },
+        {
+          "team1": "Shooter",
+          "team2": "Action",
+          "score1": 2,
+          "score2": 2
+        },
+        {
+          "team1": "Action",
+          "team2": "Terror",
+          "score1": 0,
+          "score2": 1
+        }
+      ],
+      "table": {
+        "Terror": {
+          "pts": 6,
+          "pj": 2,
+          "pg": 2,
+          "pe": 0,
+          "pp": 0,
+          "gf": 4,
+          "gc": 1,
+          "dg": 3
+        },
+        "Shooter": {
+          "pts": 1,
+          "pj": 2,
+          "pg": 0,
+          "pe": 1,
+          "pp": 1,
+          "gf": 3,
+          "gc": 5,
+          "dg": -2
+        },
+        "Action": {
+          "pts": 1,
+          "pj": 2,
+          "pg": 0,
+          "pe": 1,
+          "pp": 1,
+          "gf": 2,
+          "gc": 3,
+          "dg": -1
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "quemadas",
+      "name": "Quemadas",
+      "group": "Deportes",
+      "maxPoints": 4000,
+      "pointsDistribution": [
+        4000,
+        2400,
+        1200
+      ],
+      "location": "Centro de la cancha",
+      "time": "11:55 - 12:40 (45 min)",
+      "status": "Pendiente",
+      "type": "match_table",
+      "description": "8 contra 8 con balones blandos. En cada ronda juegan integrantes distintos para que roten. 3 partidos todos contra todos (Terror vs Shooter, Shooter vs Action, Action vs Terror). Cada partido tiene 3 rondas y lo gana la alianza con más rondas. Una ronda parte sin límite de tiempo y termina cuando eliminan a todos los jugadores de una alianza. Si la ronda se alarga demasiado, quien anima o la organización puede fijar un tiempo límite en el momento y avisarlo en voz alta; al terminar ese tiempo, gana quien tenga más jugadores en pie (o empata si hay igual cantidad). Balones blandos, sin pegar a la cabeza. Si se atrapa la pelota, queda eliminado quien la lanzó. Un árbitro por partido. Tabla: Victoria 3, Empate 1, Derrota 0. Desempate: más rondas ganadas, luego más jugadores en pie.",
+      "matches": [
+        {
+          "team1": "Terror",
+          "team2": "Shooter",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "team1": "Shooter",
+          "team2": "Action",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "team1": "Action",
+          "team2": "Terror",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "table": {
+        "Terror": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        },
+        "Shooter": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        },
+        "Action": {
+          "pts": 0,
+          "pj": 0,
+          "pg": 0,
+          "pe": 0,
+          "pp": 0,
+          "gf": 0,
+          "gc": 0,
+          "dg": 0,
+          "rank": null
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "trivia",
+      "name": "Trivia de carrera",
+      "group": "Mente y ambiente",
+      "maxPoints": 2000,
+      "pointsDistribution": [
+        2000,
+        1200,
+        600
+      ],
+      "location": "Esquina tranquila de la cancha",
+      "time": "10:15 - 10:30 (15 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "Preguntas técnicas y de historia institucional. Por aciertos o lugares obtenidos.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "canto",
+      "name": "Si te la sabes, canta",
+      "group": "Mente y ambiente",
+      "maxPoints": 1500,
+      "pointsDistribution": [
+        1500,
+        900,
+        450
+      ],
+      "location": "Centro de la cancha",
+      "time": "12:40 - 12:55 (12 min)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "Canciones conocidas por alianzas. Desafío de canto con jurado/aplausómetro.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    },
+    {
+      "id": "barra",
+      "name": "Barra y ruido",
+      "group": "Mente y ambiente",
+      "maxPoints": 1500,
+      "pointsDistribution": [
+        1500,
+        900,
+        450
+      ],
+      "location": "Centro de la cancha",
+      "time": "3 mediciones durante el día (5 min c/u)",
+      "status": "Pendiente",
+      "type": "places",
+      "description": "3 mediciones con decibelímetro a la misma distancia durante el día (10 segundos por alianza). Se promedian las 3.",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      },
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "notes": ""
+    }
+  ],
+  "creativeChallenges": {
+    "status": {
+      "Terror": "Pendiente",
+      "Shooter": "Pendiente",
+      "Action": "Pendiente"
+    },
+    "rubrics": {
+      "Terror": {
+        "criterios": [
+          {
+            "id": "c1",
+            "code": "2.1.1",
+            "nombre": "Jugabilidad y diversión",
+            "peso": 25,
+            "desc": "Reglas claras, controles que responden con fluidez, objetivo definido y curva de dificultad adecuada. Se entiende rápido y motiva a jugar otra vez."
+          },
+          {
+            "id": "c2",
+            "code": "2.1.2",
+            "nombre": "Historia y ambientación de terror",
+            "peso": 20,
+            "desc": "Hilo conductor, personajes o contexto narrativo, atmósfera envolvente y coherencia audiovisual de terror (imagen, iluminación y sonido)."
+          },
+          {
+            "id": "c3",
+            "code": "2.1.3",
+            "nombre": "Profundidad y mecánicas",
+            "peso": 20,
+            "desc": "Variedad de mecánicas jugables, progresión de desafíos, decisiones del jugador y rejugabilidad que invite a repetir la experiencia."
+          },
+          {
+            "id": "c4",
+            "code": "2.1.4",
+            "nombre": "Creatividad e integración de IA",
+            "peso": 15,
+            "desc": "Idea propia u original, uso inteligente de herramientas de IA generativa para assets, diálogos, lógica o narrativa."
+          },
+          {
+            "id": "c5",
+            "code": "2.1.5",
+            "nombre": "Calidad técnica y presentación",
+            "peso": 20,
+            "desc": "Estabilidad de ejecución sin caídas, interfaz legible, acabado cuidado, con pantalla de inicio y cierre claros."
+          }
+        ],
+        "docente1": {},
+        "docente2": {}
+      },
+      "Shooter": {
+        "criterios": [
+          {
+            "id": "c1",
+            "code": "2.2.1",
+            "nombre": "Respuestas correctas e información útil",
+            "peso": 30,
+            "desc": "Responde correctamente preguntas sobre la sede, ramos, trámites y vida estudiantil con datos reales y precisos."
+          },
+          {
+            "id": "c2",
+            "code": "2.2.2",
+            "nombre": "Honestidad y manejo de preguntas trampa",
+            "peso": 25,
+            "desc": "Reconoce con transparencia lo que no sabe y no inventa datos erróneos. Ante la pregunta trampa sugiere canales oficiales."
+          },
+          {
+            "id": "c3",
+            "code": "2.2.3",
+            "nombre": "Claridad, concisión y tono",
+            "peso": 20,
+            "desc": "Respuestas breves, ordenadas, empáticas y con excelente redacción. Se entiende a la primera lectura."
+          },
+          {
+            "id": "c4",
+            "code": "2.2.4",
+            "nombre": "Experiencia de uso y velocidad",
+            "peso": 25,
+            "desc": "Interfaz accesible y rápida, carga sin trabas, buena disposición visual y personalidad adecuada para soporte estudiantil."
+          }
+        ],
+        "docente1": {},
+        "docente2": {}
+      },
+      "Action": {
+        "criterios": [
+          {
+            "id": "c1",
+            "code": "2.3.1",
+            "nombre": "Calidad fotográfica original",
+            "peso": 15,
+            "desc": "Nitidez, iluminación, variedad de ángulos y encuadres de fotografías 100% originales capturadas en la sede."
+          },
+          {
+            "id": "c2",
+            "code": "2.3.2",
+            "nombre": "Composición y creatividad visual",
+            "peso": 25,
+            "desc": "Integración armónica de fotografías, equilibrio, contraste, manejo tipográfico, texturas y recursos gráficos."
+          },
+          {
+            "id": "c3",
+            "code": "2.3.3",
+            "nombre": "Concepto e identidad de sede",
+            "peso": 20,
+            "desc": "Claridad del concepto visual, transmisión de la vida estudiantil y propuesta estética con identidad propia."
+          },
+          {
+            "id": "c4",
+            "code": "2.3.4",
+            "nombre": "Técnica digital y software de diseño",
+            "peso": 20,
+            "desc": "Dominio de herramientas de edición y montaje digital, recortes limpios, tratamiento de color y resolución óptima."
+          },
+          {
+            "id": "c5",
+            "code": "2.3.5",
+            "nombre": "Organización y archivos editables",
+            "peso": 20,
+            "desc": "Estructura organizada de capas y grupos, nombres claros y entrega de archivos fuente editables (PSD/AI) y exportación final."
+          }
+        ],
+        "docente1": {},
+        "docente2": {}
+      }
+    },
+    "favoriteAlliance": null,
+    "pointsAwarded": {
+      "Terror": 0,
+      "Shooter": 0,
+      "Action": 0
+    }
+  },
+  "tarreoCopa": {
+    "cazatesoros": {
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "status": "Pendiente",
+      "tesoros": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "allZeroTie": false
+    },
+    "justdance": {
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "status": "Pendiente",
+      "places": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      }
+    },
+    "mimica": {
+      "pointsAwarded": {
+        "Terror": 0,
+        "Shooter": 0,
+        "Action": 0
+      },
+      "status": "Pendiente",
+      "places": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
+      }
+    }
+  },
+  "tarreoIndividual": {
+    "fortniteSignups": [],
+    "fortniteWaitlist": [],
+    "valorantSignups": [],
+    "brawlSignups": [],
+    "minecraftSignups": [],
+    "leaderboard": []
+  },
+  "sorpresas": [
+    {
+      "id": "sorp_caracterizada",
+      "name": "Alianza más caracterizada",
+      "decisionType": "jurado",
+      "details": {
+        "judges": {
+          "judge1": {
+            "Terror": 1,
+            "Shooter": 2,
+            "Action": 3
+          },
+          "judge2": {
+            "Terror": 1,
+            "Shooter": 2,
+            "Action": 3
+          },
+          "judge3": {
+            "Terror": 2,
+            "Shooter": 1,
+            "Action": 3
+          }
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 500,
+        "Shooter": 300,
+        "Action": 150
+      },
+      "timestamp": "2026-11-10T06:46:07.394Z",
+      "loggedBy": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "id": "sorp_caza",
+      "name": "Caza de objetos",
+      "decisionType": "medicion",
+      "details": {
+        "metrics": {
+          "Terror": 4,
+          "Shooter": 4,
+          "Action": 1
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 400,
+        "Shooter": 400,
+        "Action": 150
+      },
+      "timestamp": "2026-11-10T06:46:07.401Z",
+      "loggedBy": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "id": "sorp_silencio",
+      "name": "Minuto de silencio",
+      "decisionType": "medicion",
+      "details": {
+        "metrics": {
+          "Terror": 1,
+          "Shooter": 2,
+          "Action": 3
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 500,
+        "Shooter": 300,
+        "Action": 150
+      },
+      "timestamp": "2026-11-10T06:46:07.404Z",
+      "loggedBy": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "id": "sorp_silencio",
+      "name": "Minuto de silencio",
+      "decisionType": "medicion",
+      "details": {
+        "metrics": {
+          "Terror": 1,
+          "Shooter": 2,
+          "Action": 3
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 500,
+        "Shooter": 300,
+        "Action": 150
+      },
+      "timestamp": "2026-11-10T06:46:07.408Z",
+      "loggedBy": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "id": "sorp_silencio",
+      "name": "Minuto de silencio",
+      "decisionType": "medicion",
+      "details": {
+        "metrics": {
+          "Terror": 1,
+          "Shooter": 2,
+          "Action": 3
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 500,
+        "Shooter": 300,
+        "Action": 150
+      },
+      "timestamp": "2026-11-10T06:46:07.411Z",
+      "loggedBy": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "id": "sorp_silencio",
+      "name": "Minuto de silencio",
+      "decisionType": "medicion",
+      "details": {
+        "metrics": {
+          "Terror": 1,
+          "Shooter": 2,
+          "Action": 3
+        }
+      },
+      "pointsAwarded": {
+        "Terror": 500,
+        "Shooter": 300,
+        "Action": 150
+      },
+      "timestamp": "2026-11-10T06:46:07.414Z",
+      "loggedBy": "Staff de Cancha y Puntos [staff]"
+    }
+  ],
+  "sanciones": [],
+  "reclamos": [],
+  "announcements": [
+    {
+      "id": 1794294484103,
+      "text": "Quenadas",
+      "target": "all",
+      "timestamp": "2026-11-10T07:08:04.103Z",
+      "active": true
+    },
+    {
+      "id": 1,
+      "text": "Semana de las Carreras 2026 • Informática, Telecomunicaciones y Diseño Digital • Inicio oficial 19 de Noviembre",
+      "timestamp": "2026-11-10T04:32:21.030Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "timestamp": "2026-11-10T13:47:56.847Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T13:39:30.186Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T07:22:13.414Z",
+      "action": "Inicio de sesión exitoso: \"docente1\"",
+      "user": "docente1",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T07:21:42.145Z",
+      "action": "Inicio de sesión exitoso: \"docente1\"",
+      "user": "docente1",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T07:19:43.743Z",
+      "action": "Inicio de sesión exitoso: \"docente1\"",
+      "user": "docente1",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T07:14:53.349Z",
+      "action": "Inicio de sesión exitoso: \"docente1\"",
+      "user": "docente1",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T07:09:25.584Z",
+      "action": "Inicio de sesión exitoso: \"docente1\"",
+      "user": "docente1",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T07:08:04.104Z",
+      "action": "Nuevo aviso: \"Quenadas\"",
+      "user": "Superadministrador (Jefatura/Soporte) [admin]"
+    },
+    {
+      "timestamp": "2026-11-10T07:07:18.526Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.414Z",
+      "action": "Resultado Oficial Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]",
+      "details": {
+        "id": "sorp_silencio",
+        "name": "Minuto de silencio",
+        "decisionType": "medicion",
+        "details": {
+          "metrics": {
+            "Terror": 1,
+            "Shooter": 2,
+            "Action": 3
+          }
+        },
+        "pointsAwarded": {
+          "Terror": 500,
+          "Shooter": 300,
+          "Action": 150
+        },
+        "timestamp": "2026-11-10T06:46:07.414Z",
+        "loggedBy": "Staff de Cancha y Puntos [staff]"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.412Z",
+      "action": "Lanzamiento de Prueba Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.411Z",
+      "action": "Resultado Oficial Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]",
+      "details": {
+        "id": "sorp_silencio",
+        "name": "Minuto de silencio",
+        "decisionType": "medicion",
+        "details": {
+          "metrics": {
+            "Terror": 1,
+            "Shooter": 2,
+            "Action": 3
+          }
+        },
+        "pointsAwarded": {
+          "Terror": 500,
+          "Shooter": 300,
+          "Action": 150
+        },
+        "timestamp": "2026-11-10T06:46:07.411Z",
+        "loggedBy": "Staff de Cancha y Puntos [staff]"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.409Z",
+      "action": "Lanzamiento de Prueba Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.408Z",
+      "action": "Resultado Oficial Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]",
+      "details": {
+        "id": "sorp_silencio",
+        "name": "Minuto de silencio",
+        "decisionType": "medicion",
+        "details": {
+          "metrics": {
+            "Terror": 1,
+            "Shooter": 2,
+            "Action": 3
+          }
+        },
+        "pointsAwarded": {
+          "Terror": 500,
+          "Shooter": 300,
+          "Action": 150
+        },
+        "timestamp": "2026-11-10T06:46:07.408Z",
+        "loggedBy": "Staff de Cancha y Puntos [staff]"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.406Z",
+      "action": "Lanzamiento de Prueba Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.404Z",
+      "action": "Resultado Oficial Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]",
+      "details": {
+        "id": "sorp_silencio",
+        "name": "Minuto de silencio",
+        "decisionType": "medicion",
+        "details": {
+          "metrics": {
+            "Terror": 1,
+            "Shooter": 2,
+            "Action": 3
+          }
+        },
+        "pointsAwarded": {
+          "Terror": 500,
+          "Shooter": 300,
+          "Action": 150
+        },
+        "timestamp": "2026-11-10T06:46:07.404Z",
+        "loggedBy": "Staff de Cancha y Puntos [staff]"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.403Z",
+      "action": "Lanzamiento de Prueba Sorpresa: \"Minuto de silencio\"",
+      "user": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.401Z",
+      "action": "Resultado Oficial Sorpresa: \"Caza de objetos\"",
+      "user": "Staff de Cancha y Puntos [staff]",
+      "details": {
+        "id": "sorp_caza",
+        "name": "Caza de objetos",
+        "decisionType": "medicion",
+        "details": {
+          "metrics": {
+            "Terror": 4,
+            "Shooter": 4,
+            "Action": 1
+          }
+        },
+        "pointsAwarded": {
+          "Terror": 400,
+          "Shooter": 400,
+          "Action": 150
+        },
+        "timestamp": "2026-11-10T06:46:07.401Z",
+        "loggedBy": "Staff de Cancha y Puntos [staff]"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.399Z",
+      "action": "Lanzamiento de Prueba Sorpresa: \"Caza de objetos\"",
+      "user": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.394Z",
+      "action": "Resultado Oficial Sorpresa: \"Alianza más caracterizada\"",
+      "user": "Staff de Cancha y Puntos [staff]",
+      "details": {
+        "id": "sorp_caracterizada",
+        "name": "Alianza más caracterizada",
+        "decisionType": "jurado",
+        "details": {
+          "judges": {
+            "judge1": {
+              "Terror": 1,
+              "Shooter": 2,
+              "Action": 3
+            },
+            "judge2": {
+              "Terror": 1,
+              "Shooter": 2,
+              "Action": 3
+            },
+            "judge3": {
+              "Terror": 2,
+              "Shooter": 1,
+              "Action": 3
+            }
+          }
+        },
+        "pointsAwarded": {
+          "Terror": 500,
+          "Shooter": 300,
+          "Action": 150
+        },
+        "timestamp": "2026-11-10T06:46:07.394Z",
+        "loggedBy": "Staff de Cancha y Puntos [staff]"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.390Z",
+      "action": "Lanzamiento de Prueba Sorpresa: \"Alianza más caracterizada\"",
+      "user": "Staff de Cancha y Puntos [staff]"
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.383Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:46:07.334Z",
+      "action": "Inicio de sesión exitoso: \"staff\"",
+      "user": "staff",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:41:21.045Z",
+      "action": "Cambio de Alianza: Elizet Callejas Lopez (Shooter -> Terror)",
+      "user": "Superadministrador (Jefatura/Soporte) [admin]",
+      "details": {
+        "studentId": "sho-22",
+        "studentName": "Elizet Callejas Lopez",
+        "oldAlliance": "Shooter",
+        "newAlliance": "Terror",
+        "reason": "xd",
+        "type": "move"
+      }
+    },
+    {
+      "timestamp": "2026-11-10T06:40:59.098Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    }
+  ],
+  "activityParticipants": {
+    "retro": {
+      "activityId": "retro",
+      "name": "Torneo retro (Mortal Kombat)",
+      "quotaPerAlliance": 5,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "gymkanas": {
+      "activityId": "gymkanas",
+      "name": "Gymkanas",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "babyfutbol": {
+      "activityId": "babyfutbol",
+      "name": "Baby fútbol",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "quemadas": {
+      "activityId": "quemadas",
+      "name": "Quemadas",
+      "quotaPerAlliance": 8,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "trivia": {
+      "activityId": "trivia",
+      "name": "Trivia de carrera",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "canto": {
+      "activityId": "canto",
+      "name": "Si te la sabes, canta",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "barra": {
+      "activityId": "barra",
+      "name": "Barra y ruido",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "sorpresas": {
+      "activityId": "sorpresas",
+      "name": "Actividades sorpresa",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "tacataca": {
+      "activityId": "tacataca",
+      "name": "Taca-taca",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    },
+    "pingpong": {
+      "activityId": "pingpong",
+      "name": "Ping pong",
+      "quotaPerAlliance": null,
+      "isClosed": false,
+      "closedAt": null,
+      "closedBy": null,
+      "lists": {
+        "Terror": [],
+        "Shooter": [],
+        "Action": []
+      },
+      "audit": []
+    }
+  },
+  "activityScheduleLogs": {
+    "retro": {
+      "name": "Torneo retro (Mortal Kombat)",
+      "planned": "10:00 - 11:00 (60 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "gymkanas": {
+      "name": "Gymkanas en cancha",
+      "planned": "09:30 - 11:30 (120 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "babyfutbol": {
+      "name": "Baby fútbol",
+      "planned": "11:15 - 12:00 (45 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "quemadas": {
+      "name": "Quemadas",
+      "planned": "11:55 - 12:40 (45 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "trivia": {
+      "name": "Trivia de carrera",
+      "planned": "10:15 - 10:30 (15 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "canto": {
+      "name": "Si te la sabes, canta",
+      "planned": "12:40 - 12:55 (15 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "barra": {
+      "name": "Barra y decibelímetro",
+      "planned": "3 mediciones (180 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "tacataca": {
+      "name": "Taca-taca",
+      "planned": "10:30 - 11:30 (60 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    },
+    "pingpong": {
+      "name": "Ping pong",
+      "planned": "10:30 - 11:30 (60 min)",
+      "actualStart": null,
+      "actualEnd": null,
+      "durationMin": null,
+      "deviationMin": null,
+      "status": "Programado / Por iniciar"
+    }
+  },
+  "tarreoResults": {
+    "attendance": {
+      "day19": 0,
+      "day20_tarreo_registered": 0,
+      "day20_tarreo_attended": 0,
+      "day20_tarreo_noShows": 0,
+      "day21_closing": 0
+    },
+    "individualTournaments": [
+      {
+        "game": "Valorant (5v5 Spike Rush)",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      },
+      {
+        "game": "Fortnite (Battle Royale Solo)",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      },
+      {
+        "game": "Super Smash Bros Brawl (Wii)",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      },
+      {
+        "game": "Minecraft Speedrun Challenge",
+        "champion": "Por disputar",
+        "runnerUp": "Por disputar",
+        "participants": 0
+      }
+    ],
+    "mvp": {
+      "studentName": "Por definir",
+      "alliance": "-",
+      "carrera": "-",
+      "achievement": "Pendiente de votación al cierre de la noche gamer"
+    },
+    "security": {
+      "expulsions": 0,
+      "emergencyExits": 0,
+      "minorInfractions": 0,
+      "notes": "Sin incidencias registradas."
+    }
+  },
+  "logisticsResources": [
+    {
+      "id": 1,
+      "item": "Mesas de Taca-Taca (4 unidades) y Ping Pong (2 unidades)",
+      "provider": "DAE",
+      "status": "Solicitado / En preparación",
+      "responsible": "Encargado de Deportes DAE"
+    },
+    {
+      "id": 2,
+      "item": "Balones blandos certificados (Baby fútbol y Quemadas)",
+      "provider": "DAE",
+      "status": "Solicitado / En preparación",
+      "responsible": "Pañol DAE"
+    },
+    {
+      "id": 3,
+      "item": "Controles Arcade USB y Proyector Cancha",
+      "provider": "Jefatura de Carrera",
+      "status": "Solicitado / En preparación",
+      "responsible": "Coordinación Informática"
+    },
+    {
+      "id": 4,
+      "item": "Switches Gigabit y cableado estructurado Tarreo",
+      "provider": "Jefatura de Carrera",
+      "status": "Solicitado / En preparación",
+      "responsible": "Soporte Técnico Informática"
+    },
+    {
+      "id": 5,
+      "item": "Consola Wii, mandos y sensores Just Dance",
+      "provider": "Delegación Estudiantil",
+      "status": "Solicitado / En preparación",
+      "responsible": "Delegados de Alianza"
+    },
+    {
+      "id": 6,
+      "item": "Sistema de amplificación y micrófonos inalámbricos",
+      "provider": "Sede Antofagasta",
+      "status": "Solicitado / En preparación",
+      "responsible": "Audiovisual Sede"
+    }
+  ],
+  "technicalIncidents": [],
+  "allianceCounts": {
+    "Terror": 126,
+    "Shooter": 126,
+    "Action": 29
+  },
+  "sorpresasBank": [
+    {
+      "id": "sorp_caracterizada",
+      "name": "Alianza más caracterizada",
+      "duration": 3,
+      "decisionType": "jurado",
+      "criteria": "Creatividad y porcentaje de integrantes caracterizados",
+      "material": "Celular para registro fotográfico",
+      "careNotes": "Voluntaria, sin forzar a nadie.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": false,
+      "suggestedSlot": "Apertura",
+      "status": "disponible"
+    },
+    {
+      "id": "sorp_docente",
+      "name": "Foto con un docente",
+      "duration": 5,
+      "decisionType": "jurado",
+      "criteria": "Creatividad y cuántos integrantes aparecen en la foto",
+      "material": "Celular y 3 accesorios temáticos",
+      "careNotes": "El docente participa únicamente si quiere voluntariamente.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": false,
+      "suggestedSlot": "Después del torneo retro",
+      "status": "disponible"
+    },
+    {
+      "id": "sorp_videojuego",
+      "name": "Pose de videojuego",
+      "duration": 3,
+      "decisionType": "jurado",
+      "criteria": "Parecido, sincronía y creatividad de la pose",
+      "material": "Imagen de referencia en televisor",
+      "careNotes": "Espacio despejado en cancha para ejecutar la pose con seguridad.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": false,
+      "suggestedSlot": "Entre baby fútbol y quemadas",
+      "status": "disponible"
+    },
+    {
+      "id": "sorp_caza",
+      "name": "Caza de objetos",
+      "duration": 3,
+      "decisionType": "medicion",
+      "metricLabel": "Rondas ganadas (máx 5)",
+      "metricDirection": "desc",
+      "criteria": "Gana quien gane más rondas de objetos solicitados",
+      "material": "Animador de cancha y mesa de control",
+      "careNotes": "Caminar con calma, terminantemente prohibido correr para evitar tropiezos.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": false,
+      "suggestedSlot": "Antes de la trivia",
+      "status": "disponible"
+    },
+    {
+      "id": "sorp_silencio",
+      "name": "Minuto de silencio",
+      "duration": 2,
+      "decisionType": "medicion",
+      "metricLabel": "Faltas o ruidos cometidos",
+      "metricDirection": "asc",
+      "criteria": "Gana quien tenga menor cantidad de faltas o ruidos durante el minuto",
+      "material": "Cronómetro oficial y silbato de juez",
+      "careNotes": "Guardar respeto y silencio absoluto sin gestos agresivos.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": false,
+      "suggestedSlot": "Después de canto",
+      "status": "disponible"
+    },
+    {
+      "id": "sorp_coreografia",
+      "name": "Coreografía de 15 segundos",
+      "duration": 5,
+      "decisionType": "jurado",
+      "criteria": "Sincronía, energía y creatividad del grupo",
+      "material": "Parlante de cancha y pista musical oficial",
+      "careNotes": "Baile voluntario y seguro, sin piruetas riesgosas.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": false,
+      "suggestedSlot": "Cierre",
+      "status": "disponible"
+    },
+    {
+      "id": "sorp_piramide",
+      "name": "Pirámide humana (Reserva)",
+      "duration": 5,
+      "decisionType": "medicion",
+      "metricLabel": "Personas sosteniéndola 5 segundos",
+      "metricDirection": "desc",
+      "criteria": "Mayor número de integrantes sosteniéndola de forma segura durante 5 segundos",
+      "material": "Colchonetas reglamentarias y cronómetro",
+      "careNotes": "ALERTA DE SEGURIDAD: Solo se realiza con aprobación expresa de prevencionista/coordinación y colchonetas; de lo contrario, se sustituye por triángulo humano en el suelo.",
+      "pointsDistribution": [
+        500,
+        300,
+        150
+      ],
+      "isReserve": true,
+      "suggestedSlot": "Reserva (Solo si se descarta otra)",
+      "status": "reserva"
+    }
+  ],
+  "activeSorpresa": null
+}
