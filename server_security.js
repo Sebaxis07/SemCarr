@@ -7,6 +7,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const CREDENTIALS_FILE = path.join(__dirname, 'credentials.json');
 const SESSIONS_TTL_MS = 4 * 60 * 60 * 1000; // 4 horas
@@ -36,16 +37,39 @@ function verifyPassword(password, storedHash) {
   return crypto.timingSafeEqual(keyBuffer, derivedKey);
 }
 
+let defaultCredentials = null;
+try {
+  defaultCredentials = require('./credentials.json');
+} catch (e) {
+  try { defaultCredentials = JSON.parse(fs.readFileSync(path.join(__dirname, 'credentials.json'), 'utf8')); } catch (_) {}
+}
+
 function getCredentialsPath() {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const tmpPath = path.join('/tmp', 'credentials.json');
+    const tmpPath = path.join(os.tmpdir(), 'credentials.json');
     if (!fs.existsSync(tmpPath)) {
-      const srcPath = path.join(__dirname, 'credentials.json');
-      if (fs.existsSync(srcPath)) {
+      const candidates = [
+        path.join(process.cwd(), 'credentials.json'),
+        path.join(__dirname, 'credentials.json'),
+        path.join(__dirname, '..', 'credentials.json')
+      ];
+      let copied = false;
+      for (const src of candidates) {
+        if (fs.existsSync(src)) {
+          try {
+            fs.copyFileSync(src, tmpPath);
+            copied = true;
+            break;
+          } catch (e) {
+            console.error(`Error copying ${src} to tmpdir:`, e);
+          }
+        }
+      }
+      if (!copied && defaultCredentials) {
         try {
-          fs.copyFileSync(srcPath, tmpPath);
+          fs.writeFileSync(tmpPath, JSON.stringify(defaultCredentials, null, 2), 'utf-8');
         } catch (e) {
-          return srcPath;
+          console.error('Error seeding credentials.json in tmpdir:', e);
         }
       }
     }
@@ -56,16 +80,18 @@ function getCredentialsPath() {
 
 // Cargar o inicializar credenciales
 function loadCredentials() {
-  const credsFile = getCredentialsPath();
-  if (!fs.existsSync(credsFile)) {
-    initializeDefaultCredentials();
-  }
   try {
-    return JSON.parse(fs.readFileSync(credsFile, 'utf-8'));
+    const credsFile = getCredentialsPath();
+    if (!fs.existsSync(credsFile)) {
+      initializeDefaultCredentials();
+    }
+    if (fs.existsSync(credsFile)) {
+      return JSON.parse(fs.readFileSync(credsFile, 'utf-8'));
+    }
   } catch (e) {
     console.error('Error al leer credentials.json:', e);
-    return {};
   }
+  return defaultCredentials ? JSON.parse(JSON.stringify(defaultCredentials)) : {};
 }
 
 function saveCredentials(creds) {

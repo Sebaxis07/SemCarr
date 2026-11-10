@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 5173;
@@ -13,17 +14,51 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 
+let defaultData = null;
+try {
+  defaultData = require('./data.json');
+} catch (e) {
+  try { defaultData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json'), 'utf8')); } catch (_) {}
+}
+
+let defaultStudents = null;
+try {
+  defaultStudents = require('./students.json');
+} catch (e) {
+  try { defaultStudents = JSON.parse(fs.readFileSync(path.join(__dirname, 'students.json'), 'utf8')); } catch (_) {}
+}
+
 function getWritablePath(filename) {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const tmpPath = path.join('/tmp', filename);
+    const tmpPath = path.join(os.tmpdir(), filename);
     if (!fs.existsSync(tmpPath)) {
-      const srcPath = path.join(__dirname, filename);
-      if (fs.existsSync(srcPath)) {
+      const candidates = [
+        path.join(process.cwd(), filename),
+        path.join(__dirname, filename),
+        path.join(__dirname, '..', filename)
+      ];
+      let copied = false;
+      for (const src of candidates) {
+        if (fs.existsSync(src)) {
+          try {
+            fs.copyFileSync(src, tmpPath);
+            copied = true;
+            break;
+          } catch (e) {
+            console.error(`Error copying ${src} to tmpdir:`, e);
+          }
+        }
+      }
+      if (!copied) {
         try {
-          fs.copyFileSync(srcPath, tmpPath);
+          let seed = null;
+          if (filename === 'data.json') seed = defaultData;
+          else if (filename === 'students.json') seed = defaultStudents;
+          if (seed) {
+            fs.writeFileSync(tmpPath, JSON.stringify(seed, null, 2), 'utf-8');
+          }
         } catch (e) {
-          console.error(`Error copying ${filename} to /tmp:`, e);
-          return srcPath;
+          console.error(`Error seeding ${tmpPath}:`, e);
         }
       }
     }
@@ -33,8 +68,15 @@ function getWritablePath(filename) {
 }
 
 function loadData() {
-  const file = getWritablePath('data.json');
-  return JSON.parse(fs.readFileSync(file, 'utf-8'));
+  try {
+    const file = getWritablePath('data.json');
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('Error in loadData():', e);
+  }
+  return defaultData ? JSON.parse(JSON.stringify(defaultData)) : {};
 }
 
 function saveData(data) {
@@ -47,8 +89,15 @@ function saveData(data) {
 }
 
 function loadStudents() {
-  const file = getWritablePath('students.json');
-  return JSON.parse(fs.readFileSync(file, 'utf-8'));
+  try {
+    const file = getWritablePath('students.json');
+    if (fs.existsSync(file)) {
+      return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    }
+  } catch (e) {
+    console.error('Error in loadStudents():', e);
+  }
+  return defaultStudents ? JSON.parse(JSON.stringify(defaultStudents)) : [];
 }
 
 function saveStudents(students) {
@@ -162,41 +211,47 @@ function recalculateGlobalPoints(data) {
 
 // API: Global Stats
 app.get('/api/stats', (req, res) => {
-  const data = loadData();
-  const students = loadStudents();
-  const { totals, ranks } = recalculateGlobalPoints(data);
+  try {
+    const data = loadData();
+    const students = loadStudents();
+    const { totals, ranks } = recalculateGlobalPoints(data);
 
-  // Alliance summary
-  const alliancesSummary = {};
-  ['Terror', 'Shooter', 'Action'].forEach(al => {
-    const studentCount = students.filter(s => s.alliance === al).length;
-    alliancesSummary[al] = {
-      ...data.alliances[al],
-      totalStudents: studentCount,
-      points: totals[al],
-      rank: ranks[al]
-    };
-  });
+    // Alliance summary
+    const alliancesSummary = {};
+    ['Terror', 'Shooter', 'Action'].forEach(al => {
+      const studentCount = (students || []).filter(s => s.alliance === al).length;
+      alliancesSummary[al] = {
+        ...(data.alliances?.[al] || {}),
+        totalStudents: studentCount,
+        points: totals[al],
+        rank: ranks[al]
+      };
+    });
 
-  // Determine current and next activity
-  const activeAct = data.activities.find(a => a.status === 'En curso') || null;
-  const lastFinished = [...data.activities].reverse().find(a => a.status === 'Terminada') || null;
-  const nextPending = data.activities.find(a => a.status === 'Pendiente') || null;
+    // Determine current and next activity
+    const activities = data.activities || [];
+    const activeAct = activities.find(a => a.status === 'En curso') || null;
+    const lastFinished = [...activities].reverse().find(a => a.status === 'Terminada') || null;
+    const nextPending = activities.find(a => a.status === 'Pendiente') || null;
 
-  res.json({
-    alliances: alliancesSummary,
-    activeActivity: activeAct,
-    lastFinishedActivity: lastFinished,
-    nextActivity: nextPending,
-    activities: data.activities,
-    creativeChallenges: data.creativeChallenges,
-    tarreoCopa: data.tarreoCopa,
-    announcements: data.announcements.filter(a => a.active),
-    sorpresas: data.sorpresas,
-    activeSorpresa: data.activeSorpresa || null,
-    sanciones: data.sanciones,
-    reclamos: data.reclamos
-  });
+    res.json({
+      alliances: alliancesSummary,
+      activeActivity: activeAct,
+      lastFinishedActivity: lastFinished,
+      nextActivity: nextPending,
+      activities: activities,
+      creativeChallenges: data.creativeChallenges || {},
+      tarreoCopa: data.tarreoCopa || {},
+      announcements: (data.announcements || []).filter(a => a.active),
+      sorpresas: data.sorpresas || [],
+      activeSorpresa: data.activeSorpresa || null,
+      sanciones: data.sanciones || {},
+      reclamos: data.reclamos || []
+    });
+  } catch (err) {
+    console.error('Error in /api/stats:', err);
+    res.status(500).json({ error: 'Error al cargar stats: ' + err.message });
+  }
 });
 
 // Normalizar acentos y tildes para búsqueda flexible
@@ -305,35 +360,45 @@ app.get('/api/students/search', (req, res) => {
 
 // API: Get all public students grouped by alliance (Padrón oficial para Mi Alianza)
 app.get('/api/students/by-alliance', (req, res) => {
-  const students = loadStudents();
-  const grouped = {
-    Terror: [],
-    Shooter: [],
-    Action: []
-  };
+  try {
+    const students = loadStudents();
+    const grouped = {
+      Terror: [],
+      Shooter: [],
+      Action: []
+    };
 
-  students.forEach(s => {
-    if (grouped[s.alliance]) {
-      grouped[s.alliance].push({
-        id: s.id,
-        name: s.name,
-        carrera: s.carrera,
-        alliance: s.alliance
-      });
+    (students || []).forEach(s => {
+      if (grouped[s.alliance]) {
+        grouped[s.alliance].push({
+          id: s.id,
+          name: s.name,
+          carrera: s.carrera,
+          alliance: s.alliance
+        });
+      }
+    });
+
+    // Ordenar alfabéticamente por nombre dentro de cada alianza
+    for (const al of ['Terror', 'Shooter', 'Action']) {
+      grouped[al].sort((a, b) => a.name.localeCompare(b.name, 'es'));
     }
-  });
 
-  // Ordenar alfabéticamente por nombre dentro de cada alianza
-  for (const al of ['Terror', 'Shooter', 'Action']) {
-    grouped[al].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+    res.json(grouped);
+  } catch (err) {
+    console.error('Error in /api/students/by-alliance:', err);
+    res.status(500).json({ error: 'Error al cargar estudiantes: ' + err.message });
   }
-
-  res.json(grouped);
 });
 
 // API: Get Full Data for Public/Staff
 app.get('/api/data', (req, res) => {
-  res.json(loadData());
+  try {
+    res.json(loadData());
+  } catch (err) {
+    console.error('Error in /api/data:', err);
+    res.status(500).json({ error: 'Error al cargar data: ' + err.message });
+  }
 });
 
 // ----------------- SEGURIDAD Y AUDITORÍA OWASP -----------------
