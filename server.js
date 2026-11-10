@@ -13,23 +13,51 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 
-const DATA_FILE = path.join(__dirname, 'data.json');
-const STUDENTS_FILE = path.join(__dirname, 'students.json');
+function getWritablePath(filename) {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const tmpPath = path.join('/tmp', filename);
+    if (!fs.existsSync(tmpPath)) {
+      const srcPath = path.join(__dirname, filename);
+      if (fs.existsSync(srcPath)) {
+        try {
+          fs.copyFileSync(srcPath, tmpPath);
+        } catch (e) {
+          console.error(`Error copying ${filename} to /tmp:`, e);
+          return srcPath;
+        }
+      }
+    }
+    return tmpPath;
+  }
+  return path.join(__dirname, filename);
+}
 
 function loadData() {
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  const file = getWritablePath('data.json');
+  return JSON.parse(fs.readFileSync(file, 'utf-8'));
 }
 
 function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  const file = getWritablePath('data.json');
+  try {
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error writing data.json:', e);
+  }
 }
 
 function loadStudents() {
-  return JSON.parse(fs.readFileSync(STUDENTS_FILE, 'utf-8'));
+  const file = getWritablePath('students.json');
+  return JSON.parse(fs.readFileSync(file, 'utf-8'));
 }
 
 function saveStudents(students) {
-  fs.writeFileSync(STUDENTS_FILE, JSON.stringify(students, null, 2), 'utf-8');
+  const file = getWritablePath('students.json');
+  try {
+    fs.writeFileSync(file, JSON.stringify(students, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error writing students.json:', e);
+  }
 }
 
 // Helper: Calculate totals for all alliances
@@ -2113,6 +2141,10 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor Semana de las Carreras 2026 (TI & Diseño) corriendo en http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor Semana de las Carreras 2026 (TI & Diseño) corriendo en http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

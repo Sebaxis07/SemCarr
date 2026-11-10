@@ -36,13 +36,32 @@ function verifyPassword(password, storedHash) {
   return crypto.timingSafeEqual(keyBuffer, derivedKey);
 }
 
+function getCredentialsPath() {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const tmpPath = path.join('/tmp', 'credentials.json');
+    if (!fs.existsSync(tmpPath)) {
+      const srcPath = path.join(__dirname, 'credentials.json');
+      if (fs.existsSync(srcPath)) {
+        try {
+          fs.copyFileSync(srcPath, tmpPath);
+        } catch (e) {
+          return srcPath;
+        }
+      }
+    }
+    return tmpPath;
+  }
+  return path.join(__dirname, 'credentials.json');
+}
+
 // Cargar o inicializar credenciales
 function loadCredentials() {
-  if (!fs.existsSync(CREDENTIALS_FILE)) {
+  const credsFile = getCredentialsPath();
+  if (!fs.existsSync(credsFile)) {
     initializeDefaultCredentials();
   }
   try {
-    return JSON.parse(fs.readFileSync(CREDENTIALS_FILE, 'utf-8'));
+    return JSON.parse(fs.readFileSync(credsFile, 'utf-8'));
   } catch (e) {
     console.error('Error al leer credentials.json:', e);
     return {};
@@ -50,7 +69,12 @@ function loadCredentials() {
 }
 
 function saveCredentials(creds) {
-  fs.writeFileSync(CREDENTIALS_FILE, JSON.stringify(creds, null, 2), 'utf-8');
+  const credsFile = getCredentialsPath();
+  try {
+    fs.writeFileSync(credsFile, JSON.stringify(creds, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error al guardar credentials.json:', e);
+  }
 }
 
 // Generar credenciales por defecto seguras si no existen
@@ -223,7 +247,7 @@ function destroySession(token) {
 }
 
 // Limpiador periódico de sesiones expiradas (cada 10 min)
-setInterval(() => {
+const sessionCleaner = setInterval(() => {
   const now = Date.now();
   for (const [token, s] of activeSessions.entries()) {
     if (now > s.expiresAtMs) {
@@ -231,6 +255,9 @@ setInterval(() => {
     }
   }
 }, 10 * 60 * 1000);
+if (sessionCleaner && sessionCleaner.unref) {
+  sessionCleaner.unref();
+}
 
 // ----------------- MIDDLEWARES DE AUTORIZACIÓN (RBAC) -----------------
 function requireAuth(req, res, next) {
