@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Alianza 2026 | TI & Diseño Digital</title>
+  
+  <!-- Google Fonts: Montserrat, Kanit, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-primary': '#050C24',
+            'bg-glow': '#0E1E48',
+            'accent-crimson': '#E6194B',
+            'accent-electric': '#2D46B9',
+            'accent-rim': '#7F9CF5',
+            'text-light': '#FFFFFF',
+            
+            slate: {
+              950: '#050C24',
+              900: '#0A1333',
+              850: '#0E1E48',
+              800: '#142252',
+              700: '#2D46B9',
+              600: '#4763D4',
+              500: '#7F9CF5',
+              400: '#9FB5F8',
+              300: '#C7D5FA',
+              200: '#E4EBFF',
+              100: '#F5F7FF',
+              50: '#FFFFFF'
+            }
+          },
+          fontFamily: {
+            display: ['Montserrat', 'Kanit', 'sans-serif'],
+            heading: ['Montserrat', 'Kanit', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-primary: #050C24;
+      --bg-glow: #0E1E48;
+      --accent-crimson: #E6194B;
+      --accent-electric: #2D46B9;
+      --accent-rim: #7F9CF5;
+      --text-light: #FFFFFF;
+
+      --font-display: 'Montserrat', 'Kanit', sans-serif;
+      --font-body: 'Inter', 'Montserrat', sans-serif;
+
+      --banner-skew: skewX(-15deg);
+      --title-shadow: -4px 6px 0px #020614;
+      --qr-border-radius: 20px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-primary);
+      color: var(--text-light);
+    }
+
+    /* Compatibilidad Power Pages: Forzar fondo espacial y eliminar espacios/barras grises */
+    html, body, #content-container, .page-copy, .sectionBlockLayout, .container {
+      background-color: #050C24 !important;
+      color: #FFFFFF !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+    }
+    header, .navbar, .navbar-static-top, footer, .footer {
+      display: none !important;
+    }
+
+    h1, h2, h3, h4, .font-heading, .font-display {
+      font-family: var(--font-display);
+    }
+
+    .esport-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      text-shadow: -4px 6px 0px #020614, 0 0 25px rgba(45, 70, 185, 0.5);
+      transform: perspective(600px) rotateX(4deg);
+    }
+
+    .glow-rim {
+      box-shadow: 0 0 20px rgba(127, 156, 245, 0.35);
+    }
+    .glow-crimson {
+      box-shadow: 0 0 25px rgba(230, 25, 75, 0.5);
+    }
+    .glow-electric {
+      box-shadow: 0 0 25px rgba(45, 70, 185, 0.5);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #050C24;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #142252;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #E6194B;
+    }
+
+    .dot-matrix {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+      background-size: 14px 14px;
+    }
+  </style>
+</head>
+<body class="bg-[#050C24] text-white min-h-screen flex flex-col antialiased selection:bg-[#E6194B] selection:text-white relative overflow-x-hidden">
+
+  <!-- ======================================================== -->
+  <!-- ENMARCADO DINÁMICO: SWOOSHES CURVOS Y PATRONES DOT MATRIX -->
+  <!-- ======================================================== -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[#0E1E48]/60 blur-[130px] rounded-full"></div>
+    <div class="absolute bottom-10 left-10 w-[450px] h-[450px] bg-[#2D46B9]/15 blur-[120px] rounded-full"></div>
+    <div class="absolute top-20 right-10 w-[450px] h-[450px] bg-[#E6194B]/12 blur-[130px] rounded-full"></div>
+
+    <!-- Swooshes Esquina Superior Izquierda -->
+    <svg class="absolute -top-10 -left-10 w-72 sm:w-96 h-72 sm:h-96 opacity-85" viewBox="0 0 300 300" fill="none">
+      <path d="M-50 180 C 40 180, 120 120, 150 -50" stroke="#2D46B9" stroke-width="26" stroke-linecap="round"/>
+      <path d="M-50 130 C 50 130, 140 80, 190 -50" stroke="#E6194B" stroke-width="14" stroke-linecap="round"/>
+      <path d="M-50 85 C 60 85, 160 50, 225 -50" stroke="#7F9CF5" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Swooshes Esquina Inferior Derecha -->
+    <svg class="absolute -bottom-10 -right-10 w-72 sm:w-96 h-72 sm:h-96 opacity-85" viewBox="0 0 300 300" fill="none">
+      <path d="M350 120 C 260 120, 180 180, 150 350" stroke="#E6194B" stroke-width="24" stroke-linecap="round"/>
+      <path d="M350 170 C 250 170, 160 220, 110 350" stroke="#2D46B9" stroke-width="14" stroke-linecap="round"/>
+      <path d="M350 215 C 240 215, 140 250, 75 350" stroke="#7F9CF5" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Halftone Dot Matrix -->
+    <div class="absolute top-2 right-4 w-44 h-44 dot-matrix opacity-35 [mask-image:linear-gradient(to_bottom_left,black,transparent)]"></div>
+    <div class="absolute bottom-6 left-4 w-48 h-48 dot-matrix opacity-35 [mask-image:linear-gradient(to_top_right,black,transparent)]"></div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TOP BAR INSTITUCIONAL                                    -->
+  <!-- ======================================================== -->
+  <header class="bg-[#050C24]/90 backdrop-blur-md border-b border-[#142252] sticky top-0 z-40">
+    <div class="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="goToHome()">
+        <div class="flex items-center gap-2.5">
+          <span class="w-3 h-3 rounded-sm bg-[#E6194B] shadow-sm shadow-[#E6194B]/70 rotate-45"></span>
+          <span class="font-display font-black text-white text-base tracking-wider italic">TI & DISEÑO DIGITAL</span>
+        </div>
+        <div class="h-4 w-0.5 bg-[#2D46B9]/80 hidden sm:block"></div>
+        <div class="items-center gap-2 hidden sm:flex">
+          <span class="text-xs font-bold text-slate-200 uppercase tracking-wide">Semana de las Carreras 2026</span>
+          <span class="text-[10px] text-[#7F9CF5] font-mono">• Mi Alianza</span>
+        </div>
+      </div>
+
+      <!-- Barra de Estado / Sesión -->
+      <div id="topbar-session-container" class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-[#0E1E48] border border-[#2D46B9] text-[#7F9CF5]">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span id="topbar-status-text">Portal Oficial</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- CONTENIDO PRINCIPAL DINÁMICO                            -->
+  <!-- ======================================================== -->
+  <main class="flex-1 container mx-auto px-4 py-8 relative z-10 max-w-5xl space-y-8">
+    
+    <!-- 1. VISTA PÚBLICA INICIAL (Cuando el estudiante NO ha iniciado sesión) -->
+    <div id="public-home-view" class="space-y-8">
+      
+      <!-- HERO POSTER -->
+      <div class="text-center space-y-2 relative">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0A1333] border border-[#2D46B9] shadow-inner text-[11px] font-display font-bold uppercase tracking-wider text-[#7F9CF5]">
+          <span class="w-2 h-2 rounded-full bg-[#E6194B] animate-pulse"></span>
+          <span id="global-registered-count-badge">Conoce tu escuadrón oficial</span>
+        </div>
+
+        <h1 class="esport-title text-3xl sm:text-5xl font-black italic tracking-tight text-white uppercase pt-1">
+          MI ALIANZA & ESCUADRONES 2026
+        </h1>
+
+        <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-body">
+          Ingresa con tu RUT para conocer a qué alianza perteneces, descubrir a tu mascota oficial y solicitar un cambio de escuadrón si cumples los requisitos.
+        </p>
+
+        <!-- Cinta Skew Decorativa -->
+        <div class="pt-1 flex items-center justify-center gap-2">
+          <span class="text-[#E6194B] font-display font-black text-base select-none">= =</span>
+          <span class="px-4 py-1 bg-[#E6194B] text-white font-display font-black text-xs uppercase tracking-wider shadow-lg shadow-[#E6194B]/40" style="transform: var(--banner-skew);">
+            <span style="display:inline-block; transform: skewX(15deg);">¡CONOCE TUS COLORES Y DEFIENDE TU ALIANZA!</span>
+          </span>
+          <span class="text-[#E6194B] font-display font-black text-base select-none">= =</span>
+        </div>
+      </div>
+
+      <!-- BOTÓN DESTACADO PARA ABRIR FORMULARIO DE ACCESO -->
+      <div class="max-w-md mx-auto text-center pt-2">
+        <button 
+          onclick="openRutModal()"
+          class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#E6194B] via-[#2D46B9] to-[#E6194B] bg-[length:200%_auto] hover:bg-right text-white font-display font-black text-sm uppercase tracking-wider shadow-xl shadow-[#E6194B]/30 hover:scale-[1.02] transition duration-300 flex items-center justify-center gap-2 border-2 border-white/20"
+        >
+          <i data-lucide="key-round" class="w-5 h-5"></i>
+          <span>Ingresar con mi RUT para ver mi Alianza</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <p class="text-[11px] text-slate-400 mt-2 font-mono flex items-center justify-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Acceso privado: ningún RUT se muestra en pantalla</span>
+        </p>
+      </div>
+
+      <!-- TARJETAS DE LAS 3 ALIANZAS CON MASCOTAS GRANDES TRANSPARENTES Y CONTEO GLOBAL -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-2">
+        
+        <!-- CARD 1: ALIANZA TERROR -->
+        <div class="relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#E6194B]/70 rounded-3xl p-5 shadow-2xl flex flex-col overflow-hidden glow-crimson">
+          <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 blur-3xl rounded-full opacity-35 bg-[#E6194B] pointer-events-none"></div>
+
+          <!-- Mascota Grande y Transparente -->
+          <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-52">
+            <img 
+              src="https://semanacarr.vercel.app/img/mascota-terror.png" 
+              alt="Mascota Alianza Terror" 
+              class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_rgba(230,25,75,0.7)] hover:scale-105 transition duration-300"
+            />
+          </div>
+
+          <div class="border-b border-[#142252] pb-3 mb-3 relative z-10 text-center">
+            <div class="flex items-center justify-center gap-2 mb-1.5">
+              <span class="px-3.5 py-1 rounded-md text-white font-display font-black text-xs uppercase tracking-wider shadow-md bg-[#E6194B]" style="transform: var(--banner-skew);">
+                <span style="display:inline-block; transform: skewX(15deg);">ALIANZA TERROR</span>
+              </span>
+              <span id="count-terror-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-[#E6194B] bg-[#E6194B]/10 border-[#E6194B]/40">
+                126 alumnos
+              </span>
+            </div>
+            
+            <p class="text-[11px] text-slate-300 font-display font-bold leading-tight mt-1">
+              Informática & Analista Programador
+            </p>
+            
+            <div class="mt-2.5 text-[10px] text-slate-300 font-mono bg-[#050C24] p-2 rounded-xl border border-[#142252] flex items-center justify-between shadow-inner">
+              <span class="truncate pr-1">Desafío: Videojuego con IA</span>
+              <span class="text-[#E6194B] font-bold shrink-0">Cupo Habilitado</span>
+            </div>
+          </div>
+
+          <div class="pt-2 text-center">
+            <button 
+              onclick="openRutModal()"
+              class="w-full py-2 px-3 rounded-xl bg-[#0E1E48] hover:bg-[#142252] text-xs font-display font-bold text-white border border-[#E6194B]/40 transition flex items-center justify-center gap-1.5"
+            >
+              <span>Consultar si estoy aquí</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-[#E6194B]"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 2: ALIANZA SHOOTER -->
+        <div class="relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9]/70 rounded-3xl p-5 shadow-2xl flex flex-col overflow-hidden glow-electric">
+          <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 blur-3xl rounded-full opacity-35 bg-[#2D46B9] pointer-events-none"></div>
+
+          <!-- Mascota Grande y Transparente -->
+          <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-52">
+            <img 
+              src="https://semanacarr.vercel.app/img/mascota-shooter.png" 
+              alt="Mascota Alianza Shooter" 
+              class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_rgba(45,70,185,0.7)] hover:scale-105 transition duration-300"
+            />
+          </div>
+
+          <div class="border-b border-[#142252] pb-3 mb-3 relative z-10 text-center">
+            <div class="flex items-center justify-center gap-2 mb-1.5">
+              <span class="px-3.5 py-1 rounded-md text-white font-display font-black text-xs uppercase tracking-wider shadow-md bg-[#2D46B9]" style="transform: var(--banner-skew);">
+                <span style="display:inline-block; transform: skewX(15deg);">ALIANZA SHOOTER</span>
+              </span>
+              <span id="count-shooter-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-[#7F9CF5] bg-[#2D46B9]/15 border-[#2D46B9]/40">
+                126 alumnos
+              </span>
+            </div>
+            
+            <p class="text-[11px] text-slate-300 font-display font-bold leading-tight mt-1">
+              Informática & Analista Programador
+            </p>
+            
+            <div class="mt-2.5 text-[10px] text-slate-300 font-mono bg-[#050C24] p-2 rounded-xl border border-[#142252] flex items-center justify-between shadow-inner">
+              <span class="truncate pr-1">Desafío: Asistente con IA</span>
+              <span class="text-[#7F9CF5] font-bold shrink-0">Cupo Habilitado</span>
+            </div>
+          </div>
+
+          <div class="pt-2 text-center">
+            <button 
+              onclick="openRutModal()"
+              class="w-full py-2 px-3 rounded-xl bg-[#0E1E48] hover:bg-[#142252] text-xs font-display font-bold text-white border border-[#2D46B9]/40 transition flex items-center justify-center gap-1.5"
+            >
+              <span>Consultar si estoy aquí</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- CARD 3: ALIANZA ACTION -->
+        <div class="relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#059669]/70 rounded-3xl p-5 shadow-2xl flex flex-col overflow-hidden glow-rim">
+          <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 blur-3xl rounded-full opacity-35 bg-[#059669] pointer-events-none"></div>
+
+          <!-- Mascota Grande y Transparente -->
+          <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-52">
+            <img 
+              src="https://semanacarr.vercel.app/img/mascota-action.png" 
+              alt="Mascota Alianza Action" 
+              class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_rgba(5,150,105,0.7)] hover:scale-105 transition duration-300"
+            />
+          </div>
+
+          <div class="border-b border-[#142252] pb-3 mb-3 relative z-10 text-center">
+            <div class="flex items-center justify-center gap-2 mb-1.5">
+              <span class="px-3.5 py-1 rounded-md text-white font-display font-black text-xs uppercase tracking-wider shadow-md bg-[#059669]" style="transform: var(--banner-skew);">
+                <span style="display:inline-block; transform: skewX(15deg);">ALIANZA ACTION</span>
+              </span>
+              <span id="count-action-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border text-emerald-400 bg-[#059669]/15 border-[#059669]/40">
+                29 alumnos
+              </span>
+            </div>
+            
+            <p class="text-[11px] text-slate-300 font-display font-bold leading-tight mt-1">
+              Diseño e Industria Digital
+            </p>
+            
+            <div class="mt-2.5 text-[10px] text-slate-300 font-mono bg-[#050C24] p-2 rounded-xl border border-[#142252] flex items-center justify-between shadow-inner">
+              <span class="truncate pr-1">Desafío: Collage Fotográfico</span>
+              <span class="text-emerald-400 font-bold shrink-0">Alianza Cerrada</span>
+            </div>
+          </div>
+
+          <div class="pt-2 text-center">
+            <button 
+              onclick="openRutModal()"
+              class="w-full py-2 px-3 rounded-xl bg-[#0E1E48] hover:bg-[#142252] text-xs font-display font-bold text-white border border-[#059669]/40 transition flex items-center justify-center gap-1.5"
+            >
+              <span>Consultar si estoy aquí</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-emerald-400"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 2. VISTA PRIVADA DEL ESTUDIANTE (Cuando YA inició sesión) -->
+    <div id="student-portal-view" class="hidden space-y-6">
+      <!-- Inyectado dinámicamente por alianzas.js -->
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: FORMULARIO DE INGRESO CON RUT                   -->
+  <!-- ======================================================== -->
+  <div id="rut-modal" class="fixed inset-0 z-50 bg-[#050C24]/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative overflow-hidden glow-electric">
+      
+      <!-- Botón Cerrar -->
+      <button onclick="closeRutModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="space-y-4 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-[#050C24] border-2 border-[#E6194B] flex items-center justify-center text-[#E6194B] mx-auto shadow-lg shadow-[#E6194B]/30">
+          <i data-lucide="user-check" class="w-7 h-7"></i>
+        </div>
+
+        <div>
+          <span class="text-[10px] font-display font-black tracking-widest uppercase text-[#E6194B]">
+            /// ACCESO ACREDITADO
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black font-display text-white tracking-tight mt-1">
+            Consulta tu Alianza Oficial
+          </h2>
+          <p class="text-xs text-slate-300 font-body mt-1">
+            Digita tu RUT institucional. Por tu seguridad, ningún RUT se mostrará en pantalla.
+          </p>
+        </div>
+
+        <!-- Formulario -->
+        <form onsubmit="handleRutLogin(event)" class="space-y-4 pt-2 text-left">
+          <div>
+            <label for="rut-input" class="block text-xs font-display font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+              RUT del Estudiante
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="id-card" class="w-5 h-5"></i>
+              </div>
+              <input 
+                type="text" 
+                id="rut-input" 
+                name="rut"
+                placeholder="12.345.678-K" 
+                autocomplete="off"
+                maxlength="12"
+                oninput="formatRutInput(this)"
+                class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#050C24] border-2 border-[#142252] focus:border-[#E6194B] text-base text-white placeholder-slate-500 font-mono font-bold focus:outline-none transition tracking-wide"
+                required
+              />
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1.5 font-mono">
+              Formato: 12.345.678-K (con o sin puntos)
+            </p>
+          </div>
+
+          <!-- Mensaje de Error Genérico -->
+          <div id="login-error-box" class="hidden p-3 rounded-xl bg-red-950/60 border border-red-900/60 text-xs text-red-200 font-medium flex items-center gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-[#E6194B] shrink-0"></i>
+            <span id="login-error-text">RUT no registrado en el padrón oficial o datos incorrectos.</span>
+          </div>
+
+          <div class="pt-2">
+            <button 
+              type="submit" 
+              id="submit-rut-btn"
+              class="w-full py-3.5 px-4 rounded-xl bg-[#E6194B] hover:bg-[#c81440] text-white font-display font-black text-xs uppercase tracking-wider shadow-lg shadow-[#E6194B]/40 transition flex items-center justify-center gap-2"
+            >
+              <span>Ingresar y Ver Mi Alianza</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: TÉRMINOS, CONDICIONES Y REGLAMENTO DE TRASLADO    -->
+  <!-- ======================================================== -->
+  <div id="terms-modal" class="fixed inset-0 z-50 bg-[#050C24]/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl relative overflow-hidden glow-electric flex flex-col max-h-[92vh]">
+      
+      <button onclick="closeTermsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition" title="Cerrar reglamento">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="shrink-0 mb-3">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#142252]/80 border border-[#2D46B9] text-[10px] font-display font-bold uppercase tracking-wider text-[#7F9CF5] mb-2">
+          <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#E6194B]"></i>
+          <span>Documento Oficial • Reglamento de Traslados</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black font-display text-white tracking-tight">
+          Términos y Condiciones
+        </h3>
+        <p class="text-xs text-slate-300 font-body mt-0.5">
+          Debes leer y aceptar las siguientes condiciones reglamentarias antes de formalizar tu solicitud de cambio.
+        </p>
+      </div>
+
+      <!-- Contenedor scrollable con el documento de términos -->
+      <div class="p-4 rounded-2xl bg-[#050C24] border border-[#142252] overflow-y-auto custom-scrollbar space-y-3.5 text-xs text-slate-300 flex-1 my-2">
+        
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-lg bg-[#E6194B]/15 border border-[#E6194B]/40 text-[#E6194B] flex items-center justify-center shrink-0 font-display font-bold text-xs mt-0.5">
+            1
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-white text-xs">Carácter de Solicitud (No Automático)</h4>
+            <p class="text-slate-300 text-[11px] leading-relaxed mt-0.5">
+              Enviar este formulario <strong>no efectúa el cambio de inmediato</strong>. Constituye una postulación formal que será evaluada y validada por la coordinación oficial en la mesa de control de la Semana de las Carreras.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-lg bg-[#2D46B9]/20 border border-[#2D46B9]/50 text-[#7F9CF5] flex items-center justify-center shrink-0 font-display font-bold text-xs mt-0.5">
+            2
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-white text-xs">Un Solo Cambio por Participante (Definitivo)</h4>
+            <p class="text-slate-300 text-[11px] leading-relaxed mt-0.5">
+              Cada estudiante tiene derecho a registrar <strong>una única solicitud</strong> durante el evento. Una vez resuelta o aplicada la solicitud, el sistema bloqueará nuevos intentos y no podrás solicitar un nuevo cambio ni revertirlo por esta plataforma pública.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 font-display font-bold text-xs mt-0.5">
+            3
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-white text-xs">Restricción Alianza Action (Diseño Digital)</h4>
+            <p class="text-slate-300 text-[11px] leading-relaxed mt-0.5">
+              La <strong>Alianza Action (Diseño e Industria Digital)</strong> está cerrada en esta plataforma: sus estudiantes no pueden trasladarse y ningún estudiante de Informática o Analista puede cambiarse a Action por esta vía.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 font-display font-bold text-xs mt-0.5">
+            4
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-white text-xs">Excepciones Presenciales Durante el Evento Real</h4>
+            <p class="text-slate-300 text-[11px] leading-relaxed mt-0.5">
+              Si la jefatura de carrera o la coordinación decide reasignar o integrar carreras (por ejemplo, mezclar Informática con Diseño) durante las jornadas presenciales (18 al 20 de noviembre en Sede Antofagasta), dicho ajuste se gestionará <strong>exclusivamente de forma manual y presencial</strong> por los administradores.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <div class="w-6 h-6 rounded-lg bg-purple-500/15 border border-purple-500/40 text-purple-400 flex items-center justify-center shrink-0 font-display font-bold text-xs mt-0.5">
+            5
+          </div>
+          <div>
+            <h4 class="font-display font-bold text-white text-xs">Equilibrio de Cupos y Lista de Espera</h4>
+            <p class="text-slate-300 text-[11px] leading-relaxed mt-0.5">
+              Para resguardar el equilibrio competitivo, se exige una diferencia máxima de hasta 4 alumnos entre Terror y Shooter. Si la alianza solicitada no cuenta con cupo disponible, tu solicitud quedará en <strong>Lista de Espera</strong> hasta que se libere un cupo o se genere una permuta directa con otro competidor.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Checkbox de aceptación -->
+      <div class="shrink-0 pt-2 pb-1">
+        <label class="p-3 sm:p-3.5 rounded-2xl bg-[#050C24] border-2 border-[#142252] hover:border-[#2D46B9] transition flex items-start gap-3 cursor-pointer group">
+          <input 
+            type="checkbox" 
+            id="terms-checkbox" 
+            onchange="handleTermsCheckboxChange(this.checked)"
+            class="mt-1 w-4 h-4 rounded bg-[#0A1333] border-[#2D46B9] text-[#E6194B] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#E6194B]"
+          />
+          <span class="text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition leading-relaxed select-none">
+            He leído y acepto los <strong>Términos, Condiciones y Reglamento de Traslado</strong>. Entiendo que es una solicitud formal sujeta a aprobación, de un único intento, y que no podré cambiarme a Diseño Digital por este medio.
+          </span>
+        </label>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="shrink-0 pt-3 flex items-center gap-3">
+        <button 
+          type="button" 
+          onclick="closeTermsModal()" 
+          class="flex-1 py-3 px-4 rounded-xl bg-[#050C24] hover:bg-[#142252] text-xs font-display font-bold text-slate-300 hover:text-white border border-[#142252] transition"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          id="terms-continue-btn"
+          onclick="proceedToChangeRequestModal()" 
+          disabled
+          class="flex-1 py-3 px-4 rounded-xl bg-[#2D46B9] opacity-40 cursor-not-allowed text-xs font-display font-black uppercase tracking-wider text-white transition flex items-center justify-center gap-1.5 shadow-lg"
+        >
+          <span>Continuar a Solicitud</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: FORMULARIO DE SOLICITUD DE CAMBIO               -->
+  <!-- ======================================================== -->
+  <div id="change-request-modal" class="fixed inset-0 z-50 bg-[#050C24]/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative overflow-hidden glow-electric">
+      
+      <button onclick="closeChangeRequestModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="space-y-4">
+        <div>
+          <span class="text-[10px] font-display font-black tracking-widest uppercase text-[#E6194B]">
+            /// SOLICITUD FORMAL
+          </span>
+          <h3 class="text-xl font-black font-display text-white tracking-tight mt-0.5">
+            Solicitar Cambio de Alianza
+          </h3>
+          <p class="text-xs text-slate-300 font-body mt-1">
+            Solo disponible para Informática y Analista entre Alianza Terror y Alianza Shooter.
+          </p>
+        </div>
+
+        <!-- Indicador de Términos Aceptados -->
+        <div class="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-[11px] text-emerald-300 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+            <span>Reglamento y condiciones de traslado aceptados</span>
+          </div>
+          <button type="button" onclick="openTermsModal()" class="text-[10px] text-emerald-400 hover:underline font-mono font-bold">
+            Ver texto
+          </button>
+        </div>
+
+        <!-- Visualizador de Traslado A ➔ B -->
+        <div class="p-3.5 rounded-2xl bg-[#050C24] border border-[#142252] flex items-center justify-between gap-3 text-xs">
+          <div class="text-center flex-1">
+            <span class="text-[10px] text-slate-400 uppercase font-display block">Alianza Actual</span>
+            <span id="modal-from-alliance" class="font-display font-black text-sm text-white mt-0.5 block">-</span>
+          </div>
+
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-[#142252] text-[#7F9CF5] shrink-0">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </div>
+
+          <div class="text-center flex-1">
+            <span class="text-[10px] text-slate-400 uppercase font-display block">Alianza Destino</span>
+            <span id="modal-to-alliance" class="font-display font-black text-sm text-white mt-0.5 block">-</span>
+          </div>
+        </div>
+
+        <!-- Estado de Cupo en Vivo -->
+        <div id="modal-quota-status" class="p-3 rounded-xl bg-[#0A1333] border border-[#2D46B9] text-xs flex items-center gap-2.5">
+          <i data-lucide="info" class="w-4 h-4 text-[#7F9CF5] shrink-0"></i>
+          <span id="modal-quota-text" class="text-slate-200 text-xs">Verificando cupos disponibles...</span>
+        </div>
+
+        <!-- Formulario de Motivo -->
+        <form onsubmit="submitAllianceChangeRequest(event)" class="space-y-3 pt-1">
+          <div>
+            <label for="request-reason" class="block text-xs font-display font-bold uppercase tracking-wider text-slate-300 mb-1">
+              Motivo de la solicitud (Opcional)
+            </label>
+            <textarea 
+              id="request-reason" 
+              rows="3" 
+              maxlength="250"
+              placeholder="Ej. Mi grupo de proyecto está en la otra alianza, deseo colaborar en el desafío..."
+              class="w-full p-3 rounded-xl bg-[#050C24] border border-[#142252] focus:border-[#E6194B] text-xs text-white placeholder-slate-500 focus:outline-none transition resize-none font-sans"
+            ></textarea>
+          </div>
+
+          <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-900/50 text-[11px] text-amber-200 space-y-1">
+            <div class="font-bold flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Reglamento Importante:</span>
+            </div>
+            <p class="text-amber-200/90 leading-relaxed">
+              Solo se permite una solicitud por estudiante. Todo cambio es validado y aprobado manualmente por la coordinación en la mesa de control del evento.
+            </p>
+          </div>
+
+          <div id="request-error-box" class="hidden p-3 rounded-xl bg-red-950/60 border border-red-900/60 text-xs text-red-200 font-medium"></div>
+
+          <div class="pt-2 flex items-center gap-3">
+            <button 
+              type="button" 
+              onclick="closeChangeRequestModal()" 
+              class="flex-1 py-3 px-4 rounded-xl bg-[#050C24] hover:bg-[#142252] text-xs font-display font-bold text-slate-300 hover:text-white border border-[#142252] transition"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              id="confirm-change-btn"
+              class="flex-1 py-3 px-4 rounded-xl bg-[#E6194B] hover:bg-[#c81440] text-xs font-display font-black uppercase text-white shadow-lg shadow-[#E6194B]/40 transition flex items-center justify-center gap-1.5"
+            >
+              <span>Confirmar Envío</span>
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- FOOTER ASIMÉTRICO (09:30 HRS & ANTOFAGASTA)              -->
+  <!-- ======================================================== -->
+  <footer class="bg-[#050C24] border-t-2 border-[#142252] pt-10 pb-8 text-white relative z-10 overflow-hidden">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center pb-8 border-b border-[#142252]">
+        
+        <div class="md:col-span-7 space-y-4 md:pr-6">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[#E6194B] font-display font-black tracking-widest text-xs uppercase">/// INFORMACIÓN OFICIAL DEL EVENTO</span>
+          </div>
+
+          <div class="flex items-center gap-4 bg-[#0A1333]/60 border border-[#142252] rounded-xl p-3.5 hover:border-[#2D46B9] transition">
+            <div class="w-11 h-11 rounded-lg bg-[#E6194B] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#E6194B]/40">
+              <i data-lucide="calendar" class="w-6 h-6 fill-white stroke-none"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display block">
+                DEL PROGRAMA GENERAL DE NOVIEMBRE
+              </span>
+              <span class="text-2xl sm:text-3xl font-black font-display text-white tracking-tight leading-none mt-0.5 block">
+                19 AL 26 <span class="text-base sm:text-lg font-bold text-[#E6194B]">DE NOVIEMBRE</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 bg-[#0A1333]/60 border border-[#142252] rounded-xl p-3.5 hover:border-[#2D46B9] transition">
+            <div class="w-11 h-11 rounded-lg bg-[#E6194B] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#E6194B]/40">
+              <i data-lucide="clock" class="w-6 h-6 fill-white stroke-none"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display block">
+                DESDE LAS JORNADAS MATUTINA Y VESPERTINA
+              </span>
+              <span class="text-2xl sm:text-3xl font-black font-display text-white tracking-tight leading-none mt-0.5 block">
+                09:30 HRS <span class="text-base sm:text-lg font-bold text-[#7F9CF5]">CONTINUO</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 bg-[#0A1333]/60 border border-[#142252] rounded-xl p-3.5 hover:border-[#2D46B9] transition">
+            <div class="w-11 h-11 rounded-lg bg-[#E6194B] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#E6194B]/40">
+              <i data-lucide="map-pin" class="w-6 h-6 fill-white stroke-none"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display block">
+                SEDE OFICIAL
+              </span>
+              <span class="text-xl sm:text-2xl font-black font-display text-white tracking-tight leading-none mt-0.5 block">
+                ANTOFAGASTA <span class="text-xs sm:text-sm font-semibold text-slate-400 font-body block sm:inline">• ÁREA TI & DISEÑO DIGITAL</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-5 flex flex-col items-center md:items-end justify-center md:border-l-2 md:border-white/30 md:pl-8 relative">
+          <div class="relative flex flex-col items-center">
+            <div class="mb-2.5 px-3 py-1 bg-[#E6194B] text-white font-display font-black text-xs uppercase tracking-wider rounded-md shadow-lg shadow-[#E6194B]/50" style="transform: rotate(2deg) skewX(-10deg);">
+              ESCANEA PARA DESCUBRIR MÁS
+            </div>
+
+            <div class="bg-white p-3.5 border-4 border-[#E6194B] shadow-2xl relative" style="border-radius: var(--qr-border-radius); box-shadow: 0 0 30px rgba(230, 25, 75, 0.4);">
+              <svg class="w-36 h-36 sm:w-40 sm:h-40" viewBox="0 0 100 100" fill="#050C24">
+                <rect x="5" y="5" width="28" height="28" fill="#050C24" rx="4"/>
+                <rect x="9" y="9" width="20" height="20" fill="#FFFFFF" rx="2"/>
+                <rect x="13" y="13" width="12" height="12" fill="#E6194B" rx="1"/>
+
+                <rect x="67" y="5" width="28" height="28" fill="#050C24" rx="4"/>
+                <rect x="71" y="9" width="20" height="20" fill="#FFFFFF" rx="2"/>
+                <rect x="75" y="13" width="12" height="12" fill="#E6194B" rx="1"/>
+
+                <rect x="5" y="67" width="28" height="28" fill="#050C24" rx="4"/>
+                <rect x="9" y="71" width="20" height="20" fill="#FFFFFF" rx="2"/>
+                <rect x="13" y="75" width="12" height="12" fill="#E6194B" rx="1"/>
+
+                <rect x="38" y="10" width="8" height="8" rx="1"/>
+                <rect x="50" y="10" width="8" height="8" rx="1"/>
+                <rect x="38" y="22" width="12" height="6" rx="1"/>
+                <rect x="10" y="38" width="6" height="12" rx="1"/>
+                <rect x="22" y="44" width="8" height="8" rx="1"/>
+                <rect x="38" y="38" width="24" height="24" fill="#2D46B9" rx="3"/>
+                <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
+                <rect x="68" y="38" width="10" height="8" rx="1"/>
+                <rect x="82" y="42" width="8" height="14" rx="1"/>
+                <rect x="42" y="68" width="8" height="18" rx="1"/>
+                <rect x="56" y="68" width="14" height="8" rx="1"/>
+                <rect x="74" y="74" width="16" height="16" rx="2"/>
+              </svg>
+            </div>
+
+            <div class="mt-2 flex items-center gap-2 text-slate-300 text-xs font-display font-bold italic">
+              <svg class="w-5 h-5 text-[#7F9CF5] animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19V5M5 12l7-7 7 7"/>
+              </svg>
+              <span>Acceso directo desde tu móvil</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="font-display font-bold text-white tracking-wide">Semana de las Carreras 2026</span>
+          <span class="text-[#E6194B]">•</span>
+          <span>Área Tecnologías de la Información, Telecomunicaciones y Diseño Digital</span>
+        </div>
+        <div class="flex items-center gap-3 font-mono text-[11px] text-slate-300">
+          <span>Ing. en Informática</span>
+          <span>•</span>
+          <span>Telecomunicaciones</span>
+          <span>•</span>
+          <span>Analista</span>
+          <span>•</span>
+          <span>Diseño Digital</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT CLIENTE SEGURO (CON FALLBACK AUTOMÁTICO A VERCEL SI FALTA LOCAL) -->
+  <script src="alianzas.js" onerror="this.onerror=null; this.src='https://semanacarr.vercel.app/alianzas/alianzas.js';"></script>
+</body>
+</html>

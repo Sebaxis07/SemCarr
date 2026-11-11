@@ -75,6 +75,18 @@
       color: var(--text-light);
     }
 
+    /* Compatibilidad Power Pages: Forzar fondo espacial y eliminar espacios/barras grises */
+    html, body, #content-container, .page-copy, .sectionBlockLayout, .container {
+      background-color: #050C24 !important;
+      color: #FFFFFF !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+    }
+    header, .navbar, .navbar-static-top, footer, .footer {
+      display: none !important;
+    }
+
     h1, h2, h3, h4, .font-heading, .font-display {
       font-family: var(--font-display);
     }
@@ -235,7 +247,7 @@
           <!-- Mascota Grande y Transparente -->
           <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-52">
             <img 
-              src="img/mascota-terror.png" 
+              src="https://semanacarr.vercel.app/img/mascota-terror.png" 
               alt="Mascota Alianza Terror" 
               class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_rgba(230,25,75,0.7)] hover:scale-105 transition duration-300"
             />
@@ -279,7 +291,7 @@
           <!-- Mascota Grande y Transparente -->
           <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-52">
             <img 
-              src="img/mascota-shooter.png" 
+              src="https://semanacarr.vercel.app/img/mascota-shooter.png" 
               alt="Mascota Alianza Shooter" 
               class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_rgba(45,70,185,0.7)] hover:scale-105 transition duration-300"
             />
@@ -323,7 +335,7 @@
           <!-- Mascota Grande y Transparente -->
           <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-52">
             <img 
-              src="img/mascota-action.png" 
+              src="https://semanacarr.vercel.app/img/mascota-action.png" 
               alt="Mascota Alianza Action" 
               class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_rgba(5,150,105,0.7)] hover:scale-105 transition duration-300"
             />
@@ -802,7 +814,7 @@
     </div>
   </footer>
 
-  <!-- SCRIPT CLIENTE SEGURO -->
-  <script src="alianzas.js"></script>
+  <!-- SCRIPT CLIENTE SEGURO (CON FALLBACK AUTOMÁTICO A VERCEL SI FALTA LOCAL) -->
+  <script src="alianzas.js" onerror="this.onerror=null; this.src='https://semanacarr.vercel.app/alianzas/alianzas.js';"></script>
 </body>
 </html>

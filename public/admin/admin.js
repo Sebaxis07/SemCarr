@@ -185,7 +185,7 @@ function showAdminView() {
       staff: 'Staff Cancha / Puntos',
       docente: 'Docente Evaluador'
     };
-    roleBadge.className = `px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${roleColors[currentUser.role] || 'bg-slate-900 text-slate-300'}`;
+    roleBadge.className = `px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${roleColors[currentUser.role] || 'bg-[#0A1333] text-slate-300'}`;
     roleBadge.textContent = roleNames[currentUser.role] || currentUser.role;
   }
 
@@ -234,10 +234,17 @@ function renderRoleSidebar() {
       <button 
         onclick="switchAdminSection('${s.id}')" 
         id="side-btn-${s.id}"
-        class="w-full text-left px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-2.5 ${currentAdminSection === s.id ? 'bg-slate-900 text-white font-semibold border border-slate-800' : 'text-slate-400 hover:text-white hover:bg-slate-900/40 border border-transparent'}"
+        class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center justify-between gap-2.5 group ${
+          currentAdminSection === s.id 
+            ? 'bg-gradient-to-r from-[#2D46B9] to-[#0A1333] text-white border-l-4 border-l-[#E6194B] border-t border-r border-b border-[#2D46B9]/60 shadow-lg shadow-[#2D46B9]/30' 
+            : 'text-slate-300 hover:text-white hover:bg-[#0A1333] border border-transparent hover:border-[#142252]'
+        }"
       >
-        <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0 ${currentAdminSection === s.id ? 'text-white' : 'text-slate-500'}"></i>
-        <span class="truncate">${s.name}</span>
+        <div class="flex items-center gap-2.5 truncate">
+          <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0 ${currentAdminSection === s.id ? 'text-[#7F9CF5]' : 'text-slate-400 group-hover:text-white transition'}"></i>
+          <span class="truncate">${s.name}</span>
+        </div>
+        ${currentAdminSection === s.id ? '<span class="w-1.5 h-1.5 rounded-full bg-[#E6194B] shrink-0 shadow-sm shadow-[#E6194B] animate-pulse"></span>' : ''}
       </button>
     `).join('');
   }
@@ -250,7 +257,11 @@ function renderRoleSidebar() {
         <button
           onclick="switchAdminSection('${s.id}')"
           id="mob-pill-${s.id}"
-          class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 transition ${isSel ? 'bg-red-600 border-red-500 text-white font-bold shadow-md shadow-red-950/60' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'}"
+          class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider border flex items-center gap-1.5 transition ${
+            isSel 
+              ? 'bg-[#E6194B] border-[#E6194B] text-white shadow-lg shadow-[#E6194B]/40' 
+              : 'bg-[#0A1333] border-[#142252] text-slate-300 hover:text-white hover:bg-[#0E1E48]'
+          }"
         >
           <i data-lucide="${s.icon}" class="w-3.5 h-3.5"></i>
           <span>${s.name}</span>
@@ -267,13 +278,17 @@ function renderRoleSidebar() {
         <button
           onclick="switchAdminSection('${s.id}')"
           id="mob-drawer-btn-${s.id}"
-          class="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition ${isSel ? 'bg-slate-900 text-white font-bold border border-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+          class="w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider flex items-center justify-between transition ${
+            isSel 
+              ? 'bg-gradient-to-r from-[#2D46B9] to-[#0A1333] text-white border-l-4 border-l-[#E6194B] border border-[#2D46B9]/60 shadow-md' 
+              : 'text-slate-300 hover:text-white hover:bg-[#050C24] border border-transparent'
+          }"
         >
           <div class="flex items-center gap-2.5 truncate">
-            <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0 ${isSel ? 'text-red-400' : 'text-slate-500'}"></i>
+            <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0 ${isSel ? 'text-[#7F9CF5]' : 'text-slate-400'}"></i>
             <span class="truncate">${s.name}</span>
           </div>
-          ${isSel ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>' : ''}
+          ${isSel ? '<span class="w-1.5 h-1.5 rounded-full bg-[#E6194B] shrink-0 animate-pulse"></span>' : ''}
         </button>
       `;
     }).join('');
@@ -333,20 +348,20 @@ function switchAdminSection(secId) {
 
   // Actualizar sidebar desktop
   document.querySelectorAll('#sidebar-nav-container button').forEach(btn => {
-    btn.className = 'w-full text-left px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-2.5 text-slate-400 hover:text-white hover:bg-slate-900/40 border border-transparent';
+    btn.className = 'w-full text-left px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-2.5 text-slate-400 hover:text-white hover:bg-[#0A1333]/50 border border-transparent';
   });
   const activeBtn = document.getElementById(`side-btn-${secId}`);
   if (activeBtn) {
-    activeBtn.className = 'w-full text-left px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-2.5 bg-slate-900 text-white font-semibold border border-slate-800';
+    activeBtn.className = 'w-full text-left px-3 py-2.5 rounded-xl text-xs transition flex items-center gap-2.5 bg-[#0A1333] text-white font-semibold border border-[#142252]';
   }
 
   // Actualizar píldoras móviles
   document.querySelectorAll('#mobile-horizontal-nav button').forEach(btn => {
-    btn.className = 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 transition bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900';
+    btn.className = 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 transition bg-[#050C24] border-[#142252] text-slate-400 hover:text-white hover:bg-[#0A1333]';
   });
   const activePill = document.getElementById(`mob-pill-${secId}`);
   if (activePill) {
-    activePill.className = 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 transition bg-red-600 border-red-500 text-white font-bold shadow-md shadow-red-950/60';
+    activePill.className = 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 transition bg-[#E6194B] border-red-500 text-white font-bold shadow-md shadow-lg shadow-[#E6194B]/30';
     activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }
 
@@ -437,28 +452,28 @@ async function renderSeguridadPanelAsync(mainView) {
 
     mainView.innerHTML = `
       <div class="space-y-5">
-        <div class="border-b border-slate-900 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="border-b border-[#142252] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <span class="text-[11px] font-mono uppercase text-red-500 font-bold">OWASP ASVS • Auditoría Activa</span>
-            <h3 class="text-base font-bold font-heading text-white">Registro de Seguridad y Control de Acceso</h3>
+            <h3 class="text-base font-bold font-display text-white">Registro de Seguridad y Control de Acceso</h3>
             <p class="text-xs text-slate-400 mt-0.5">Monitoreo en tiempo real de inicios de sesión, intentos bloqueados e IPs auditadas.</p>
           </div>
-          <button onclick="switchAdminSection('seguridad')" class="py-1.5 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs rounded-lg border border-slate-800 transition flex items-center gap-1.5 self-start sm:self-auto">
+          <button onclick="switchAdminSection('seguridad')" class="py-1.5 px-3 bg-[#0A1333] hover:bg-[#142252] text-slate-300 text-xs rounded-lg border border-[#142252] transition flex items-center gap-1.5 self-start sm:self-auto">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Actualizar Bitácora
           </button>
         </div>
 
         <div class="space-y-2">
           ${logs.length === 0 ? `
-            <div class="p-8 text-center text-xs text-slate-500 bg-slate-950 rounded-xl border border-slate-900">
+            <div class="p-8 text-center text-xs text-slate-500 bg-[#050C24] rounded-xl border border-[#142252]">
               No hay incidentes ni eventos de seguridad registrados recientemente.
             </div>
           ` : logs.map(log => `
-            <div class="p-3 bg-slate-950 border border-slate-800/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div class="p-3 bg-[#050C24] border border-[#142252] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
               <div class="space-y-0.5 min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-white truncate">${log.action}</span>
-                  ${log.details?.ip ? `<span class="font-mono text-[10px] text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 shrink-0">IP: ${log.details.ip}</span>` : ''}
+                  ${log.details?.ip ? `<span class="font-mono text-[10px] text-slate-400 bg-[#0A1333] px-1.5 py-0.5 rounded border border-[#142252] shrink-0">IP: ${log.details.ip}</span>` : ''}
                 </div>
                 ${log.details?.reason ? `<span class="text-red-400 block text-[11px]">Motivo: ${log.details.reason}</span>` : ''}
               </div>
@@ -482,10 +497,10 @@ function renderCoreAdminSectionContent(secId) {
   if (secId === 'docentes') {
     return `
       <div class="space-y-5">
-        <div class="border-b border-slate-900 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="border-b border-[#142252] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <span class="text-[11px] font-mono uppercase text-slate-500">Módulo 2</span>
-            <h3 class="text-base font-bold font-heading text-white">Evaluación Docente de Desafíos Creativos</h3>
+            <h3 class="text-base font-bold font-display text-white">Evaluación Docente de Desafíos Creativos</h3>
             <p class="text-xs text-slate-400 mt-0.5">Rúbricas oficiales con botones cuadrados interactivos. Alerta automática si la discrepancia supera 20 puntos.</p>
           </div>
           <div class="flex items-center gap-2">
@@ -496,10 +511,10 @@ function renderCoreAdminSectionContent(secId) {
         </div>
 
         <!-- FILTROS Y SELECCIÓN DE EVALUACIÓN -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#050C24] p-4 rounded-2xl border border-[#142252]">
           <div>
             <label class="text-[11px] text-slate-400 font-mono block mb-1.5">Alianza a Evaluar</label>
-            <select id="docente-al-select" onchange="renderDocenteRubricForm()" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-semibold focus:border-red-500 focus:outline-none">
+            <select id="docente-al-select" onchange="renderDocenteRubricForm()" class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs font-semibold focus:border-[#E6194B] focus:outline-none">
               <option value="Terror">Terror: Videojuego con IA</option>
               <option value="Shooter">Shooter: Asistente con IA</option>
               <option value="Action">Action: Collage Digital</option>
@@ -507,38 +522,38 @@ function renderCoreAdminSectionContent(secId) {
           </div>
           <div>
             <label class="text-[11px] text-slate-400 font-mono block mb-1.5">Docente Juez</label>
-            <select id="docente-num-select" onchange="renderDocenteRubricForm()" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-2.5 text-xs font-semibold focus:border-red-500 focus:outline-none">
+            <select id="docente-num-select" onchange="renderDocenteRubricForm()" class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs font-semibold focus:border-[#E6194B] focus:outline-none">
               <option value="1">Docente 1</option>
               <option value="2">Docente 2</option>
             </select>
           </div>
           <div class="flex items-center gap-3 pt-6 sm:pt-5">
-            <input type="checkbox" id="docente-delivered" onchange="recalculateRubricLiveScore()" class="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700 cursor-pointer">
+            <input type="checkbox" id="docente-delivered" onchange="recalculateRubricLiveScore()" class="w-4 h-4 rounded text-red-600 bg-[#0A1333] border-[#142252] cursor-pointer">
             <label for="docente-delivered" class="text-xs text-slate-200 font-semibold cursor-pointer select-none">Entrega en plazo (+1.000 pts)</label>
           </div>
         </div>
 
         <!-- MARCADOR EN VIVO DE CALIFICACIÓN -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-slate-950 rounded-2xl border border-slate-800">
-          <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800/80 text-center">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-[#050C24] rounded-2xl border border-[#142252]">
+          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
             <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Nota Docente (0-100)</span>
             <div class="flex items-baseline justify-center gap-1">
               <span id="rubric-live-score" class="text-xl font-bold font-mono text-emerald-400">0</span>
               <span class="text-[10px] font-mono text-slate-500">/ 100</span>
             </div>
           </div>
-          <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800/80 text-center">
+          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
             <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Puntos por Nota (×25)</span>
             <div class="flex items-baseline justify-center gap-1">
               <span id="rubric-live-pts" class="text-xl font-bold font-mono text-white">0</span>
               <span class="text-[10px] font-mono text-slate-500">/ 2.500</span>
             </div>
           </div>
-          <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800/80 text-center">
+          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
             <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Bono Entrega Plazo</span>
             <span id="rubric-live-bono" class="text-xl font-bold font-mono text-amber-400 block">+1.000 pts</span>
           </div>
-          <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800/80 text-center">
+          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
             <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Total Estimado Alianza</span>
             <span id="rubric-live-total" class="text-xl font-bold font-mono text-amber-300 block">0 pts</span>
           </div>
@@ -550,7 +565,7 @@ function renderCoreAdminSectionContent(secId) {
         </div>
 
         <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <button onclick="submitDocenteEval()" class="py-2.5 px-6 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/60 transition flex items-center justify-center gap-2">
+          <button onclick="submitDocenteEval()" class="py-2.5 px-6 bg-[#E6194B] hover:bg-[#ff2b5f] active:scale-[0.99] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-lg shadow-[#E6194B]/30 transition flex items-center justify-center gap-2">
             <i data-lucide="save" class="w-4 h-4"></i>
             <span>Guardar Calificación Docente</span>
           </button>
@@ -563,18 +578,18 @@ function renderCoreAdminSectionContent(secId) {
   if (secId === 'disciplina') {
     return `
       <div class="space-y-6">
-        <div class="border-b border-slate-900 pb-3">
+        <div class="border-b border-[#142252] pb-3">
           <span class="text-[11px] font-mono uppercase text-slate-500">Módulo 3</span>
-          <h3 class="text-base font-bold font-heading text-white">Sanciones Disciplinarias y Puntos Sorpresa</h3>
+          <h3 class="text-base font-bold font-display text-white">Sanciones Disciplinarias y Puntos Sorpresa</h3>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <!-- Sanción -->
-          <div class="bg-slate-900/30 border border-red-950/60 p-4 rounded-xl space-y-3">
+          <div class="bg-[#0A1333]/30 border border-red-950/60 p-4 rounded-xl space-y-3">
             <h4 class="text-xs font-bold text-red-400 uppercase font-mono tracking-wider">Aplicar Sanción (-200 a -600 pts)</h4>
             <div>
               <label class="text-[11px] text-slate-500 block mb-1">Alianza</label>
-              <select id="sancion-al" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2 text-xs">
+              <select id="sancion-al" class="w-full bg-[#050C24] border border-[#142252] text-white rounded-lg p-2 text-xs">
                 <option value="Terror">Terror</option>
                 <option value="Shooter">Shooter</option>
                 <option value="Action">Action</option>
@@ -582,11 +597,11 @@ function renderCoreAdminSectionContent(secId) {
             </div>
             <div>
               <label class="text-[11px] text-slate-500 block mb-1">Puntos a Descontar (200 - 600)</label>
-              <input type="number" id="sancion-pts" min="200" max="600" step="50" value="200" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2 text-xs font-mono">
+              <input type="number" id="sancion-pts" min="200" max="600" step="50" value="200" class="w-full bg-[#050C24] border border-[#142252] text-white rounded-lg p-2 text-xs font-mono">
             </div>
             <div>
               <label class="text-[11px] text-slate-500 block mb-1">Motivo Reglamentario</label>
-              <textarea id="sancion-motivo" placeholder="Descripción de la falta..." class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2 text-xs h-16"></textarea>
+              <textarea id="sancion-motivo" placeholder="Descripción de la falta..." class="w-full bg-[#050C24] border border-[#142252] text-white rounded-lg p-2 text-xs h-16"></textarea>
             </div>
             <button onclick="submitSancion()" class="w-full py-2 bg-red-950/50 hover:bg-red-900/60 text-red-300 text-xs font-semibold rounded-lg border border-red-900/50 transition">
               Registrar Descuento
@@ -594,24 +609,24 @@ function renderCoreAdminSectionContent(secId) {
           </div>
 
           <!-- Sorpresa -->
-          <div class="bg-slate-900/30 border border-amber-950/60 p-4 rounded-xl space-y-3">
+          <div class="bg-[#0A1333]/30 border border-amber-950/60 p-4 rounded-xl space-y-3">
             <h4 class="text-xs font-bold text-amber-400 uppercase font-mono tracking-wider">Sumar Actividad Sorpresa</h4>
             <div>
               <label class="text-[11px] text-slate-500 block mb-1">Nombre de la Actividad</label>
-              <input type="text" id="sorp-name" placeholder="Ej: Trivia relámpago" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2 text-xs">
+              <input type="text" id="sorp-name" placeholder="Ej: Trivia relámpago" class="w-full bg-[#050C24] border border-[#142252] text-white rounded-lg p-2 text-xs">
             </div>
             <div class="grid grid-cols-3 gap-2 font-mono">
               <div>
                 <label class="text-[10px] text-red-400 block mb-1">Terror</label>
-                <input type="number" id="sorp-terror" placeholder="0" class="w-full bg-slate-950 border border-slate-800 text-white rounded p-1.5 text-xs text-center">
+                <input type="number" id="sorp-terror" placeholder="0" class="w-full bg-[#050C24] border border-[#142252] text-white rounded p-1.5 text-xs text-center">
               </div>
               <div>
                 <label class="text-[10px] text-blue-400 block mb-1">Shooter</label>
-                <input type="number" id="sorp-shooter" placeholder="0" class="w-full bg-slate-950 border border-slate-800 text-white rounded p-1.5 text-xs text-center">
+                <input type="number" id="sorp-shooter" placeholder="0" class="w-full bg-[#050C24] border border-[#142252] text-white rounded p-1.5 text-xs text-center">
               </div>
               <div>
                 <label class="text-[10px] text-emerald-400 block mb-1">Action</label>
-                <input type="number" id="sorp-action" placeholder="0" class="w-full bg-slate-950 border border-slate-800 text-white rounded p-1.5 text-xs text-center">
+                <input type="number" id="sorp-action" placeholder="0" class="w-full bg-[#050C24] border border-[#142252] text-white rounded p-1.5 text-xs text-center">
               </div>
             </div>
             <button onclick="submitSorpresa()" class="w-full py-2 bg-amber-950/50 hover:bg-amber-900/60 text-amber-300 text-xs font-semibold rounded-lg border border-amber-900/50 transition">
@@ -626,24 +641,24 @@ function renderCoreAdminSectionContent(secId) {
   if (secId === 'avisos') {
     return `
       <div class="space-y-4">
-        <div class="border-b border-slate-900 pb-3">
+        <div class="border-b border-[#142252] pb-3">
           <span class="text-[11px] font-mono uppercase text-slate-500">Módulo 4</span>
-          <h3 class="text-base font-bold font-heading text-white">Barra de Avisos y Anuncios en Directo</h3>
+          <h3 class="text-base font-bold font-display text-white">Barra de Avisos y Anuncios en Directo</h3>
           <p class="text-xs text-slate-400 mt-0.5">Mensajes emitidos instantáneamente al banner del portal y a la pantalla grande del proyector.</p>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-2.5">
-          <input type="text" id="ann-input-text" placeholder="Ej: Quemadas parte en 5 minutos en cancha central" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-          <button onclick="submitNewAnnouncement()" class="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg border border-slate-700 transition">
+          <input type="text" id="ann-input-text" placeholder="Ej: Quemadas parte en 5 minutos en cancha central" class="flex-1 bg-[#050C24] border border-[#142252] rounded-lg p-2.5 text-xs text-white">
+          <button onclick="submitNewAnnouncement()" class="py-2.5 px-5 bg-[#0A1333] hover:bg-[#142252] text-white text-xs font-semibold rounded-lg border border-[#142252] transition">
             Publicar Aviso
           </button>
         </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-900">
+        <div class="mt-4 pt-3 border-t border-[#142252]">
           <span class="text-[11px] font-mono uppercase text-slate-500 block mb-2">Avisos activos actualmente:</span>
           <div class="space-y-2">
             ${(appData.announcements || []).map(a => `
-              <div class="p-2.5 bg-slate-900/40 border border-slate-900 rounded-lg flex items-center justify-between text-xs">
+              <div class="p-2.5 bg-[#0A1333]/50 border border-[#142252] rounded-lg flex items-center justify-between text-xs">
                 <span class="text-slate-300 truncate pr-3">${a.text}</span>
                 <button onclick="deleteAnnouncement(${a.id})" class="text-red-400 hover:text-red-300 font-mono text-[10px] shrink-0">Eliminar</button>
               </div>
@@ -819,7 +834,7 @@ function setRubricCritScore(critId, levelName) {
       if (labelSpan) labelSpan.className = 'rubric-lbl-text text-xs font-bold text-emerald-200 block text-center leading-tight';
       if (ptsSpan) ptsSpan.className = 'rubric-pts-text text-[11px] font-mono italic font-black text-emerald-400 mt-1 block text-center';
     } else {
-      btn.className = 'rubric-btn p-2 sm:p-2.5 rounded-xl border border-slate-800 bg-slate-950/90 text-slate-400 hover:bg-slate-900 hover:border-slate-700 hover:text-slate-200 transition flex flex-col items-center justify-center min-w-[70px] sm:min-w-[85px] cursor-pointer';
+      btn.className = 'rubric-btn p-2 sm:p-2.5 rounded-xl border border-[#142252] bg-[#050C24]/90 text-slate-400 hover:bg-[#0A1333] hover:border-[#142252] hover:text-slate-200 transition flex flex-col items-center justify-center min-w-[70px] sm:min-w-[85px] cursor-pointer';
       if (labelSpan) labelSpan.className = 'rubric-lbl-text text-xs font-medium text-slate-300 block text-center leading-tight';
       if (ptsSpan) ptsSpan.className = 'rubric-pts-text text-[11px] font-mono italic text-slate-500 mt-1 block text-center';
     }
@@ -855,11 +870,11 @@ function renderDocenteRubricForm() {
 
   container.innerHTML = `
     <!-- TABLA DE RÚBRICA CON BOTONES CUADRADOS (FORMATO EVALUACIÓN DOCENTE) -->
-    <div class="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950 shadow-sm divide-y divide-slate-800/80">
+    <div class="border border-[#142252] rounded-2xl overflow-hidden bg-[#050C24] shadow-sm divide-y divide-slate-800/80">
       ${criterios.map((c, idx) => {
         const currentVal = savedScores[c.id] || 'Bueno';
         return `
-          <div class="p-3.5 sm:p-4.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 hover:bg-slate-900/30 transition">
+          <div class="p-3.5 sm:p-4.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 hover:bg-[#0A1333]/30 transition">
             <!-- Columna Izquierda: Criterio y Aspectos Evaluados -->
             <div class="flex-1 pr-2">
               <input type="hidden" id="rubric-crit-${c.id}" value="${currentVal}">
@@ -870,7 +885,7 @@ function renderDocenteRubricForm() {
                 <span class="text-xs sm:text-sm font-bold text-white leading-tight">
                   ${c.nombre}
                 </span>
-                <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 ml-auto lg:ml-0 shrink-0">
+                <span class="text-[10px] font-mono text-slate-400 bg-[#0A1333] px-2 py-0.5 rounded border border-[#142252] ml-auto lg:ml-0 shrink-0">
                   ${c.peso} pts máx
                 </span>
               </div>
@@ -889,7 +904,7 @@ function renderDocenteRubricForm() {
                     type="button"
                     onclick="setRubricCritScore('${c.id}', '${lvl.key}')"
                     id="btn-crit-${c.id}-${lvl.key}"
-                    class="rubric-btn p-2 sm:p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition min-w-[70px] sm:min-w-[85px] cursor-pointer select-none ${isSel ? 'border-emerald-500 bg-emerald-950/80 ring-2 ring-emerald-500/50 text-white shadow-md' : 'border-slate-800 bg-slate-950/90 text-slate-400 hover:bg-slate-900 hover:border-slate-700 hover:text-slate-200'}"
+                    class="rubric-btn p-2 sm:p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition min-w-[70px] sm:min-w-[85px] cursor-pointer select-none ${isSel ? 'border-emerald-500 bg-emerald-950/80 ring-2 ring-emerald-500/50 text-white shadow-md' : 'border-[#142252] bg-[#050C24]/90 text-slate-400 hover:bg-[#0A1333] hover:border-[#142252] hover:text-slate-200'}"
                   >
                     <span class="rubric-lbl-text text-xs font-bold ${isSel ? 'text-emerald-200' : 'text-slate-300'} block text-center leading-tight">
                       ${lvl.key}
@@ -1080,13 +1095,13 @@ function openActivityDetail(id) {
 
   content.innerHTML = `
     <div class="space-y-4">
-      <div class="border-b border-slate-800 pb-3">
+      <div class="border-b border-[#142252] pb-3">
         <span class="text-xs font-bold uppercase tracking-wider text-red-500">${act.group}</span>
-        <h3 class="text-2xl font-black font-heading text-white mt-1">${act.name}</h3>
+        <h3 class="text-2xl font-black font-display text-white mt-1">${act.name}</h3>
         <span class="text-xs text-slate-400">${act.location} • Máximo ${act.maxPoints} pts</span>
       </div>
 
-      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300 leading-relaxed">
+      <div class="bg-[#050C24] p-4 rounded-2xl border border-[#142252] text-xs text-slate-300 leading-relaxed">
         <strong class="text-white block mb-1">Regla de Cálculo Oficial:</strong>
         ${act.type === 'gymkana' ? 
           'Puntaje Alianza = 3.000 × (Promedio de puntos por participante / 8). Cada participante suma 1 pt por intentar y 1 pt si resuelve cada uno de los 4 puestos.' : 
@@ -1131,14 +1146,14 @@ function openCreativeDetail() {
 
   content.innerHTML = `
     <div class="space-y-4">
-      <div class="border-b border-slate-800 pb-3">
+      <div class="border-b border-[#142252] pb-3">
         <span class="text-xs font-bold uppercase text-indigo-400">Desafíos Creativos</span>
-        <h3 class="text-2xl font-black font-heading text-white mt-1">Cálculo de Desafíos (Máx 4.000 pts)</h3>
+        <h3 class="text-2xl font-black font-display text-white mt-1">Cálculo de Desafíos (Máx 4.000 pts)</h3>
       </div>
       <p class="text-xs text-slate-300">
         Fórmula: 1.000 pts (entrega en plazo) + hasta 2.500 pts (nota promedio docente sobre 100 × 25) + 500 pts (mejor nota de las tres).
       </p>
-      <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-400">
+      <div class="bg-[#050C24] p-3 rounded-xl border border-[#142252] text-xs text-slate-400">
         Obra con mejor nota docente actual: <strong class="text-white">${fav || 'Pendiente de evaluación'}</strong>
       </div>
       <div class="grid grid-cols-3 gap-3 text-center">
@@ -1254,7 +1269,7 @@ function renderDashboardPanel() {
   return `
     <div class="space-y-5">
       <!-- HEADER DASHBOARD -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-900 pb-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#142252] pb-4">
         <div>
           <div class="flex items-center gap-2 mb-1">
             <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-400 bg-emerald-950/60 border border-emerald-900/40 px-2 py-0.5 rounded">
@@ -1262,17 +1277,17 @@ function renderDashboardPanel() {
             </span>
             <span class="text-[11px] text-slate-500 font-mono">Semana de la Carrera 2026</span>
           </div>
-          <h3 class="text-xl font-bold font-heading text-white tracking-tight">Dashboard Ejecutivo</h3>
+          <h3 class="text-xl font-bold font-display text-white tracking-tight">Dashboard Ejecutivo</h3>
           <p class="text-xs text-slate-400 mt-0.5">
             Informe oficial de gestión para el Jefe de Carrera y la Coordinadora. Resumen en una pantalla, padrón, cumplimiento horario, calibración docente y seguridad.
           </p>
         </div>
         <div class="flex items-center gap-2 shrink-0">
-          <button onclick="window.print()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-1.5 transition">
+          <button onclick="window.print()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-[#0A1333] hover:bg-[#142252] border border-[#142252] flex items-center gap-1.5 transition">
             <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>Imprimir / PDF</span>
           </button>
-          <button onclick="initDashboardModule()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 flex items-center gap-1.5 transition">
+          <button onclick="initDashboardModule()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-[#0A1333] hover:bg-[#142252] border border-[#142252] flex items-center gap-1.5 transition">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>Actualizar</span>
           </button>
@@ -1280,14 +1295,18 @@ function renderDashboardPanel() {
       </div>
 
       <!-- SUB-NAVBAR CON LOS 6 MÓDULOS -->
-      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-b border-slate-900/80">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[#142252]">
         ${tabs.map(t => `
           <button 
             onclick="switchDashboardSubTab('${t.id}')"
             id="dash-tab-btn-${t.id}"
-            class="px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 ${currentDashboardSubTab === t.id ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white hover:bg-slate-900/40 border border-transparent'}"
+            class="px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider whitespace-nowrap transition flex items-center gap-2 ${
+              currentDashboardSubTab === t.id 
+                ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20' 
+                : 'text-slate-300 hover:text-white bg-[#0A1333] hover:bg-[#0E1E48] border border-[#142252]'
+            }"
           >
-            <i data-lucide="${t.icon}" class="w-3.5 h-3.5 ${currentDashboardSubTab === t.id ? 'text-white' : 'text-slate-500'}"></i>
+            <i data-lucide="${t.icon}" class="w-3.5 h-3.5 ${currentDashboardSubTab === t.id ? 'text-white' : 'text-[#7F9CF5]'}"></i>
             <span>${t.label}</span>
           </button>
         `).join('')}
@@ -1297,7 +1316,7 @@ function renderDashboardPanel() {
       <div id="dashboard-content-area" class="min-h-[400px]">
         ${dashboardStatsData ? renderDashboardSubTabContent() : `
           <div class="py-16 text-center text-slate-500 text-xs font-mono">
-            <div class="w-6 h-6 border-2 border-slate-700 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
+            <div class="w-6 h-6 border-2 border-[#142252] border-t-white rounded-full animate-spin mx-auto mb-3"></div>
             Cargando indicadores ejecutivos y auditoría...
           </div>
         `}
@@ -1339,9 +1358,9 @@ function switchDashboardSubTab(subTab) {
     const btn = document.getElementById(`dash-tab-btn-${id}`);
     if (btn) {
       if (id === subTab) {
-        btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 bg-slate-900 text-white border border-slate-700 shadow-sm';
+        btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 bg-[#0A1333] text-white border border-[#142252] shadow-sm';
       } else {
-        btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-900/40 border border-transparent';
+        btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-[#0A1333]/50 border border-transparent';
       }
     }
   });
@@ -1363,8 +1382,8 @@ function renderDashboardSubTabContent() {
 // ----------------- SUB-VISTA 1: RESUMEN DEL EVENTO (1 PANTALLA) -----------------
 function renderDashboardResumenView(data) {
   const s = data.summary;
-  const colorMap = { Terror: 'text-red-400', Shooter: 'text-blue-400', Action: 'text-emerald-400' };
-  const bgMap = { Terror: 'bg-red-950/40 border-red-900/60', Shooter: 'bg-blue-950/40 border-blue-900/60', Action: 'bg-emerald-950/40 border-emerald-900/60' };
+  const colorMap = { Terror: 'text-[#E6194B]', Shooter: 'text-[#7F9CF5]', Action: 'text-[#34D399]' };
+  const bgMap = { Terror: 'bg-[#E6194B]/15 border-[#E6194B]/40', Shooter: 'bg-[#2D46B9]/15 border-[#2D46B9]/40', Action: 'bg-[#059669]/15 border-[#059669]/40' };
 
   return `
     <div class="space-y-4">
@@ -1389,13 +1408,13 @@ function renderDashboardResumenView(data) {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         
         <!-- CARD 1: PODIO Y LÍDER -->
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl space-y-2">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl space-y-2">
           <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">1. Marcador & Podio</span>
           <div class="flex items-baseline justify-between">
-            <span class="text-2xl font-black font-heading ${colorMap[s.leader] || 'text-white'}">${s.leader}</span>
+            <span class="text-2xl font-black font-display ${colorMap[s.leader] || 'text-white'}">${s.leader}</span>
             <span class="text-xs font-mono font-bold text-slate-300">${(s.leaderPoints || 0).toLocaleString('es-CL')} pts</span>
           </div>
-          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-slate-900">
+          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-[#142252]">
             <div class="flex justify-between text-slate-400">
               <span>2° ${s.sortedAlliances[1]}:</span>
               <span class="text-white">${(s.totals[s.sortedAlliances[1]]?.total || 0).toLocaleString('es-CL')}</span>
@@ -1408,13 +1427,13 @@ function renderDashboardResumenView(data) {
         </div>
 
         <!-- CARD 2: ASISTENCIA MULTI-DÍA -->
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl space-y-2">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl space-y-2">
           <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">2. Asistencia por Jornada</span>
           <div class="flex items-baseline justify-between">
             <span class="text-2xl font-black font-mono text-white">${s.attendancePerDay.day19}</span>
             <span class="text-[11px] text-slate-400">Día 19 (Cancha)</span>
           </div>
-          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-slate-900">
+          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-[#142252]">
             <div class="flex justify-between text-slate-400">
               <span>Día 20 (Tarreo presencial):</span>
               <span class="text-white">${s.attendancePerDay.day20_tarreo_attended} / ${s.attendancePerDay.day20_tarreo_registered || 48}</span>
@@ -1427,13 +1446,13 @@ function renderDashboardResumenView(data) {
         </div>
 
         <!-- CARD 3: TASA DE EJECUCIÓN -->
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl space-y-2">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl space-y-2">
           <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">3. Tasa de Ejecución</span>
           <div class="flex items-baseline justify-between">
             <span class="text-2xl font-black font-mono text-emerald-400">${s.executionRate}%</span>
             <span class="text-[11px] text-slate-400">${s.completedActivities}/${s.totalActivities} Actividades</span>
           </div>
-          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-slate-900">
+          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-[#142252]">
             <div class="flex justify-between text-slate-400">
               <span>Desafíos evaluados:</span>
               <span class="text-white">3 de 3 (100%)</span>
@@ -1446,13 +1465,13 @@ function renderDashboardResumenView(data) {
         </div>
 
         <!-- CARD 4: RECLAMOS Y SANCIONES -->
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl space-y-2">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl space-y-2">
           <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 block">4. Gobernanza y Control</span>
           <div class="flex items-baseline justify-between">
             <span class="text-2xl font-black font-mono text-white">${s.reclamosSummary.total}</span>
             <span class="text-[11px] text-slate-400">Reclamos Ingresados</span>
           </div>
-          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-slate-900">
+          <div class="space-y-1 pt-1 text-[11px] font-mono border-t border-[#142252]">
             <div class="flex justify-between text-slate-400">
               <span>Resueltos formalmente:</span>
               <span class="text-emerald-400">${s.reclamosSummary.resueltos}</span>
@@ -1467,8 +1486,8 @@ function renderDashboardResumenView(data) {
       </div>
 
       <!-- COMPARADOR VISUAL DE BARRAS DE PUNTOS TOTALES -->
-      <div class="p-5 bg-slate-900/30 border border-slate-900 rounded-2xl space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-900 pb-2">
+      <div class="p-5 bg-[#0A1333]/30 border border-[#142252] rounded-2xl space-y-3">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-2">
           <span class="text-xs font-bold font-mono uppercase text-slate-400">Comparación Final de Rendimiento</span>
           <span class="text-[11px] text-slate-500 font-mono">Puntos Totales Acumulados</span>
         </div>
@@ -1477,14 +1496,14 @@ function renderDashboardResumenView(data) {
             const pts = s.totals[al]?.total || 0;
             const maxPts = s.leaderPoints || 1;
             const pct = Math.max(8, Math.round((pts / maxPts) * 100));
-            const barBg = al === 'Terror' ? 'bg-red-600' : (al === 'Shooter' ? 'bg-blue-600' : 'bg-emerald-600');
+            const barBg = al === 'Terror' ? 'bg-[#E6194B]' : (al === 'Shooter' ? 'bg-blue-600' : 'bg-emerald-600');
             return `
               <div>
                 <div class="flex justify-between text-xs mb-1 font-mono">
                   <span class="font-bold text-white">${idx + 1}° Lugar: Alianza ${al}</span>
                   <span class="text-slate-300 font-bold">${pts.toLocaleString('es-CL')} pts</span>
                 </div>
-                <div class="w-full bg-slate-950 rounded-full h-3 p-0.5 border border-slate-900">
+                <div class="w-full bg-[#050C24] rounded-full h-3 p-0.5 border border-[#142252]">
                   <div class="${barBg} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
                 </div>
               </div>
@@ -1504,17 +1523,17 @@ function renderDashboardParticipacionView(data) {
     <div class="space-y-5">
       <!-- COBERTURA GENERAL DEL PADRÓN -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl">
           <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Padrón Oficial Total</span>
           <span class="text-3xl font-black font-mono text-white">${p.totalRegistered}</span>
           <span class="text-xs text-slate-400 block mt-1">Estudiantes inscritos en nóminas</span>
         </div>
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl">
           <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Participantes Únicos en Cancha</span>
           <span class="text-3xl font-black font-mono text-emerald-400">${p.uniqueCount}</span>
           <span class="text-xs text-slate-400 block mt-1">${p.participationRate}% de cobertura activa</span>
         </div>
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl">
           <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Sin Participación en Cancha</span>
           <span class="text-3xl font-black font-mono text-slate-400">${p.nonParticipantsCount}</span>
           <span class="text-xs text-slate-500 block mt-1">Espectadores o apoyo logístico</span>
@@ -1525,13 +1544,13 @@ function renderDashboardParticipacionView(data) {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
         <!-- POR CARRERA -->
-        <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
+        <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
           <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Participación por Carrera</h4>
           <div class="space-y-2">
             ${Object.entries(p.careerStats).map(([career, c]) => {
               const pct = c.total > 0 ? Math.round((c.participated / c.total) * 100) : 0;
               return `
-                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-center justify-between text-xs">
                   <div class="min-w-0 pr-2">
                     <span class="font-bold text-white block truncate">${career}</span>
                     <span class="text-[10px] text-slate-400">${c.participated} de ${c.total} estudiantes</span>
@@ -1546,14 +1565,14 @@ function renderDashboardParticipacionView(data) {
         </div>
 
         <!-- POR ALIANZA -->
-        <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
+        <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
           <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Participación por Alianza</h4>
           <div class="space-y-2">
             ${Object.entries(p.allianceParticipation).map(([al, a]) => {
               const pct = a.total > 0 ? Math.round((a.participated / a.total) * 100) : 0;
               const badgeBg = al === 'Terror' ? 'bg-red-950 text-red-400 border-red-800' : (al === 'Shooter' ? 'bg-blue-950 text-blue-400 border-blue-800' : 'bg-emerald-950 text-emerald-400 border-emerald-800');
               return `
-                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-center justify-between text-xs">
                   <div class="flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${badgeBg}">${al}</span>
                     <span class="text-slate-300">${a.participated} de ${a.total} integrantes</span>
@@ -1568,17 +1587,17 @@ function renderDashboardParticipacionView(data) {
       </div>
 
       <!-- RANKING DE CONVOCATORIA POR ACTIVIDAD -->
-      <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
+      <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
         <div class="flex items-center justify-between">
           <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Ranking de Convocatoria por Actividad</h4>
           <span class="text-[11px] text-slate-500 font-mono">De mayor a menor cantidad de participantes</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
           ${p.activitiesRanked.map((act, idx) => `
-            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex flex-col justify-between">
               <span class="text-[10px] font-mono text-slate-500 font-bold mb-1">#${idx + 1}</span>
               <span class="text-xs font-bold text-white block mb-2 truncate">${act.name}</span>
-              <div class="flex items-center justify-between text-[11px] font-mono border-t border-slate-900 pt-1.5">
+              <div class="flex items-center justify-between text-[11px] font-mono border-t border-[#142252] pt-1.5">
                 <span class="text-slate-400">En cancha:</span>
                 <span class="text-emerald-400 font-bold">${act.totalParticipants}</span>
               </div>
@@ -1597,8 +1616,8 @@ function renderDashboardDia19View(data) {
   return `
     <div class="space-y-5">
       <!-- CUMPLIMIENTO DE HORARIOS (PLANIFICADO VS REAL) -->
-      <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-900 pb-2">
+      <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-2">
           <div>
             <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Auditoría de Cumplimiento de Horarios</h4>
             <p class="text-[11px] text-slate-500">Comparativa de tiempos de ejecución de las actividades del Día 19 en cancha</p>
@@ -1611,7 +1630,7 @@ function renderDashboardDia19View(data) {
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs font-sans">
             <thead>
-              <tr class="border-b border-slate-900 text-slate-500 font-mono text-[10px] uppercase">
+              <tr class="border-b border-[#142252] text-slate-500 font-mono text-[10px] uppercase">
                 <th class="py-2 pr-4">Actividad</th>
                 <th class="py-2 px-3">Horario Plan</th>
                 <th class="py-2 px-3">Inicio Real</th>
@@ -1622,7 +1641,7 @@ function renderDashboardDia19View(data) {
             </thead>
             <tbody class="divide-y divide-slate-900 font-mono text-[11px]">
               ${Object.entries(d.scheduleLogs).map(([id, s]) => `
-                <tr class="hover:bg-slate-900/20">
+                <tr class="hover:bg-[#0A1333]/20">
                   <td class="py-2.5 pr-4 font-sans font-bold text-white">${s.name}</td>
                   <td class="py-2.5 px-3 text-slate-400">${s.planned}</td>
                   <td class="py-2.5 px-3 text-slate-300">${s.actualStart}</td>
@@ -1641,24 +1660,24 @@ function renderDashboardDia19View(data) {
       </div>
 
       <!-- CRONOLOGÍA DE CAMBIO DE LIDERAZGO -->
-      <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
+      <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
         <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Evolución Cronológica del Liderazgo</h4>
         <div class="space-y-2 text-xs">
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-3">
+          <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-start gap-3">
             <span class="text-xs font-mono font-bold text-slate-500 shrink-0">10:00</span>
             <div>
               <span class="font-bold text-red-400 block">Torneo Retro Arcade</span>
               <p class="text-slate-400 text-[11px]">Alianza Terror toma la primera ventaja del día con 3.000 pts en Mortal Kombat.</p>
             </div>
           </div>
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-3">
+          <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-start gap-3">
             <span class="text-xs font-mono font-bold text-slate-500 shrink-0">11:30</span>
             <div>
               <span class="font-bold text-blue-400 block">Gymkanas y Tarjetas de Destreza</span>
               <p class="text-slate-400 text-[11px]">Alianza Shooter acorta distancias con alto promedio en los 4 puestos de destreza.</p>
             </div>
           </div>
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-start gap-3">
+          <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-start gap-3">
             <span class="text-xs font-mono font-bold text-slate-500 shrink-0">12:45</span>
             <div>
               <span class="font-bold text-white block">Triangulares de Baby Fútbol y Quemadas</span>
@@ -1684,15 +1703,15 @@ function renderDashboardCreativosView(data) {
           const rub = c.rubrics[al] || {};
           const pts = c.pointsAwarded[al] || 0;
           return `
-            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+            <div class="bg-[#050C24] p-4 rounded-2xl border border-[#142252] space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-mono font-bold text-white">Alianza ${al}</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded ${st.delivered ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-900 text-slate-400'}">
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded ${st.delivered ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-[#0A1333] text-slate-400'}">
                   ${st.delivered ? 'Entregado en Plazo' : 'Pendiente'}
                 </span>
               </div>
               <span class="text-xs text-slate-300 font-semibold block">${rub.name || 'Desafío oficial'}</span>
-              <div class="pt-2 border-t border-slate-900 flex items-center justify-between text-xs font-mono">
+              <div class="pt-2 border-t border-[#142252] flex items-center justify-between text-xs font-mono">
                 <span class="text-slate-500">Puntos Totales:</span>
                 <span class="text-emerald-400 font-bold">${pts.toLocaleString('es-CL')} pts</span>
               </div>
@@ -1702,13 +1721,13 @@ function renderDashboardCreativosView(data) {
       </div>
 
       <!-- DESGLOSE DE RÚBRICAS DOCENTES Y CONTROL DE DISCREPANCIAS -->
-      <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-900 pb-2">
+      <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-2">
           <div>
             <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Calibración Docente & Discrepancias</h4>
             <p class="text-[11px] text-slate-500">Auditoría de evaluación entre Docente 1 y Docente 2 (Límite de discrepancia: 20 pts)</p>
           </div>
-          <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-slate-950 text-slate-300 border border-slate-800">
+          <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-[#050C24] text-slate-300 border border-[#142252]">
             Obra Favorita: <strong class="text-white">${c.favoriteAlliance || 'En evaluación'}</strong>
           </span>
         </div>
@@ -1722,7 +1741,7 @@ function renderDashboardCreativosView(data) {
             const hasAlert = rub.discrepancyAlert;
 
             return `
-              <div class="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2.5 text-xs">
+              <div class="p-3.5 bg-[#050C24] rounded-xl border border-[#142252] space-y-2.5 text-xs">
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-white">${al}</span>
                   ${hasAlert ? `
@@ -1740,7 +1759,7 @@ function renderDashboardCreativosView(data) {
                     <span>Docente 2:</span>
                     <span class="text-white">${d2}/100</span>
                   </div>
-                  <div class="flex justify-between text-slate-300 font-bold border-t border-slate-900 pt-1">
+                  <div class="flex justify-between text-slate-300 font-bold border-t border-[#142252] pt-1">
                     <span>Nota Promedio:</span>
                     <span class="text-emerald-400">${prom}/100</span>
                   </div>
@@ -1763,17 +1782,17 @@ function renderDashboardTarreoView(data) {
     <div class="space-y-5">
       <!-- KPI DE ASISTENCIA Y CONVOCATORIA -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl">
           <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Inscritos Oficiales</span>
           <span class="text-3xl font-black font-mono text-white">${t.attendance?.day20_tarreo_registered || 48}</span>
           <span class="text-xs text-slate-400 block mt-1">Capacidad de salas completa</span>
         </div>
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl">
           <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Asistentes Presenciales</span>
           <span class="text-3xl font-black font-mono text-emerald-400">${t.attendance?.day20_tarreo_attended || 45}</span>
           <span class="text-xs text-slate-400 block mt-1">93.8% de asistencia real</span>
         </div>
-        <div class="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl">
+        <div class="bg-[#0A1333]/50 border border-[#142252] p-4 rounded-2xl">
           <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Seguridad & Expulsiones</span>
           <span class="text-3xl font-black font-mono text-white">${t.security?.expulsions || 0}</span>
           <span class="text-xs text-emerald-400 block mt-1">Cero incidentes graves</span>
@@ -1784,11 +1803,11 @@ function renderDashboardTarreoView(data) {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
         <!-- CUADRO DE TORNEOS -->
-        <div class="lg:col-span-2 bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
+        <div class="lg:col-span-2 bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
           <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Resultados de Torneos Individuales</h4>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             ${(t.individualTournaments || []).map(tor => `
-              <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5 text-xs">
+              <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] space-y-1.5 text-xs">
                 <span class="font-bold text-white block">${tor.game}</span>
                 <div class="font-mono text-[11px] space-y-0.5">
                   <div class="text-emerald-400">1° Campeón: ${tor.champion}</div>
@@ -1800,15 +1819,15 @@ function renderDashboardTarreoView(data) {
         </div>
 
         <!-- MVP DE LA NOCHE -->
-        <div class="bg-slate-950 p-4 rounded-2xl border border-amber-900/40 space-y-3 flex flex-col justify-between">
+        <div class="bg-[#050C24] p-4 rounded-2xl border border-amber-900/40 space-y-3 flex flex-col justify-between">
           <div>
             <div class="flex items-center gap-1.5 text-amber-400 text-xs font-bold font-mono uppercase mb-2">
               <i data-lucide="crown" class="w-4 h-4"></i>
               <span>MVP de la Noche Gamer</span>
             </div>
-            <span class="text-lg font-black font-heading text-white block">${t.mvp?.studentName}</span>
+            <span class="text-lg font-black font-display text-white block">${t.mvp?.studentName}</span>
             <span class="text-xs text-slate-400 block">${t.mvp?.carrera} • Alianza ${t.mvp?.alliance}</span>
-            <p class="text-xs text-slate-300 mt-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
+            <p class="text-xs text-slate-300 mt-2 bg-[#0A1333]/80 p-2.5 rounded-lg border border-[#142252]">
               "${t.mvp?.achievement}"
             </p>
           </div>
@@ -1829,20 +1848,20 @@ function renderDashboardLogisticaView(data) {
   return `
     <div class="space-y-5">
       <!-- INVENTARIO DE RECURSOS POR PROVEEDOR -->
-      <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-900 pb-2">
+      <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-2">
           <div>
             <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Recursos y Apoyos Institucionales Utilizados</h4>
             <p class="text-[11px] text-slate-500">Inventario oficial provisto por DAE, Jefatura de Carrera, Delegación y Sede</p>
           </div>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800 font-bold">
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#050C24] text-slate-400 border border-[#142252] font-bold">
             ${l.resources.length} Recursos Registrados
           </span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           ${l.resources.map(r => `
-            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5 text-xs">
+            <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] space-y-1.5 text-xs">
               <div class="flex items-center justify-between">
                 <span class="text-[10px] font-mono uppercase font-bold text-slate-500">${r.provider}</span>
                 <span class="text-[10px] font-mono text-emerald-400">${r.status}</span>
@@ -1855,11 +1874,11 @@ function renderDashboardLogisticaView(data) {
       </div>
 
       <!-- BITÁCORA DE INCIDENTES TÉCNICOS RESUELTOS -->
-      <div class="bg-slate-900/30 border border-slate-900 p-4 rounded-2xl space-y-3">
+      <div class="bg-[#0A1333]/30 border border-[#142252] p-4 rounded-2xl space-y-3">
         <h4 class="text-xs font-bold uppercase font-mono text-slate-300">Bitácora de Incidentes Técnicos y Resolución</h4>
         <div class="space-y-2">
           ${l.incidents.map(inc => `
-            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
               <div>
                 <div class="flex items-center gap-2 mb-0.5">
                   <span class="text-[10px] font-mono font-bold text-slate-500">${inc.timestamp}</span>
@@ -1906,44 +1925,56 @@ function renderTrasladosPanel() {
   return `
     <div class="space-y-6">
       <!-- HEADER DEL MÓDULO -->
-      <div class="border-b border-slate-900 pb-4">
+      <div class="border-b border-[#142252] pb-4">
         <div class="flex items-center gap-2 mb-1">
           <span class="text-[10px] font-mono uppercase tracking-wider text-amber-500 bg-amber-950/60 border border-amber-900/40 px-2 py-0.5 rounded">
             Módulo Oficial
           </span>
           <span class="text-[11px] text-slate-500 font-mono">Gestión de Nóminas</span>
         </div>
-        <h3 class="text-xl font-bold font-heading text-white tracking-tight">Cambio e Intercambio de Alianzas</h3>
+        <h3 class="text-xl font-bold font-display text-white tracking-tight">Cambio e Intercambio de Alianzas</h3>
         <p class="text-xs text-slate-400 mt-1">
           Gestión de solicitudes públicas de cambio, traslados individuales directos y permutas 1 a 1 entre alianzas con trazabilidad y auditoría.
         </p>
       </div>
 
       <!-- TABS: SOLICITUDES PÚBLICAS VS TRASLADO INDIVIDUAL VS PERMUTA 1 A 1 -->
-      <div class="flex flex-wrap items-center gap-2 p-1 bg-slate-900/40 border border-slate-900 rounded-xl w-fit">
+      <div class="flex flex-wrap items-center gap-2 p-1.5 bg-[#0A1333] border border-[#142252] rounded-2xl w-fit">
         <button 
           onclick="switchTrasladosTab('solicitudes')"
-          class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${trasladosTab === 'solicitudes' ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white border border-transparent'}"
+          class="px-4 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${
+            trasladosTab === 'solicitudes' 
+              ? 'bg-[#E6194B] text-white shadow-lg shadow-[#E6194B]/40' 
+              : 'text-slate-300 hover:text-white hover:bg-[#0E1E48]'
+          }"
         >
-          <i data-lucide="inbox" class="w-3.5 h-3.5 text-red-400"></i>
+          <i data-lucide="inbox" class="w-3.5 h-3.5"></i>
           <span>Solicitudes Públicas</span>
-          <span id="admin-pending-tab-badge" class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${pendingCount > 0 ? 'bg-red-600 text-white' : 'hidden'}">
+          <span id="admin-pending-tab-badge" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-black ${pendingCount > 0 ? 'bg-white text-[#E6194B]' : 'hidden'}">
             ${pendingCount}
           </span>
         </button>
         <button 
           onclick="switchTrasladosTab('individual')"
-          class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${trasladosTab === 'individual' ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white border border-transparent'}"
+          class="px-4 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${
+            trasladosTab === 'individual' 
+              ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40' 
+              : 'text-slate-300 hover:text-white hover:bg-[#0E1E48]'
+          }"
         >
           <i data-lucide="user-minus" class="w-3.5 h-3.5"></i>
           <span>Traslado Individual (Manual)</span>
         </button>
         <button 
           onclick="switchTrasladosTab('swap')"
-          class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${trasladosTab === 'swap' ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white border border-transparent'}"
+          class="px-4 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${
+            trasladosTab === 'swap' 
+              ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40' 
+              : 'text-slate-300 hover:text-white hover:bg-[#0E1E48]'
+          }"
         >
           <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
-          <span>Intercambio 1 a 1 (Permuta Manual)</span>
+          <span>Intercambio 1 a 1 (Permuta)</span>
         </button>
       </div>
 
@@ -1953,7 +1984,7 @@ function renderTrasladosPanel() {
       </div>
 
       <!-- HISTORIAL RECIENTE DE TRASLADOS Y PERMUTAS -->
-      <div class="pt-4 border-t border-slate-900">
+      <div class="pt-4 border-t border-[#142252]">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2">
             <i data-lucide="history" class="w-4 h-4 text-slate-500"></i>
@@ -1966,7 +1997,7 @@ function renderTrasladosPanel() {
         </div>
         <div id="traslados-history-list" class="space-y-2">
           <!-- Inyectado por renderTrasladosHistory() -->
-          <div class="p-3 text-center text-xs text-slate-600 bg-slate-900/20 rounded-xl border border-slate-900 font-mono">
+          <div class="p-3 text-center text-xs text-slate-600 bg-[#0A1333]/20 rounded-xl border border-[#142252] font-mono">
             Cargando historial...
           </div>
         </div>
@@ -1980,7 +2011,7 @@ function renderTrasladoIndividualView() {
   const validTargets = ['Terror', 'Shooter', 'Action'].filter(al => !s || al !== s.alliance);
 
   return `
-    <div class="bg-slate-900/30 border border-slate-900 rounded-2xl p-5 space-y-4">
+    <div class="bg-[#0A1333]/30 border border-[#142252] rounded-2xl p-5 space-y-4">
       <div>
         <span class="text-[10px] font-mono uppercase text-slate-500 block mb-1">Paso 1: Localizar al estudiante</span>
         <div class="relative">
@@ -1989,17 +2020,17 @@ function renderTrasladoIndividualView() {
             id="move-search-input"
             placeholder="Buscar por Nombre, Apellido o RUT (ej: Sebastián o 21661083)..."
             oninput="handleMoveSearch(this.value)"
-            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 font-sans"
+            class="w-full bg-[#050C24] border border-[#142252] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#142252] font-sans"
             autocomplete="off"
           />
-          <div id="move-autocomplete-dropdown" class="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-20 hidden max-h-52 overflow-y-auto divide-y divide-slate-800/60"></div>
+          <div id="move-autocomplete-dropdown" class="absolute left-0 right-0 top-full mt-1.5 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-52 overflow-y-auto divide-y divide-slate-800/60"></div>
         </div>
       </div>
 
       <!-- TARJETA DEL ESTUDIANTE SELECCIONADO -->
       ${s ? `
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
-          <div class="flex items-start justify-between gap-3 border-b border-slate-900 pb-3">
+        <div class="p-4 bg-[#050C24] border border-[#142252] rounded-xl space-y-3">
+          <div class="flex items-start justify-between gap-3 border-b border-[#142252] pb-3">
             <div>
               <span class="text-[10px] font-mono text-slate-500 block">Estudiante Seleccionado</span>
               <span class="text-sm font-bold text-white block mt-0.5">${s.name}</span>
@@ -2018,8 +2049,8 @@ function renderTrasladoIndividualView() {
             <label class="text-[11px] text-slate-400 block mb-1.5 font-medium">Paso 2: Seleccionar Alianza de Destino</label>
             <div class="grid grid-cols-2 gap-2">
               ${validTargets.map(al => `
-                <label class="flex items-center gap-2.5 p-2.5 bg-slate-900/60 border border-slate-800 rounded-lg cursor-pointer hover:border-slate-700 transition">
-                  <input type="radio" name="target-alliance-move" value="${al}" class="text-white bg-slate-950 border-slate-700 focus:ring-0" checked>
+                <label class="flex items-center gap-2.5 p-2.5 bg-[#0A1333]/60 border border-[#142252] rounded-lg cursor-pointer hover:border-[#142252] transition">
+                  <input type="radio" name="target-alliance-move" value="${al}" class="text-white bg-[#050C24] border-[#142252] focus:ring-0" checked>
                   <span class="text-xs font-semibold text-slate-200">${al}</span>
                 </label>
               `).join('')}
@@ -2033,22 +2064,22 @@ function renderTrasladoIndividualView() {
               id="move-reason-input"
               rows="2"
               placeholder="Ej: Solicitud formal de coordinación por afinidad de horario / consentimiento de encargados..."
-              class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700"
+              class="w-full bg-[#0A1333] border border-[#142252] rounded-lg p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#142252]"
             ></textarea>
           </div>
 
           <div class="flex items-center justify-end gap-2 pt-2">
-            <button onclick="clearMoveSelection()" class="px-3.5 py-2 text-xs text-slate-400 hover:text-white font-mono bg-slate-900 rounded-lg border border-slate-800 transition">
+            <button onclick="clearMoveSelection()" class="px-3.5 py-2 text-xs text-slate-400 hover:text-white font-mono bg-[#0A1333] rounded-lg border border-[#142252] transition">
               Cancelar
             </button>
-            <button onclick="executeConfirmMove()" class="px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-600 transition flex items-center gap-1.5 shadow-sm">
+            <button onclick="executeConfirmMove()" class="px-4 py-2 text-xs font-semibold text-white bg-[#142252] hover:bg-slate-700 rounded-lg border border-slate-600 transition flex items-center gap-1.5 shadow-sm">
               <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
               <span>Confirmar Traslado</span>
             </button>
           </div>
         </div>
       ` : `
-        <div class="p-6 text-center border border-dashed border-slate-800/80 rounded-xl text-slate-500 text-xs font-mono">
+        <div class="p-6 text-center border border-dashed border-[#142252] rounded-xl text-slate-500 text-xs font-mono">
           Escribe el nombre o RUT del estudiante arriba para preparar su traslado.
         </div>
       `}
@@ -2064,14 +2095,14 @@ function renderPermutaSwapView() {
   const isSameAlliance = s1 && s2 && s1.alliance === s2.alliance;
 
   return `
-    <div class="bg-slate-900/30 border border-slate-900 rounded-2xl p-5 space-y-4">
+    <div class="bg-[#0A1333]/30 border border-[#142252] rounded-2xl p-5 space-y-4">
       <div class="text-xs text-slate-400 leading-relaxed">
         <strong class="text-slate-200">Permuta Equilibrada:</strong> Selecciona a dos estudiantes pertenecientes a distintas alianzas. El sistema intercambiará sus alianzas en una única operación atómica, conservando exactamente el conteo original de integrantes.
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <!-- ESTUDIANTE 1 -->
-        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+        <div class="bg-[#050C24] p-4 rounded-xl border border-[#142252] space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Estudiante 1</span>
             ${s1 ? `<button onclick="clearSwapStudent(1)" class="text-[10px] text-slate-500 hover:text-red-400 font-mono">Cambiar</button>` : ''}
@@ -2095,16 +2126,16 @@ function renderPermutaSwapView() {
                 id="swap-search-1"
                 placeholder="Buscar Estudiante 1 (Nombre o RUT)..."
                 oninput="handleSwapSearch(1, this.value)"
-                class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 font-sans"
+                class="w-full bg-[#0A1333] border border-[#142252] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#142252] font-sans"
                 autocomplete="off"
               />
-              <div id="swap-autocomplete-1" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-20 hidden max-h-44 overflow-y-auto divide-y divide-slate-800/60"></div>
+              <div id="swap-autocomplete-1" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-44 overflow-y-auto divide-y divide-slate-800/60"></div>
             </div>
           `}
         </div>
 
         <!-- ESTUDIANTE 2 -->
-        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+        <div class="bg-[#050C24] p-4 rounded-xl border border-[#142252] space-y-3">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-mono uppercase text-slate-500 font-bold">Estudiante 2</span>
             ${s2 ? `<button onclick="clearSwapStudent(2)" class="text-[10px] text-slate-500 hover:text-red-400 font-mono">Cambiar</button>` : ''}
@@ -2128,10 +2159,10 @@ function renderPermutaSwapView() {
                 id="swap-search-2"
                 placeholder="Buscar Estudiante 2 (Nombre o RUT)..."
                 oninput="handleSwapSearch(2, this.value)"
-                class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 font-sans"
+                class="w-full bg-[#0A1333] border border-[#142252] rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#142252] font-sans"
                 autocomplete="off"
               />
-              <div id="swap-autocomplete-2" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-20 hidden max-h-44 overflow-y-auto divide-y divide-slate-800/60"></div>
+              <div id="swap-autocomplete-2" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-44 overflow-y-auto divide-y divide-slate-800/60"></div>
             </div>
           `}
         </div>
@@ -2139,7 +2170,7 @@ function renderPermutaSwapView() {
 
       <!-- PREVIEW Y CONFIRMACIÓN DE LA PERMUTA -->
       ${s1 && s2 ? `
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-3">
+        <div class="p-4 bg-[#050C24] border border-[#142252] rounded-xl space-y-3">
           ${isSameStudent ? `
             <div class="p-3 bg-red-950/40 border border-red-900/60 rounded-lg text-xs text-red-300 font-mono">
               <i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i> No puedes permutar al mismo estudiante consigo mismo.
@@ -2152,7 +2183,7 @@ function renderPermutaSwapView() {
             <div class="space-y-2">
               <span class="text-[10px] font-mono uppercase text-slate-500 block font-bold">Vista Previa de la Permuta</span>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800">
+                <div class="p-2.5 bg-[#0A1333]/80 rounded-lg border border-[#142252]">
                   <span class="font-bold text-white block truncate">${s1.name}</span>
                   <div class="flex items-center gap-1.5 mt-1 font-mono text-[11px]">
                     <span class="text-slate-400">${s1.alliance}</span>
@@ -2160,7 +2191,7 @@ function renderPermutaSwapView() {
                     <span class="text-emerald-400 font-bold">${s2.alliance}</span>
                   </div>
                 </div>
-                <div class="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800">
+                <div class="p-2.5 bg-[#0A1333]/80 rounded-lg border border-[#142252]">
                   <span class="font-bold text-white block truncate">${s2.name}</span>
                   <div class="flex items-center gap-1.5 mt-1 font-mono text-[11px]">
                     <span class="text-slate-400">${s2.alliance}</span>
@@ -2177,15 +2208,15 @@ function renderPermutaSwapView() {
                 id="swap-reason-input"
                 rows="2"
                 placeholder="Ej: Permuta mutua acordada y firmada por ambos estudiantes por motivo de compatibilidad..."
-                class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700"
+                class="w-full bg-[#0A1333] border border-[#142252] rounded-lg p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#142252]"
               ></textarea>
             </div>
 
             <div class="flex items-center justify-end gap-2 pt-1">
-              <button onclick="clearSwapSelection()" class="px-3.5 py-2 text-xs text-slate-400 hover:text-white font-mono bg-slate-900 rounded-lg border border-slate-800 transition">
+              <button onclick="clearSwapSelection()" class="px-3.5 py-2 text-xs text-slate-400 hover:text-white font-mono bg-[#0A1333] rounded-lg border border-[#142252] transition">
                 Limpiar Selección
               </button>
-              <button onclick="executeConfirmSwap()" class="px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-600 transition flex items-center gap-1.5 shadow-sm">
+              <button onclick="executeConfirmSwap()" class="px-4 py-2 text-xs font-semibold text-white bg-[#142252] hover:bg-slate-700 rounded-lg border border-slate-600 transition flex items-center gap-1.5 shadow-sm">
                 <i data-lucide="arrow-left-right" class="w-3.5 h-3.5 text-emerald-400"></i>
                 <span>Confirmar Permuta Atómica</span>
               </button>
@@ -2220,7 +2251,7 @@ function switchTrasladosTab(tab) {
     tabButtons.forEach(btn => {
       const oc = btn.getAttribute('onclick') || '';
       if (oc.includes(`'${tab}'`)) {
-        btn.className = 'px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 bg-slate-900 text-white border border-slate-700 shadow-sm';
+        btn.className = 'px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 bg-[#0A1333] text-white border border-[#142252] shadow-sm';
       } else {
         btn.className = 'px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-slate-400 hover:text-white border border-transparent';
       }
@@ -2258,7 +2289,7 @@ async function handleMoveSearch(query) {
       }
 
       box.innerHTML = students.map(s => `
-        <div onmousedown="event.preventDefault(); selectMoveStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})" class="p-2.5 hover:bg-slate-800 cursor-pointer text-xs flex items-center justify-between transition">
+        <div onmousedown="event.preventDefault(); selectMoveStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})" class="p-2.5 hover:bg-[#142252] cursor-pointer text-xs flex items-center justify-between transition">
           <div class="min-w-0 pr-2">
             <span class="font-bold text-white block truncate">${s.name}</span>
             <span class="text-[10px] text-slate-400 block truncate">${s.carrera}</span>
@@ -2368,7 +2399,7 @@ async function handleSwapSearch(slot, query) {
       }
 
       box.innerHTML = students.map(s => `
-        <div onmousedown="event.preventDefault(); selectSwapStudent(${slot}, ${JSON.stringify(s).replace(/"/g, '&quot;')})" class="p-2.5 hover:bg-slate-800 cursor-pointer text-xs flex items-center justify-between transition">
+        <div onmousedown="event.preventDefault(); selectSwapStudent(${slot}, ${JSON.stringify(s).replace(/"/g, '&quot;')})" class="p-2.5 hover:bg-[#142252] cursor-pointer text-xs flex items-center justify-between transition">
           <div class="min-w-0 pr-2">
             <span class="font-bold text-white block truncate">${s.name}</span>
             <span class="text-[10px] text-slate-400 block truncate">${s.carrera}</span>
@@ -2480,7 +2511,7 @@ async function loadTrasladosHistory() {
 
     if (logs.length === 0) {
       container.innerHTML = `
-        <div class="p-4 text-center text-xs text-slate-500 bg-slate-900/20 rounded-xl border border-slate-900 font-mono">
+        <div class="p-4 text-center text-xs text-slate-500 bg-[#0A1333]/20 rounded-xl border border-[#142252] font-mono">
           No hay registros de traslados ni permutas todavía.
         </div>
       `;
@@ -2490,7 +2521,7 @@ async function loadTrasladosHistory() {
     container.innerHTML = logs.slice(0, 15).map(l => {
       const isSwap = l.details?.type === 'swap';
       return `
-        <div class="p-3 bg-slate-900/40 border border-slate-900 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+        <div class="p-3 bg-[#0A1333]/50 border border-[#142252] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 mb-1">
               <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${isSwap ? 'bg-purple-950/80 text-purple-300 border border-purple-800/60' : 'bg-blue-950/80 text-blue-300 border border-blue-800/60'}">
@@ -2533,8 +2564,8 @@ function renderPublicRequestsView() {
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
         <!-- Tarjetas de Balance (Columna Izquierda 7 cols) -->
-        <div class="lg:col-span-7 bg-slate-900/40 border border-slate-900 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+        <div class="lg:col-span-7 bg-[#0A1333]/50 border border-[#142252] rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-[#142252] pb-2">
             <span class="text-xs font-bold font-mono uppercase text-slate-300 flex items-center gap-1.5">
               <i data-lucide="scale" class="w-4 h-4 text-amber-400"></i>
               <span>Balance de Cupos Oficiales (Terror vs Shooter)</span>
@@ -2545,17 +2576,17 @@ function renderPublicRequestsView() {
           </div>
 
           <div class="grid grid-cols-3 gap-2.5 text-center">
-            <div class="bg-slate-950 p-2.5 rounded-xl border border-red-950/60">
+            <div class="bg-[#050C24] p-2.5 rounded-xl border border-red-950/60">
               <span class="text-[10px] text-red-400 font-bold block uppercase font-mono">Alianza Terror</span>
               <span id="admin-t-count" class="text-lg font-black text-white font-mono mt-0.5 block">${counts.Terror}</span>
               <span class="text-[9px] text-slate-500 font-mono">alumnos</span>
             </div>
-            <div class="bg-slate-950 p-2.5 rounded-xl border border-blue-950/60">
+            <div class="bg-[#050C24] p-2.5 rounded-xl border border-blue-950/60">
               <span class="text-[10px] text-blue-400 font-bold block uppercase font-mono">Alianza Shooter</span>
               <span id="admin-s-count" class="text-lg font-black text-white font-mono mt-0.5 block">${counts.Shooter}</span>
               <span class="text-[9px] text-slate-500 font-mono">alumnos</span>
             </div>
-            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <div class="bg-[#050C24] p-2.5 rounded-xl border border-[#142252]">
               <span class="text-[10px] text-slate-400 font-bold block uppercase font-mono">Diferencia Neta</span>
               <span id="admin-diff-count" class="text-lg font-black ${isBalanced ? 'text-amber-400' : 'text-red-400'} font-mono mt-0.5 block">
                 ${absDiff} / ${maxDiff}
@@ -2566,8 +2597,8 @@ function renderPublicRequestsView() {
         </div>
 
         <!-- Panel de Configuración de Apertura (Columna Derecha 5 cols) -->
-        <div class="lg:col-span-5 bg-slate-900/40 border border-slate-900 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+        <div class="lg:col-span-5 bg-[#0A1333]/50 border border-[#142252] rounded-2xl p-4 flex flex-col justify-between space-y-3">
+          <div class="flex items-center justify-between border-b border-[#142252] pb-2">
             <span class="text-xs font-bold font-mono uppercase text-slate-300 flex items-center gap-1.5">
               <i data-lucide="settings-2" class="w-4 h-4 text-slate-400"></i>
               <span>Parámetros de Recepción</span>
@@ -2582,7 +2613,7 @@ function renderPublicRequestsView() {
               <span class="text-slate-400">Recepción Pública:</span>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="admin-cfg-open" class="sr-only peer" ${adminRequestsConfig?.open ? 'checked' : ''} onchange="document.getElementById('admin-cfg-open-label').textContent = this.checked ? 'Abierta' : 'Cerrada'">
-                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                <div class="w-9 h-5 bg-[#142252] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                 <span class="ml-2 text-[11px] font-bold text-slate-300" id="admin-cfg-open-label">${adminRequestsConfig?.open ? 'Abierta' : 'Cerrada'}</span>
               </label>
             </div>
@@ -2593,7 +2624,7 @@ function renderPublicRequestsView() {
                 type="datetime-local" 
                 id="admin-cfg-deadline" 
                 value="${adminRequestsConfig?.deadline ? new Date(adminRequestsConfig.deadline).toISOString().slice(0, 16) : '2026-11-16T23:59'}"
-                class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none font-mono"
+                class="bg-[#050C24] border border-[#142252] rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none font-mono"
               />
             </div>
 
@@ -2605,7 +2636,7 @@ function renderPublicRequestsView() {
                 min="1" 
                 max="20" 
                 value="${maxDiff}"
-                class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-white text-center focus:outline-none font-mono font-bold"
+                class="w-16 bg-[#050C24] border border-[#142252] rounded-lg px-2 py-1 text-[11px] text-white text-center focus:outline-none font-mono font-bold"
               />
             </div>
           </div>
@@ -2614,40 +2645,40 @@ function renderPublicRequestsView() {
       </div>
 
       <!-- 2. PESTAÑAS / FILTROS DE ESTADO -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-900 pb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#142252] pb-3">
         <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs">
           <button 
             onclick="setAdminRequestsFilter('all')" 
             id="req-filter-all"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'all' ? 'bg-slate-800 text-white border border-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'all' ? 'bg-[#142252] text-white border border-[#142252]' : 'text-slate-400 hover:text-white hover:bg-[#0A1333]/50'}"
           >
             Todas (${adminAllianceRequestsData.length})
           </button>
           <button 
             onclick="setAdminRequestsFilter('pending')" 
             id="req-filter-pending"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'pending' ? 'bg-amber-950/60 text-amber-300 border border-amber-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'pending' ? 'bg-amber-950/60 text-amber-300 border border-amber-900/80' : 'text-slate-400 hover:text-white hover:bg-[#0A1333]/50'}"
           >
             Pendientes (${adminAllianceRequestsData.filter(r => r.status === 'pending').length})
           </button>
           <button 
             onclick="setAdminRequestsFilter('waiting_list')" 
             id="req-filter-waiting_list"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'waiting_list' ? 'bg-blue-950/60 text-blue-300 border border-blue-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'waiting_list' ? 'bg-blue-950/60 text-blue-300 border border-blue-900/80' : 'text-slate-400 hover:text-white hover:bg-[#0A1333]/50'}"
           >
             Lista de Espera (${adminAllianceRequestsData.filter(r => r.status === 'waiting_list').length})
           </button>
           <button 
             onclick="setAdminRequestsFilter('approved')" 
             id="req-filter-approved"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'approved' ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'approved' ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-900/80' : 'text-slate-400 hover:text-white hover:bg-[#0A1333]/50'}"
           >
             Aprobadas (${adminAllianceRequestsData.filter(r => r.status === 'approved').length})
           </button>
           <button 
             onclick="setAdminRequestsFilter('rejected')" 
             id="req-filter-rejected"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'rejected' ? 'bg-red-950/60 text-red-300 border border-red-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'rejected' ? 'bg-red-950/60 text-red-300 border border-red-900/80' : 'text-slate-400 hover:text-white hover:bg-[#0A1333]/50'}"
           >
             Rechazadas (${adminAllianceRequestsData.filter(r => r.status === 'rejected').length})
           </button>
@@ -2681,9 +2712,9 @@ function setAdminRequestsFilter(filter) {
     const btn = document.getElementById(`req-filter-${f}`);
     if (btn) {
       if (f === filter) {
-        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-white border border-slate-700';
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-[#142252] text-white border border-[#142252]';
       } else {
-        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/50';
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-[#0A1333]/50';
       }
     }
   });
@@ -2697,7 +2728,7 @@ function renderAdminRequestsTableContent() {
 
   if (list.length === 0) {
     return `
-      <div class="p-8 text-center text-xs text-slate-500 bg-slate-900/20 rounded-2xl border border-slate-900 font-mono">
+      <div class="p-8 text-center text-xs text-slate-500 bg-[#0A1333]/20 rounded-2xl border border-[#142252] font-mono">
         <i data-lucide="inbox" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
         No hay solicitudes en esta categoría.
       </div>
@@ -2716,14 +2747,14 @@ function renderAdminRequestsTableContent() {
     else if (isWaiting) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950/80 text-blue-300 border border-blue-800/60">En Espera</span>';
     else if (isApproved) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">Aprobada</span>';
     else if (isRejected) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-300 border border-red-900/60">Rechazada</span>';
-    else if (isReverted) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700">Revertida</span>';
+    else if (isReverted) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#142252] text-slate-400 border border-[#142252]">Revertida</span>';
 
     const dateStr = new Date(r.createdAt).toLocaleString('es-CL', {
       day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
     });
 
     return `
-      <div class="p-3.5 bg-slate-950/80 border border-slate-900 hover:border-slate-800 rounded-2xl transition space-y-2">
+      <div class="p-3.5 bg-[#050C24]/80 border border-[#142252] hover:border-[#142252] rounded-2xl transition space-y-2">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           
           <!-- Identificación del Estudiante & Movimiento -->
@@ -2775,7 +2806,7 @@ function renderAdminRequestsTableContent() {
             </div>
 
             ${r.reason ? `
-              <p class="text-[11px] text-slate-400 font-sans mt-1.5 bg-slate-900/40 p-2 rounded-xl border border-slate-900/60">
+              <p class="text-[11px] text-slate-400 font-sans mt-1.5 bg-[#0A1333]/50 p-2 rounded-xl border border-[#142252]">
                 <span class="text-slate-500 font-mono text-[10px] uppercase font-bold block mb-0.5">Motivo del estudiante:</span>
                 "${r.reason}"
               </p>
@@ -2833,7 +2864,7 @@ function renderAdminRequestsTableContent() {
             ${isApproved ? `
               <button 
                 onclick="adminRevertAllianceRequest('${r.id}')"
-                class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-mono text-xs transition flex items-center gap-1"
+                class="px-2.5 py-1.5 rounded-lg bg-[#0A1333] hover:bg-[#142252] border border-[#142252] text-slate-300 hover:text-white font-mono text-xs transition flex items-center gap-1"
                 title="Revertir cambio si el estudiante avisa error o suplantación"
               >
                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-amber-400"></i>
@@ -3057,14 +3088,14 @@ function renderParticipantesPanel() {
     <div class="space-y-4">
       
       <!-- HEADER MINIMALISTA DE LA NÓMINA EN CANCHA -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-900 pb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#142252] pb-3">
         <div>
           <div class="flex items-center gap-2 mb-0.5">
             <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Mando de Cancha</span>
             <span class="text-slate-700">•</span>
             <span class="text-[10px] font-mono text-slate-400">Cupos y Asistencia</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-bold font-heading text-white tracking-tight">Participantes por Actividad</h2>
+          <h2 class="text-xl sm:text-2xl font-bold font-display text-white tracking-tight">Participantes por Actividad</h2>
         </div>
 
         <!-- ACCIONES RÁPIDAS (EXCEL, IMPRIMIR, BUSCADOR) -->
@@ -3072,7 +3103,7 @@ function renderParticipantesPanel() {
           <button 
             onclick="exportCurrentActivityCSV()" 
             title="Descargar lista oficial en Excel / CSV"
-            class="py-1.5 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium border border-slate-800 transition flex items-center gap-1.5 font-mono"
+            class="py-1.5 px-3 rounded-lg bg-[#0A1333] hover:bg-[#142252] text-slate-300 hover:text-white text-xs font-medium border border-[#142252] transition flex items-center gap-1.5 font-mono"
           >
             <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
             <span class="hidden sm:inline">CSV</span>
@@ -3081,7 +3112,7 @@ function renderParticipantesPanel() {
           <button 
             onclick="window.print()" 
             title="Imprimir hoja de control de cancha"
-            class="py-1.5 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium border border-slate-800 transition flex items-center gap-1.5 font-mono"
+            class="py-1.5 px-3 rounded-lg bg-[#0A1333] hover:bg-[#142252] text-slate-300 hover:text-white text-xs font-medium border border-[#142252] transition flex items-center gap-1.5 font-mono"
           >
             <i data-lucide="printer" class="w-3.5 h-3.5 text-blue-400"></i>
             <span class="hidden sm:inline">Imprimir</span>
@@ -3099,13 +3130,13 @@ function renderParticipantesPanel() {
       </div>
 
       <!-- SELECTOR DE ACTIVIDAD Y ESTADO DE LISTA (STRIP COMPACTO) -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950 border border-slate-900 rounded-xl p-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#050C24] border border-[#142252] rounded-xl p-3">
         <div class="flex items-center gap-2 flex-1 max-w-md">
           <label for="part-act-select" class="text-xs text-slate-500 font-medium shrink-0 font-mono">Actividad:</label>
           <select 
             id="part-act-select" 
             onchange="switchActivityParticipants(this.value)" 
-            class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1.5 px-2.5 text-xs text-white focus:outline-none focus:border-slate-700 font-sans"
+            class="w-full bg-[#0A1333] border border-[#142252] rounded-lg py-1.5 px-2.5 text-xs text-white focus:outline-none focus:border-[#142252] font-sans"
           >
             ${activities.map(a => `
               <option value="${a.id}" ${a.id === currentSelectedActivityId ? 'selected' : ''}>
@@ -3122,18 +3153,18 @@ function renderParticipantesPanel() {
       </div>
 
       <!-- STRIP DE REGLA Y CUPO OFICIAL -->
-      <div id="part-rule-banner" class="bg-slate-950/60 border border-slate-900/80 rounded-xl px-3.5 py-2.5 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+      <div id="part-rule-banner" class="bg-[#050C24]/60 border border-[#142252] rounded-xl px-3.5 py-2.5 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
         <!-- Inyectado dinámicamente -->
       </div>
 
       <!-- SELECTOR DE ALIANZA EN MÓVIL (< md) -->
-      <div class="block md:hidden bg-slate-950 border border-slate-900 rounded-xl p-1.5 mb-3">
+      <div class="block md:hidden bg-[#050C24] border border-[#142252] rounded-xl p-1.5 mb-3">
         <div class="flex items-center gap-1 overflow-x-auto scrollbar-none">
           <button 
             type="button" 
             onclick="filterMobileAllianceCols('all')" 
             id="tab-al-col-all" 
-            class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition bg-slate-800 text-white border border-slate-700 shadow-sm"
+            class="px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition bg-[#142252] text-white border border-[#142252] shadow-sm"
           >
             Todas
           </button>
@@ -3168,14 +3199,14 @@ function renderParticipantesPanel() {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="three-columns-container">
         
         <!-- COLUMNA TERROR -->
-        <div id="col-alliance-terror" class="bg-slate-950 border border-slate-900 hover:border-red-950/80 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
+        <div id="col-alliance-terror" class="bg-[#050C24] border border-[#142252] hover:border-red-950/80 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
           <div>
-            <div class="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+            <div class="flex items-center justify-between border-b border-[#142252] pb-2.5 mb-3">
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-red-500"></span>
                 <h3 class="text-xs font-bold font-mono uppercase tracking-wider text-white">Alianza Terror</h3>
               </div>
-              <span id="counter-terror" class="text-[11px] font-mono font-bold bg-slate-900 text-slate-400 border border-slate-800 px-2 py-0.5 rounded">
+              <span id="counter-terror" class="text-[11px] font-mono font-bold bg-[#0A1333] text-slate-400 border border-[#142252] px-2 py-0.5 rounded">
                 0 de -
               </span>
             </div>
@@ -3190,9 +3221,9 @@ function renderParticipantesPanel() {
                 id="search-input-terror" 
                 placeholder="Anotar estudiante de Terror..." 
                 onfocus="handleParticipantAutocomplete('Terror', this.value)" oninput="handleParticipantAutocomplete('Terror', this.value)"
-                class="w-full bg-slate-900/70 border border-slate-800/90 rounded-lg text-xs py-1.5 pl-8 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-700/60 transition"
+                class="w-full bg-[#0A1333]/70 border border-[#142252]/90 rounded-lg text-xs py-1.5 pl-8 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-red-700/60 transition"
               />
-              <div id="autocomplete-terror" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
+              <div id="autocomplete-terror" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS TERROR -->
@@ -3203,14 +3234,14 @@ function renderParticipantesPanel() {
         </div>
 
         <!-- COLUMNA SHOOTER -->
-        <div id="col-alliance-shooter" class="bg-slate-950 border border-slate-900 hover:border-blue-950/80 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
+        <div id="col-alliance-shooter" class="bg-[#050C24] border border-[#142252] hover:border-blue-950/80 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
           <div>
-            <div class="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+            <div class="flex items-center justify-between border-b border-[#142252] pb-2.5 mb-3">
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                 <h3 class="text-xs font-bold font-mono uppercase tracking-wider text-white">Alianza Shooter</h3>
               </div>
-              <span id="counter-shooter" class="text-[11px] font-mono font-bold bg-slate-900 text-slate-400 border border-slate-800 px-2 py-0.5 rounded">
+              <span id="counter-shooter" class="text-[11px] font-mono font-bold bg-[#0A1333] text-slate-400 border border-[#142252] px-2 py-0.5 rounded">
                 0 de -
               </span>
             </div>
@@ -3225,9 +3256,9 @@ function renderParticipantesPanel() {
                 id="search-input-shooter" 
                 placeholder="Anotar estudiante de Shooter..." 
                 onfocus="handleParticipantAutocomplete('Shooter', this.value)" oninput="handleParticipantAutocomplete('Shooter', this.value)"
-                class="w-full bg-slate-900/70 border border-slate-800/90 rounded-lg text-xs py-1.5 pl-8 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-700/60 transition"
+                class="w-full bg-[#0A1333]/70 border border-[#142252]/90 rounded-lg text-xs py-1.5 pl-8 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-700/60 transition"
               />
-              <div id="autocomplete-shooter" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
+              <div id="autocomplete-shooter" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS SHOOTER -->
@@ -3238,14 +3269,14 @@ function renderParticipantesPanel() {
         </div>
 
         <!-- COLUMNA ACTION -->
-        <div id="col-alliance-action" class="bg-slate-950 border border-slate-900 hover:border-emerald-950/80 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
+        <div id="col-alliance-action" class="bg-[#050C24] border border-[#142252] hover:border-emerald-950/80 rounded-xl p-3.5 flex flex-col justify-between transition shadow-sm">
           <div>
-            <div class="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+            <div class="flex items-center justify-between border-b border-[#142252] pb-2.5 mb-3">
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <h3 class="text-xs font-bold font-mono uppercase tracking-wider text-white">Alianza Action</h3>
               </div>
-              <span id="counter-action" class="text-[11px] font-mono font-bold bg-slate-900 text-slate-400 border border-slate-800 px-2 py-0.5 rounded">
+              <span id="counter-action" class="text-[11px] font-mono font-bold bg-[#0A1333] text-slate-400 border border-[#142252] px-2 py-0.5 rounded">
                 0 de -
               </span>
             </div>
@@ -3260,9 +3291,9 @@ function renderParticipantesPanel() {
                 id="search-input-action" 
                 placeholder="Anotar estudiante de Action..." 
                 onfocus="handleParticipantAutocomplete('Action', this.value)" oninput="handleParticipantAutocomplete('Action', this.value)"
-                class="w-full bg-slate-900/70 border border-slate-800/90 rounded-lg text-xs py-1.5 pl-8 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-700/60 transition"
+                class="w-full bg-[#0A1333]/70 border border-[#142252]/90 rounded-lg text-xs py-1.5 pl-8 pr-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-700/60 transition"
               />
-              <div id="autocomplete-action" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
+              <div id="autocomplete-action" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS ACTION -->
@@ -3275,8 +3306,8 @@ function renderParticipantesPanel() {
       </div>
 
       <!-- BITÁCORA DE AUDITORÍA Y TRAZABILIDAD (MINIMALISTA) -->
-      <div class="bg-slate-950 border border-slate-900 rounded-xl p-3.5 mt-2">
-        <div class="flex items-center justify-between border-b border-slate-900 pb-2 mb-2">
+      <div class="bg-[#050C24] border border-[#142252] rounded-xl p-3.5 mt-2">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-2 mb-2">
           <span class="text-xs font-mono uppercase text-slate-400 font-semibold flex items-center gap-1.5">
             <i data-lucide="history" class="w-3.5 h-3.5 text-slate-500"></i> Bitácora de Auditoría en Cancha
           </span>
@@ -3303,7 +3334,7 @@ function renderActivityParticipantsView() {
         <span class="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-red-400 bg-red-950/40 border border-red-900/60 px-2.5 py-1 rounded-lg">
           <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Lista Oficial Cerrada
         </span>
-        <button onclick="requestReopenActivityList()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium py-1 px-2.5 rounded-lg border border-slate-800 transition">
+        <button onclick="requestReopenActivityList()" class="text-xs bg-[#0A1333] hover:bg-[#142252] text-slate-300 font-medium py-1 px-2.5 rounded-lg border border-[#142252] transition">
           Reabrir
         </button>
       `;
@@ -3312,7 +3343,7 @@ function renderActivityParticipantsView() {
         <span class="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-900/60 px-2.5 py-1 rounded-lg">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Lista Abierta
         </span>
-        <button onclick="closeCurrentActivityList()" class="text-xs bg-slate-900 hover:bg-red-950/60 text-slate-300 hover:text-red-300 font-medium py-1 px-2.5 rounded-lg border border-slate-800 hover:border-red-900/60 transition">
+        <button onclick="closeCurrentActivityList()" class="text-xs bg-[#0A1333] hover:bg-red-950/60 text-slate-300 hover:text-red-300 font-medium py-1 px-2.5 rounded-lg border border-[#142252] hover:border-red-900/60 transition">
           Cerrar Lista
         </button>
       `;
@@ -3357,7 +3388,7 @@ function renderActivityParticipantsView() {
         if (list.length >= quota) {
           counterEl.className = 'text-[11px] font-mono font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/60 px-2 py-0.5 rounded';
         } else {
-          counterEl.className = 'text-[11px] font-mono font-bold bg-slate-900 text-slate-400 border border-slate-800 px-2 py-0.5 rounded';
+          counterEl.className = 'text-[11px] font-mono font-bold bg-[#0A1333] text-slate-400 border border-[#142252] px-2 py-0.5 rounded';
         }
       } else {
         counterEl.textContent = `${list.length} inscritos`;
@@ -3377,7 +3408,7 @@ function renderActivityParticipantsView() {
           const isGymkana = data.activityId === 'gymkanas';
 
           return `
-            <div class="bg-slate-900/40 hover:bg-slate-900/90 p-2 rounded-lg border border-slate-900 hover:border-slate-800 flex items-center justify-between gap-2 transition group">
+            <div class="bg-[#0A1333]/50 hover:bg-[#0A1333]/90 p-2 rounded-lg border border-[#142252] hover:border-[#142252] flex items-center justify-between gap-2 transition group">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5">
                   <span class="text-[10px] font-mono text-slate-600 font-bold shrink-0">${idx + 1}.</span>
@@ -3395,7 +3426,7 @@ function renderActivityParticipantsView() {
               <!-- SI ES GYMKANA: CONTROL DE PUNTOS (0 A 8) -->
               ${isGymkana ? `
                 <div class="flex items-center gap-1 shrink-0">
-                  <select onchange="handleGymkanaScoreChange('${p.studentId}', '${al}', this.value)" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-[11px] text-amber-300 font-mono font-bold focus:outline-none">
+                  <select onchange="handleGymkanaScoreChange('${p.studentId}', '${al}', this.value)" class="bg-[#0A1333] border border-[#142252] rounded px-1.5 py-0.5 text-[11px] text-amber-300 font-mono font-bold focus:outline-none">
                     ${[0,1,2,3,4,5,6,7,8].map(s => `
                       <option value="${s}" ${p.score === s ? 'selected' : ''}>${s} pts</option>
                     `).join('')}
@@ -3421,7 +3452,7 @@ function renderActivityParticipantsView() {
       auditEl.innerHTML = `<div class="text-center py-2 text-slate-600 text-xs font-mono">Sin registros de auditoría aún.</div>`;
     } else {
       auditEl.innerHTML = data.audit.map(log => `
-        <div class="p-1.5 rounded-lg bg-slate-900/30 border border-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
+        <div class="p-1.5 rounded-lg bg-[#0A1333]/30 border border-[#142252] flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
           <div>
             <span class="text-slate-300 font-medium">${log.action}</span>
             ${log.reason ? `<span class="text-amber-400/90 ml-1.5">"${log.reason}"</span>` : ''}
@@ -3471,7 +3502,7 @@ function renderActivityParticipantsView() {
         <span class="inline-flex items-center gap-1.5 text-xs font-bold text-red-400 bg-red-950/80 border border-red-800/60 px-3 py-1.5 rounded-xl">
           <i data-lucide="lock" class="w-3.5 h-3.5"></i> Lista Oficial CERRADA
         </span>
-        <button onclick="requestReopenActivityList()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-1.5 px-3 rounded-xl border border-slate-700 transition">
+        <button onclick="requestReopenActivityList()" class="text-xs bg-[#142252] hover:bg-slate-700 text-slate-300 font-semibold py-1.5 px-3 rounded-xl border border-[#142252] transition">
           Reabrir con motivo
         </button>
       `;
@@ -3480,7 +3511,7 @@ function renderActivityParticipantsView() {
         <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/60 px-3 py-1.5 rounded-xl">
           <i data-lucide="unlock" class="w-3.5 h-3.5"></i> Lista Abierta
         </span>
-        <button onclick="closeCurrentActivityList()" class="text-xs bg-inacap-red hover:bg-red-700 text-white font-bold py-1.5 px-3.5 rounded-xl shadow transition">
+        <button onclick="closeCurrentActivityList()" class="text-xs bg-inacap-red hover:bg-[#ff2b5f] text-white font-bold py-1.5 px-3.5 rounded-xl shadow transition">
           Cerrar Lista Oficial
         </button>
       `;
@@ -3505,7 +3536,7 @@ function renderActivityParticipantsView() {
 
     bannerEl.innerHTML = `
       <div class="flex items-center gap-3">
-        <div class="p-2 bg-slate-950 rounded-lg text-amber-400 shrink-0">
+        <div class="p-2 bg-[#050C24] rounded-lg text-amber-400 shrink-0">
           <i data-lucide="info" class="w-4 h-4"></i>
         </div>
         <div>
@@ -3527,7 +3558,7 @@ function renderActivityParticipantsView() {
         if (list.length >= quota) {
           counterEl.className = 'text-xs font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-lg';
         } else {
-          counterEl.className = 'text-xs font-mono font-bold bg-slate-950 text-slate-300 border border-slate-800 px-2.5 py-1 rounded-lg';
+          counterEl.className = 'text-xs font-mono font-bold bg-[#050C24] text-slate-300 border border-[#142252] px-2.5 py-1 rounded-lg';
         }
       } else {
         counterEl.textContent = `${list.length} participantes`;
@@ -3547,7 +3578,7 @@ function renderActivityParticipantsView() {
           const isGymkana = data.activityId === 'gymkanas';
 
           return `
-            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-2 transition hover:border-slate-700">
+            <div class="bg-[#050C24] p-2.5 rounded-xl border border-[#142252] flex items-center justify-between gap-2 transition hover:border-[#142252]">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5">
                   <span class="text-[10px] font-mono text-slate-500 font-bold">${idx + 1}.</span>
@@ -3564,10 +3595,10 @@ function renderActivityParticipantsView() {
 
               <!-- SI ES GYMKANA: CONTROL TÁCTIL DE PUNTOS (0 A 8) -->
               ${isGymkana ? `
-                <div class="flex items-center gap-1 shrink-0 bg-slate-900 border border-amber-900/60 px-2 py-1 rounded-xl shadow-sm">
+                <div class="flex items-center gap-1 shrink-0 bg-[#0A1333] border border-amber-900/60 px-2 py-1 rounded-xl shadow-sm">
                   <button 
                     onclick="changeGymkanaScoreStep('${p.studentId}', '${al}', -1)"
-                    class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
+                    class="w-6 h-6 rounded bg-[#142252] hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
                     title="Restar 1 punto"
                   >-</button>
                   <span class="font-mono font-bold text-amber-300 text-xs px-1 min-w-[2.2rem] text-center">
@@ -3575,7 +3606,7 @@ function renderActivityParticipantsView() {
                   </span>
                   <button 
                     onclick="changeGymkanaScoreStep('${p.studentId}', '${al}', 1)"
-                    class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
+                    class="w-6 h-6 rounded bg-[#142252] hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
                     title="Sumar 1 punto"
                   >+</button>
                 </div>
@@ -3599,7 +3630,7 @@ function renderActivityParticipantsView() {
       auditEl.innerHTML = `<div>No hay registros de trazabilidad todavía para esta actividad.</div>`;
     } else {
       auditEl.innerHTML = data.audit.map(log => `
-        <div class="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
+        <div class="p-2 rounded-lg bg-[#050C24]/80 border border-[#142252] flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px]">
           <div>
             <span class="font-semibold text-slate-300">${log.action}</span>
             ${log.reason ? `<span class="text-amber-400 block sm:inline sm:ml-2">Motivo: "${log.reason}"</span>` : ''}
@@ -3654,7 +3685,7 @@ async function handleParticipantAutocomplete(alliance, val) {
     box.innerHTML = students.map(s => {
       if (currentActId === 'gymkanas') {
         return `
-          <div class="p-2.5 hover:bg-slate-800/90 text-xs border-b border-slate-800/60 last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition group">
+          <div class="p-2.5 hover:bg-[#142252]/90 text-xs border-b border-[#142252] last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition group">
             <div class="min-w-0 pr-2">
               <span class="font-semibold text-white block group-hover:text-amber-400 transition">${s.name}</span>
               <span class="block text-[10px] text-slate-400 truncate font-mono">${s.carrera || ''}</span>
@@ -3664,7 +3695,7 @@ async function handleParticipantAutocomplete(alliance, val) {
               ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(pts => `
                 <button 
                   onclick="selectStudentForGymkanaWithScore('${s.id}', '${alliance}', ${pts})"
-                  class="w-6 h-6 rounded bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-slate-300 font-mono font-bold text-xs border border-slate-700 transition flex items-center justify-center shadow-sm"
+                  class="w-6 h-6 rounded bg-[#0A1333] hover:bg-amber-500 hover:text-slate-950 text-slate-300 font-mono font-bold text-xs border border-[#142252] transition flex items-center justify-center shadow-sm"
                   title="Anotar con ${pts} pts"
                 >${pts}</button>
               `).join('')}
@@ -3674,12 +3705,12 @@ async function handleParticipantAutocomplete(alliance, val) {
       }
 
       return `
-        <div onclick="selectStudentForActivity('${s.id}', '${alliance}')" class="p-2.5 hover:bg-slate-800/80 cursor-pointer text-xs border-b border-slate-800/60 last:border-0 flex items-center justify-between transition group">
+        <div onclick="selectStudentForActivity('${s.id}', '${alliance}')" class="p-2.5 hover:bg-[#142252]/80 cursor-pointer text-xs border-b border-[#142252] last:border-0 flex items-center justify-between transition group">
           <div class="min-w-0 pr-2">
             <span class="font-semibold text-white block group-hover:text-emerald-400 transition">${s.name}</span>
             <span class="block text-[10px] text-slate-400 truncate">${s.carrera || ''}</span>
           </div>
-          <span class="text-[10px] font-mono text-slate-400 group-hover:text-white border border-slate-700 group-hover:border-slate-500 rounded px-1.5 py-0.5 shrink-0 transition">
+          <span class="text-[10px] font-mono text-slate-400 group-hover:text-white border border-[#142252] group-hover:border-slate-500 rounded px-1.5 py-0.5 shrink-0 transition">
             + Anotar
           </span>
         </div>
@@ -3957,13 +3988,13 @@ async function openStudentProfileModalById(studentId) {
     const s = data.student;
     content.innerHTML = `
       <div class="space-y-4 text-left">
-        <div class="border-b border-slate-800 pb-3">
+        <div class="border-b border-[#142252] pb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Ficha Oficial de Participación</span>
-          <h3 class="text-2xl font-black font-heading text-white mt-1">${s.name}</h3>
+          <h3 class="text-2xl font-black font-display text-white mt-1">${s.name}</h3>
           <span class="text-xs text-slate-400">${s.carrera} • Alianza ${s.alliance}</span>
         </div>
 
-        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="bg-[#050C24] p-4 rounded-2xl border border-[#142252] flex items-center justify-between">
           <span class="text-xs text-slate-400 font-semibold">Total de Actividades Disputadas</span>
           <span class="text-2xl font-mono font-black text-amber-400">${data.totalParticipations}</span>
         </div>
@@ -3971,11 +4002,11 @@ async function openStudentProfileModalById(studentId) {
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Detalle de Participaciones</h4>
           ${data.activities.length === 0 ? `
-            <div class="p-4 text-center text-xs text-slate-500 bg-slate-950 rounded-xl">Sin participaciones registradas en cancha.</div>
+            <div class="p-4 text-center text-xs text-slate-500 bg-[#050C24] rounded-xl">Sin participaciones registradas en cancha.</div>
           ` : `
             <div class="space-y-2">
               ${data.activities.map(a => `
-                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-center justify-between text-xs">
                   <div>
                     <span class="font-bold text-white block">${a.activityName}</span>
                     <span class="text-[10px] text-slate-400 font-mono">Registrado por ${a.addedBy} a las ${new Date(a.addedAt).toLocaleTimeString('es-CL')}</span>
@@ -4054,13 +4085,13 @@ async function openStudentProfileModalById(studentId) {
     const s = data.student;
     content.innerHTML = `
       <div class="space-y-4 text-left">
-        <div class="border-b border-slate-800 pb-3">
+        <div class="border-b border-[#142252] pb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Ficha Oficial de Participación</span>
-          <h3 class="text-2xl font-black font-heading text-white mt-1">${s.name}</h3>
+          <h3 class="text-2xl font-black font-display text-white mt-1">${s.name}</h3>
           <span class="text-xs text-slate-400">${s.carrera} • Alianza ${s.alliance}</span>
         </div>
 
-        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="bg-[#050C24] p-4 rounded-2xl border border-[#142252] flex items-center justify-between">
           <span class="text-xs text-slate-400 font-semibold">Total de Actividades Disputadas</span>
           <span class="text-2xl font-mono font-black text-amber-400">${data.totalParticipations}</span>
         </div>
@@ -4068,11 +4099,11 @@ async function openStudentProfileModalById(studentId) {
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Detalle de Participaciones</h4>
           ${data.activities.length === 0 ? `
-            <div class="p-4 text-center text-xs text-slate-500 bg-slate-950 rounded-xl">Sin participaciones registradas en cancha.</div>
+            <div class="p-4 text-center text-xs text-slate-500 bg-[#050C24] rounded-xl">Sin participaciones registradas en cancha.</div>
           ` : `
             <div class="space-y-2">
               ${data.activities.map(a => `
-                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
+                <div class="p-3 bg-[#050C24] rounded-xl border border-[#142252] flex items-center justify-between text-xs">
                   <div>
                     <span class="font-bold text-white block">${a.activityName}</span>
                     <span class="text-[10px] text-slate-400 font-mono">Registrado por ${a.addedBy} a las ${new Date(a.addedAt).toLocaleTimeString('es-CL')}</span>
@@ -4112,13 +4143,13 @@ function openActivityDetail(id) {
 
   content.innerHTML = `
     <div class="space-y-4">
-      <div class="border-b border-slate-800 pb-3">
+      <div class="border-b border-[#142252] pb-3">
         <span class="text-xs font-bold uppercase tracking-wider text-red-500">${act.group}</span>
-        <h3 class="text-2xl font-black font-heading text-white mt-1">${act.name}</h3>
+        <h3 class="text-2xl font-black font-display text-white mt-1">${act.name}</h3>
         <span class="text-xs text-slate-400">${act.location} • Máximo ${act.maxPoints} pts</span>
       </div>
 
-      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300 leading-relaxed">
+      <div class="bg-[#050C24] p-4 rounded-2xl border border-[#142252] text-xs text-slate-300 leading-relaxed">
         <strong class="text-white block mb-1">Regla de Cálculo Oficial:</strong>
         ${act.type === 'gymkana' ? 
           'Puntaje Alianza = 3.000 × (Promedio de puntos por participante / 8).' : 
@@ -4166,12 +4197,12 @@ function renderAsistenciaPanel() {
     <div class="space-y-6">
       
       <!-- HEADER DEL MÓDULO -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142252] pb-5">
         <div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <h2 class="text-xl sm:text-2xl font-bold font-heading text-white tracking-tight">Asistencia del Evento</h2>
-            <span id="attendance-total-badge" class="ml-2 text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-slate-300 border border-slate-800">
+            <h2 class="text-xl sm:text-2xl font-bold font-display text-white tracking-tight">Asistencia del Evento</h2>
+            <span id="attendance-total-badge" class="ml-2 text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-[#0A1333] text-slate-300 border border-[#142252]">
               Cargando...
             </span>
           </div>
@@ -4183,7 +4214,7 @@ function renderAsistenciaPanel() {
         <div class="flex items-center gap-2.5">
           <button 
             onclick="exportConsolidatedAttendanceCSV()" 
-            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 flex items-center gap-2 transition"
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#0A1333] hover:bg-[#142252] text-slate-200 border border-[#142252] flex items-center gap-2 transition"
             title="Descargar nómina consolidada en formato Excel / CSV"
           >
             <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
@@ -4191,7 +4222,7 @@ function renderAsistenciaPanel() {
           </button>
           <button 
             onclick="loadAttendanceData()" 
-            class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-900 border border-slate-900 transition"
+            class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#0A1333] border border-[#142252] transition"
             title="Recargar asistencia"
           >
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
@@ -4203,14 +4234,14 @@ function renderAsistenciaPanel() {
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         
         <!-- Total Asistentes -->
-        <div class="bg-slate-950 border border-slate-900 rounded-2xl p-4 transition shadow-sm">
+        <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 transition shadow-sm">
           <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500 block mb-1">Asistencia Real Total</span>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-white" id="asist-kpi-total">0</span>
             <span class="text-xs font-mono text-slate-400" id="asist-kpi-padron">/ 281 alumnos</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
-            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+            <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
               <div id="asist-bar-total" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
             <span class="text-[10px] font-mono text-emerald-400 font-bold shrink-0" id="asist-pct-total">0%</span>
@@ -4218,7 +4249,7 @@ function renderAsistenciaPanel() {
         </div>
 
         <!-- Terror -->
-        <div class="bg-slate-950 border border-slate-900 hover:border-red-950/80 rounded-2xl p-4 transition shadow-sm">
+        <div class="bg-[#050C24] border border-[#142252] hover:border-red-950/80 rounded-2xl p-4 transition shadow-sm">
           <div class="flex items-center justify-between mb-1">
             <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Alianza Terror</span>
             <span class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -4228,7 +4259,7 @@ function renderAsistenciaPanel() {
             <span class="text-xs font-mono text-slate-500">/ 126</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
-            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+            <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
               <div id="asist-bar-terror" class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
             <span class="text-[10px] font-mono text-red-400 font-bold shrink-0" id="asist-pct-terror">0%</span>
@@ -4236,7 +4267,7 @@ function renderAsistenciaPanel() {
         </div>
 
         <!-- Shooter -->
-        <div class="bg-slate-950 border border-slate-900 hover:border-blue-950/80 rounded-2xl p-4 transition shadow-sm">
+        <div class="bg-[#050C24] border border-[#142252] hover:border-blue-950/80 rounded-2xl p-4 transition shadow-sm">
           <div class="flex items-center justify-between mb-1">
             <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Alianza Shooter</span>
             <span class="w-2 h-2 rounded-full bg-blue-500"></span>
@@ -4246,7 +4277,7 @@ function renderAsistenciaPanel() {
             <span class="text-xs font-mono text-slate-500">/ 126</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
-            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+            <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
               <div id="asist-bar-shooter" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
             <span class="text-[10px] font-mono text-blue-400 font-bold shrink-0" id="asist-pct-shooter">0%</span>
@@ -4254,7 +4285,7 @@ function renderAsistenciaPanel() {
         </div>
 
         <!-- Action -->
-        <div class="bg-slate-950 border border-slate-900 hover:border-emerald-950/80 rounded-2xl p-4 transition shadow-sm">
+        <div class="bg-[#050C24] border border-[#142252] hover:border-emerald-950/80 rounded-2xl p-4 transition shadow-sm">
           <div class="flex items-center justify-between mb-1">
             <span class="text-[10px] font-mono uppercase tracking-wider text-slate-500">Alianza Action</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -4264,7 +4295,7 @@ function renderAsistenciaPanel() {
             <span class="text-xs font-mono text-slate-500">/ 29</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
-            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+            <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
               <div id="asist-bar-action" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
             <span class="text-[10px] font-mono text-emerald-400 font-bold shrink-0" id="asist-pct-action">0%</span>
@@ -4274,7 +4305,7 @@ function renderAsistenciaPanel() {
       </div>
 
       <!-- BARRA DE FILTROS Y BÚSQUEDA -->
-      <div class="bg-slate-950 border border-slate-900 rounded-2xl p-4 space-y-3">
+      <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 space-y-3">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           
           <!-- Buscador por Texto -->
@@ -4287,7 +4318,7 @@ function renderAsistenciaPanel() {
               id="search-attendance-input" 
               oninput="handleAttendanceFilterChange()"
               placeholder="Buscar por nombre, RUT o carrera..." 
-              class="w-full bg-slate-900/80 border border-slate-800 rounded-xl text-xs py-2 pl-9 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-slate-600 transition"
+              class="w-full bg-[#0A1333]/80 border border-[#142252] rounded-xl text-xs py-2 pl-9 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-slate-600 transition"
             />
           </div>
 
@@ -4296,7 +4327,7 @@ function renderAsistenciaPanel() {
             <select 
               id="select-attendance-activity" 
               onchange="handleAttendanceFilterChange()"
-              class="w-full bg-slate-900 border border-slate-800 rounded-xl text-xs py-2 px-3 text-slate-200 focus:outline-none focus:border-slate-600 font-mono"
+              class="w-full bg-[#0A1333] border border-[#142252] rounded-xl text-xs py-2 px-3 text-slate-200 focus:outline-none focus:border-slate-600 font-mono"
             >
               <option value="ALL">Todas las actividades</option>
             </select>
@@ -4304,7 +4335,7 @@ function renderAsistenciaPanel() {
 
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-900/80 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#142252] text-xs">
           
           <!-- Filtro de Alianza Pills -->
           <div class="flex items-center gap-1.5">
@@ -4312,28 +4343,28 @@ function renderAsistenciaPanel() {
             <button 
               onclick="setAttendanceAllianceFilter('ALL')" 
               id="filter-al-all"
-              class="px-2.5 py-1 rounded-lg text-xs font-mono transition bg-slate-900 text-white font-semibold border border-slate-800"
+              class="px-2.5 py-1 rounded-lg text-xs font-mono transition bg-[#0A1333] text-white font-semibold border border-[#142252]"
             >
               Todas
             </button>
             <button 
               onclick="setAttendanceAllianceFilter('Terror')" 
               id="filter-al-terror"
-              class="px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-slate-800"
+              class="px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-[#142252]"
             >
               Terror
             </button>
             <button 
               onclick="setAttendanceAllianceFilter('Shooter')" 
               id="filter-al-shooter"
-              class="px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-slate-800"
+              class="px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-[#142252]"
             >
               Shooter
             </button>
             <button 
               onclick="setAttendanceAllianceFilter('Action')" 
               id="filter-al-action"
-              class="px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-slate-800"
+              class="px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-[#142252]"
             >
               Action
             </button>
@@ -4347,7 +4378,7 @@ function renderAsistenciaPanel() {
                 id="toggle-attendance-only-attended" 
                 checked 
                 onchange="handleAttendanceToggleAttended(this.checked)"
-                class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0 focus:ring-offset-0"
+                class="rounded bg-[#0A1333] border-[#142252] text-emerald-500 focus:ring-0 focus:ring-offset-0"
               />
               <span>Mostrar solo quienes asistieron</span>
             </label>
@@ -4357,10 +4388,10 @@ function renderAsistenciaPanel() {
       </div>
 
       <!-- TABLA DE ASISTENCIA CONSOLIDADA -->
-      <div class="bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden shadow-xl">
+      <div class="bg-[#050C24] border border-[#142252] rounded-2xl overflow-hidden shadow-xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-900/60 border-b border-slate-900 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
+            <thead class="bg-[#0A1333]/60 border-b border-[#142252] text-[10px] font-mono text-slate-400 uppercase tracking-wider">
               <tr>
                 <th class="py-3 px-3.5 w-12 text-center">#</th>
                 <th class="py-3 px-3.5">Estudiante</th>
@@ -4384,7 +4415,7 @@ function renderAsistenciaPanel() {
         </div>
 
         <!-- Footer con conteo -->
-        <div class="p-3 bg-slate-900/40 border-t border-slate-900 flex items-center justify-between text-xs text-slate-500 font-mono">
+        <div class="p-3 bg-[#0A1333]/50 border-t border-[#142252] flex items-center justify-between text-xs text-slate-500 font-mono">
           <span id="attendance-count-indicator">Mostrando 0 estudiantes</span>
           <span>Actualizado en tiempo real</span>
         </div>
@@ -4464,9 +4495,9 @@ function setAttendanceAllianceFilter(alliance) {
     const btn = document.getElementById(`filter-al-${a}`);
     if (btn) {
       if (a === alliance.toLowerCase()) {
-        btn.className = 'px-2.5 py-1 rounded-lg text-xs font-mono transition bg-slate-900 text-white font-semibold border border-slate-800';
+        btn.className = 'px-2.5 py-1 rounded-lg text-xs font-mono transition bg-[#0A1333] text-white font-semibold border border-[#142252]';
       } else {
-        btn.className = 'px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-slate-800';
+        btn.className = 'px-2.5 py-1 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent hover:border-[#142252]';
       }
     }
   });
@@ -4542,18 +4573,18 @@ function renderAttendanceTable() {
   }
 
   const allianceBadgeStyles = {
-    Terror: 'bg-red-950/70 text-red-400 border-red-900/50',
-    Shooter: 'bg-blue-950/70 text-blue-400 border-blue-900/50',
-    Action: 'bg-emerald-950/70 text-emerald-400 border-emerald-900/50'
+    Terror: 'bg-[#E6194B]/20 text-[#E6194B] border-[#E6194B]/50 font-display font-bold',
+    Shooter: 'bg-[#2D46B9]/20 text-[#7F9CF5] border-[#2D46B9]/50 font-display font-bold',
+    Action: 'bg-[#059669]/20 text-[#34D399] border-[#059669]/50 font-display font-bold'
   };
 
   tbody.innerHTML = filtered.map((s, idx) => {
-    const badgeStyle = allianceBadgeStyles[s.alliance] || 'bg-slate-900 text-slate-400 border-slate-800';
+    const badgeStyle = allianceBadgeStyles[s.alliance] || 'bg-[#0A1333] text-slate-400 border-[#142252]';
     const acts = s.activities || [];
     const hasAttended = acts.length > 0;
 
     return `
-      <tr class="hover:bg-slate-900/40 transition group">
+      <tr class="hover:bg-[#0A1333]/50 transition group">
         <td class="py-3 px-3.5 text-center font-mono text-slate-600 text-[11px]">
           ${idx + 1}
         </td>
@@ -4578,7 +4609,7 @@ function renderAttendanceTable() {
           ${hasAttended ? `
             <div class="flex flex-wrap items-center gap-1.5">
               ${acts.map(a => `
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition" title="Registrado: ${new Date(a.addedAt).toLocaleTimeString('es-CL')}">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono bg-[#0A1333] text-slate-300 border border-[#142252] hover:border-[#142252] transition" title="Registrado: ${new Date(a.addedAt).toLocaleTimeString('es-CL')}">
                   <span>${a.activityName}</span>
                   ${a.score !== null ? `<span class="text-amber-400 font-bold">(${a.score} pts)</span>` : ''}
                 </span>
@@ -4657,15 +4688,15 @@ function renderAdminProyectorView(statsData) {
   const diff12 = Math.abs(leader.pts - second.pts);
 
   return `
-    <div class="h-screen w-screen bg-slate-950 text-white flex flex-col justify-between p-6 sm:p-10 select-none overflow-hidden">
+    <div class="h-screen w-screen bg-[#050C24] text-white flex flex-col justify-between p-6 sm:p-10 select-none overflow-hidden">
       <!-- HEADER PROYECTOR -->
-      <div class="flex items-center justify-between border-b border-slate-900 pb-4">
+      <div class="flex items-center justify-between border-b border-[#142252] pb-4">
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2">
             <span class="w-3.5 h-3.5 rounded-full bg-[#E30613] shadow-md shadow-red-600/40"></span>
-            <span class="font-heading font-black text-white text-xl sm:text-2xl tracking-tight">TI & DISEÑO</span>
+            <span class="font-display font-black text-white text-xl sm:text-2xl tracking-tight">TI & DISEÑO</span>
           </div>
-          <div class="h-6 w-px bg-slate-800"></div>
+          <div class="h-6 w-px bg-[#142252]"></div>
           <div>
             <span class="text-xs font-mono font-bold text-slate-300 tracking-wider uppercase block">Marcador Oficial de Cancha</span>
             <span class="text-[10px] font-mono text-slate-400 block">Informática • Telecomunicaciones • Analista • Diseño Web</span>
@@ -4680,7 +4711,7 @@ function renderAdminProyectorView(statsData) {
         ` : ''}
 
         <div class="flex items-center gap-4">
-          <button onclick="closeAdminProyector()" class="px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-1.5 transition">
+          <button onclick="closeAdminProyector()" class="px-3 py-1.5 rounded-xl text-xs font-mono bg-[#0A1333] hover:bg-[#142252] text-slate-300 border border-[#142252] flex items-center gap-1.5 transition">
             <i data-lucide="x" class="w-4 h-4"></i>
             <span>Cerrar Proyector</span>
           </button>
@@ -4696,7 +4727,7 @@ function renderAdminProyectorView(statsData) {
               <span class="text-xs font-mono font-black text-amber-400 uppercase tracking-widest">¡PRUEBA SORPRESA EN CURSO!</span>
               <span class="text-xl">🚨</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-heading font-black text-white uppercase mt-0.5">${statsData.activeSorpresa.name}</h2>
+            <h2 class="text-xl sm:text-2xl font-display font-black text-white uppercase mt-0.5">${statsData.activeSorpresa.name}</h2>
             <p class="text-xs text-slate-300 mt-0.5">${statsData.activeSorpresa.description || ''}</p>
             <div class="mt-2 flex items-center justify-center gap-4 text-xs font-mono text-amber-300">
               <span>⏱️ Duración: ${statsData.activeSorpresa.durationMin || 3} min</span>
@@ -4706,7 +4737,7 @@ function renderAdminProyectorView(statsData) {
           </div>
         ` : ''}
 
-        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1 border-b border-slate-900 pb-2">
+        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1 border-b border-[#142252] pb-2">
           <span>POSICIONES OFICIALES & PUNTAJE EN VIVO</span>
           <span>META DEL EVENTO: 32.000 PTS</span>
         </div>
@@ -4722,17 +4753,17 @@ function renderAdminProyectorView(statsData) {
           if (isLeader) {
             diffBadge = `<span class="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-0.5 rounded-md">LÍDER (+${diff12.toLocaleString('es-CL')} pts)</span>`;
           } else if (leader.pts > 0) {
-            diffBadge = `<span class="text-[11px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-md">A ${diffFromLeader.toLocaleString('es-CL')} pts del líder</span>`;
+            diffBadge = `<span class="text-[11px] font-mono text-slate-400 bg-[#0A1333] border border-[#142252] px-2 py-0.5 rounded-md">A ${diffFromLeader.toLocaleString('es-CL')} pts del líder</span>`;
           }
 
           return `
-            <div class="bg-slate-900/30 border ${item.border} rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
+            <div class="bg-[#0A1333]/30 border ${item.border} rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div class="flex items-center gap-3">
                   <span class="w-3 h-3 rounded-full ${item.dot}"></span>
                   <div>
                     <div class="flex items-center gap-2">
-                      <h3 class="font-bold font-heading text-xl sm:text-2xl text-white tracking-wider">ALIANZA ${item.name}</h3>
+                      <h3 class="font-bold font-display text-xl sm:text-2xl text-white tracking-wider">ALIANZA ${item.name}</h3>
                       <span class="text-xs uppercase font-semibold px-2 py-0.5 rounded border ${item.tag}">
                         ${place}° LUGAR
                       </span>
@@ -4756,10 +4787,10 @@ function renderAdminProyectorView(statsData) {
               </div>
 
               <!-- PISTA VISUAL -->
-              <div class="relative w-full bg-slate-950 h-7 sm:h-8 rounded-xl overflow-hidden border border-slate-800/90 p-1 flex items-center">
-                <div class="absolute left-[25%] top-0 bottom-0 w-px bg-slate-900/80 pointer-events-none"></div>
-                <div class="absolute left-[50%] top-0 bottom-0 w-px bg-slate-900/80 pointer-events-none"></div>
-                <div class="absolute left-[75%] top-0 bottom-0 w-px bg-slate-900/80 pointer-events-none"></div>
+              <div class="relative w-full bg-[#050C24] h-7 sm:h-8 rounded-xl overflow-hidden border border-[#142252]/90 p-1 flex items-center">
+                <div class="absolute left-[25%] top-0 bottom-0 w-px bg-[#0A1333]/80 pointer-events-none"></div>
+                <div class="absolute left-[50%] top-0 bottom-0 w-px bg-[#0A1333]/80 pointer-events-none"></div>
+                <div class="absolute left-[75%] top-0 bottom-0 w-px bg-[#0A1333]/80 pointer-events-none"></div>
                 
                 <div class="${item.bar} h-full rounded-lg transition-all duration-1000 ease-out shadow-md relative flex items-center justify-end pr-2" style="width: ${visualWidth}%;">
                   ${visualWidth > 15 ? `<span class="text-[10px] font-mono font-bold text-white drop-shadow">${pct}%</span>` : ''}
@@ -4773,7 +4804,7 @@ function renderAdminProyectorView(statsData) {
         }).join('')}
       </div>
 
-      <div class="border-t border-slate-900 pt-3 flex items-center justify-between text-xs text-slate-500 font-mono">
+      <div class="border-t border-[#142252] pt-3 flex items-center justify-between text-xs text-slate-500 font-mono">
         <span>Pantalla Oficial de Competencia • Semana Carrera 2026</span>
         <span>Controlado desde Panel de Administración</span>
       </div>
@@ -4917,7 +4948,7 @@ function renderPuntosPanel() {
   return `
     <div class="space-y-6">
       <!-- HEADER CONSOLA -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-900 pb-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#142252] pb-4">
         <div>
           <div class="flex items-center gap-2 mb-1">
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
@@ -4925,7 +4956,7 @@ function renderPuntosPanel() {
             </span>
             <span class="text-xs text-slate-500 font-mono">Reglamento 2026</span>
           </div>
-          <h2 class="text-xl font-bold font-heading text-white flex items-center gap-2">
+          <h2 class="text-xl font-bold font-display text-white flex items-center gap-2">
             Consola Oficial de Registro de Puntos
           </h2>
           <p class="text-xs text-slate-400 mt-0.5">
@@ -4934,11 +4965,11 @@ function renderPuntosPanel() {
         </div>
 
         <!-- SUBTABS DE NAVEGACIÓN -->
-        <div class="flex items-center gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl overflow-x-auto shrink-0">
+        <div class="flex items-center gap-2 p-1.5 bg-[#0A1333] border border-[#142252] rounded-2xl overflow-x-auto shrink-0">
           <button 
             id="tab-btn-places"
             onclick="setPuntosSubTab('places')" 
-            class="px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${puntosState.activeTab === 'places' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}"
+            class="px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${puntosState.activeTab === 'places' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20' : 'text-slate-300 hover:text-white bg-[#050C24] hover:bg-[#0E1E48]'}"
           >
             <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
             <span>Por Puestos</span>
@@ -4946,7 +4977,7 @@ function renderPuntosPanel() {
           <button 
             id="tab-btn-triangular"
             onclick="setPuntosSubTab('triangular')" 
-            class="px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${puntosState.activeTab === 'triangular' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}"
+            class="px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${puntosState.activeTab === 'triangular' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20' : 'text-slate-300 hover:text-white bg-[#050C24] hover:bg-[#0E1E48]'}"
           >
             <i data-lucide="swords" class="w-3.5 h-3.5 text-emerald-400"></i>
             <span>Torneo Triangular</span>
@@ -4954,7 +4985,7 @@ function renderPuntosPanel() {
           <button 
             id="tab-btn-gymkanas"
             onclick="setPuntosSubTab('gymkanas')" 
-            class="px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${puntosState.activeTab === 'gymkanas' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}"
+            class="px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${puntosState.activeTab === 'gymkanas' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20' : 'text-slate-300 hover:text-white bg-[#050C24] hover:bg-[#0E1E48]'}"
           >
             <i data-lucide="target" class="w-3.5 h-3.5 text-blue-400"></i>
             <span>Gymkanas</span>
@@ -4962,7 +4993,7 @@ function renderPuntosPanel() {
           <button 
             id="tab-btn-tarreo"
             onclick="setPuntosSubTab('tarreo')" 
-            class="px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${puntosState.activeTab === 'tarreo' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}"
+            class="px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${puntosState.activeTab === 'tarreo' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20' : 'text-slate-300 hover:text-white bg-[#050C24] hover:bg-[#0E1E48]'}"
           >
             <i data-lucide="gamepad-2" class="w-3.5 h-3.5 text-purple-400"></i>
             <span>Copa Tarreo</span>
@@ -4970,7 +5001,7 @@ function renderPuntosPanel() {
           <button 
             id="tab-btn-sorpresas"
             onclick="setPuntosSubTab('sorpresas')" 
-            class="px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${puntosState.activeTab === 'sorpresas' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}"
+            class="px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 ${puntosState.activeTab === 'sorpresas' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20' : 'text-slate-300 hover:text-white bg-[#050C24] hover:bg-[#0E1E48]'}"
           >
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
             <span>Pruebas Sorpresa</span>
@@ -4995,9 +5026,9 @@ async function setPuntosSubTab(tab) {
     const btn = document.getElementById(`tab-btn-${t}`);
     if (btn) {
       if (t === tab) {
-        btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 bg-slate-800 text-white shadow-sm';
+        btn.className = 'px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/20';
       } else {
-        btn.className = 'px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-slate-400 hover:text-slate-200';
+        btn.className = 'px-3.5 py-2 rounded-xl text-xs font-display font-bold uppercase tracking-wider transition flex items-center gap-2 text-slate-300 hover:text-white bg-[#050C24] hover:bg-[#0E1E48]';
       }
     }
   });
@@ -5089,13 +5120,13 @@ function renderPuntosPlacesTab() {
   const preview = calculatePlacesPreview(act, puntosState.placeSelection);
 
   const allianceThemes = {
-    Terror: { name: 'Terror', border: 'border-red-800/80', bg: 'bg-red-950/20', text: 'text-red-400', badge: 'bg-red-900/60 text-red-200 border-red-700' },
-    Shooter: { name: 'Shooter', border: 'border-blue-800/80', bg: 'bg-blue-950/20', text: 'text-blue-400', badge: 'bg-blue-900/60 text-blue-200 border-blue-700' },
-    Action: { name: 'Action', border: 'border-emerald-800/80', bg: 'bg-emerald-950/20', text: 'text-emerald-400', badge: 'bg-emerald-900/60 text-emerald-200 border-emerald-700' }
+    Terror: { name: 'Terror', border: 'border-[#E6194B]/50', bg: 'bg-[#E6194B]/10', text: 'text-[#E6194B]', badge: 'bg-[#E6194B]/20 text-white border-[#E6194B]/50' },
+    Shooter: { name: 'Shooter', border: 'border-[#2D46B9]/50', bg: 'bg-[#2D46B9]/10', text: 'text-[#7F9CF5]', badge: 'bg-[#2D46B9]/20 text-white border-[#2D46B9]/50' },
+    Action: { name: 'Action', border: 'border-[#059669]/50', bg: 'bg-[#059669]/10', text: 'text-[#34D399]', badge: 'bg-[#059669]/20 text-white border-[#059669]/50' }
   };
 
   const statusBadges = {
-    'Pendiente': 'bg-slate-900 text-slate-400 border-slate-800',
+    'Pendiente': 'bg-[#0A1333] text-slate-400 border-[#142252]',
     'En curso': 'bg-amber-950 text-amber-400 border-amber-800 animate-pulse',
     'Terminada': 'bg-emerald-950 text-emerald-400 border-emerald-800'
   };
@@ -5114,7 +5145,7 @@ function renderPuntosPlacesTab() {
             return `
               <button 
                 onclick="selectPlacesActivity('${a.id}')"
-                class="text-left p-3 rounded-xl border transition relative ${isSel ? 'bg-slate-900 border-indigo-500 shadow-md ring-1 ring-indigo-500/50' : 'bg-slate-950 border-slate-800/80 hover:bg-slate-900/50 hover:border-slate-700'}"
+                class="text-left p-3 rounded-xl border transition relative ${isSel ? 'bg-[#0A1333] border-indigo-500 shadow-md ring-1 ring-indigo-500/50' : 'bg-[#050C24] border-[#142252] hover:bg-[#0A1333]/50 hover:border-[#142252]'}"
               >
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-[10px] font-mono font-bold uppercase ${isDone ? 'text-emerald-400' : (a.status === 'En curso' ? 'text-amber-400' : 'text-slate-500')}">
@@ -5131,15 +5162,15 @@ function renderPuntosPlacesTab() {
       </div>
 
       <!-- TARJETA ACTIVA Y CONTROL DE ESTADO -->
-      <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-mono uppercase px-2 py-0.5 rounded-full border ${statusBadges[act.status] || 'bg-slate-900 text-slate-400'}">
+            <span class="text-xs font-mono uppercase px-2 py-0.5 rounded-full border ${statusBadges[act.status] || 'bg-[#0A1333] text-slate-400'}">
               Estado: ${act.status}
             </span>
             <span class="text-xs text-slate-500 font-mono">${act.time}</span>
           </div>
-          <h3 class="text-lg font-bold font-heading text-white">${act.name}</h3>
+          <h3 class="text-lg font-bold font-display text-white">${act.name}</h3>
           <p class="text-xs text-slate-400 mt-0.5">${act.description || 'Puntajes: 1° (100%), 2° (60%), 3° (30%) de ' + act.maxPoints + ' pts.'}</p>
         </div>
 
@@ -5147,13 +5178,13 @@ function renderPuntosPlacesTab() {
         <div class="flex items-center gap-2 shrink-0">
           <button 
             onclick="setActivityStatusQuick('${act.id}', 'En curso')"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${act.status === 'En curso' ? 'bg-amber-950 border-amber-800 text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${act.status === 'En curso' ? 'bg-amber-950 border-amber-800 text-amber-300' : 'bg-[#0A1333] border-[#142252] text-slate-400 hover:text-white'}"
           >
             <i data-lucide="play" class="w-3.5 h-3.5"></i> En Curso
           </button>
           <button 
             onclick="setActivityStatusQuick('${act.id}', 'Pendiente')"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${act.status === 'Pendiente' ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 ${act.status === 'Pendiente' ? 'bg-[#142252] border-[#142252] text-white' : 'bg-[#0A1333] border-[#142252] text-slate-400 hover:text-white'}"
           >
             <i data-lucide="clock" class="w-3.5 h-3.5"></i> Pendiente
           </button>
@@ -5174,7 +5205,7 @@ function renderPuntosPlacesTab() {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="w-3 h-3 rounded-full ${al === 'Terror' ? 'bg-red-500' : (al === 'Shooter' ? 'bg-blue-500' : 'bg-emerald-500')}"></div>
-                  <h4 class="font-bold font-heading text-base text-white">Alianza ${theme.name}</h4>
+                  <h4 class="font-bold font-display text-base text-white">Alianza ${theme.name}</h4>
                 </div>
                 <span class="text-xs font-mono font-bold ${theme.text}">
                   ${currentPlace ? currentPlace + '° Lugar' : 'Sin asignar'}
@@ -5187,19 +5218,19 @@ function renderPuntosPlacesTab() {
                 <div class="grid grid-cols-3 gap-1.5">
                   <button 
                     onclick="setActivityPlace('${al}', 1)"
-                    class="py-2.5 rounded-xl text-xs font-bold font-mono transition border ${currentPlace === 1 ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 ring-2 ring-amber-400' : 'bg-slate-900/90 border-slate-800 text-slate-300 hover:border-slate-700'}"
+                    class="py-2.5 rounded-xl text-xs font-bold font-mono transition border ${currentPlace === 1 ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 ring-2 ring-amber-400' : 'bg-[#0A1333]/90 border-[#142252] text-slate-300 hover:border-[#142252]'}"
                   >
                     🥇 1°
                   </button>
                   <button 
                     onclick="setActivityPlace('${al}', 2)"
-                    class="py-2.5 rounded-xl text-xs font-bold font-mono transition border ${currentPlace === 2 ? 'bg-slate-300 border-white text-slate-950 shadow-lg ring-2 ring-slate-300' : 'bg-slate-900/90 border-slate-800 text-slate-300 hover:border-slate-700'}"
+                    class="py-2.5 rounded-xl text-xs font-bold font-mono transition border ${currentPlace === 2 ? 'bg-slate-300 border-white text-slate-950 shadow-lg ring-2 ring-slate-300' : 'bg-[#0A1333]/90 border-[#142252] text-slate-300 hover:border-[#142252]'}"
                   >
                     🥈 2°
                   </button>
                   <button 
                     onclick="setActivityPlace('${al}', 3)"
-                    class="py-2.5 rounded-xl text-xs font-bold font-mono transition border ${currentPlace === 3 ? 'bg-amber-800 border-amber-700 text-amber-100 shadow-lg ring-2 ring-amber-700' : 'bg-slate-900/90 border-slate-800 text-slate-300 hover:border-slate-700'}"
+                    class="py-2.5 rounded-xl text-xs font-bold font-mono transition border ${currentPlace === 3 ? 'bg-amber-800 border-amber-700 text-amber-100 shadow-lg ring-2 ring-amber-700' : 'bg-[#0A1333]/90 border-[#142252] text-slate-300 hover:border-[#142252]'}"
                   >
                     🥉 3°
                   </button>
@@ -5207,12 +5238,12 @@ function renderPuntosPlacesTab() {
               </div>
 
               <!-- TARJETA DE PUNTOS EN VIVO -->
-              <div class="p-3 bg-slate-950/80 border border-slate-800 rounded-xl space-y-1.5">
+              <div class="p-3 bg-[#050C24]/80 border border-[#142252] rounded-xl space-y-1.5">
                 <div class="flex items-center justify-between text-xs">
                   <span class="text-slate-400 font-mono">Puntos proyectados:</span>
                   <span class="font-mono font-bold text-white text-sm">+${ptsAwarded.toLocaleString('es-CL')} pts</span>
                 </div>
-                <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                <div class="w-full bg-[#0A1333] rounded-full h-1.5 overflow-hidden">
                   <div class="h-full rounded-full transition-all duration-500 ${al === 'Terror' ? 'bg-red-500' : (al === 'Shooter' ? 'bg-blue-500' : 'bg-emerald-500')}" style="width: ${pct}%;"></div>
                 </div>
                 <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
@@ -5226,42 +5257,42 @@ function renderPuntosPlacesTab() {
       </div>
 
       <!-- ATAJOS DE EMPATES DIRECTOS -->
-      <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+      <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <i data-lucide="split" class="w-4 h-4 text-indigo-400"></i>
-            <span class="text-xs font-bold text-white font-heading">Atajos Reglamentarios de Empate (Reparto Proporcional)</span>
+            <span class="text-xs font-bold text-white font-display">Atajos Reglamentarios de Empate (Reparto Proporcional)</span>
           </div>
           <span class="text-[11px] text-slate-500 font-mono">1 clic para configurar podio compartido</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button 
             onclick="applyTiePreset('1-1-3_TS')"
-            class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-slate-800 transition"
+            class="px-2.5 py-1.5 bg-[#0A1333] hover:bg-[#142252] text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-[#142252] transition"
           >
             Empate 1°: Terror + Shooter (80% c/u)
           </button>
           <button 
             onclick="applyTiePreset('1-1-3_TA')"
-            class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-slate-800 transition"
+            class="px-2.5 py-1.5 bg-[#0A1333] hover:bg-[#142252] text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-[#142252] transition"
           >
             Empate 1°: Terror + Action (80% c/u)
           </button>
           <button 
             onclick="applyTiePreset('1-1-3_SA')"
-            class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-slate-800 transition"
+            class="px-2.5 py-1.5 bg-[#0A1333] hover:bg-[#142252] text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-[#142252] transition"
           >
             Empate 1°: Shooter + Action (80% c/u)
           </button>
           <button 
             onclick="applyTiePreset('1-2-2_SA')"
-            class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-slate-800 transition"
+            class="px-2.5 py-1.5 bg-[#0A1333] hover:bg-[#142252] text-slate-300 hover:text-white rounded-lg text-xs font-mono border border-[#142252] transition"
           >
             Empate 2°: Shooter + Action (45% c/u)
           </button>
           <button 
             onclick="applyTiePreset('1-1-1')"
-            class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-lg text-xs font-mono border border-amber-900/60 transition"
+            class="px-2.5 py-1.5 bg-[#0A1333] hover:bg-[#142252] text-amber-300 rounded-lg text-xs font-mono border border-amber-900/60 transition"
           >
             Triple Empate: 1° = 2° = 3° (63.3% c/u)
           </button>
@@ -5275,7 +5306,7 @@ function renderPuntosPlacesTab() {
       </div>
 
       <!-- EXPLICACIÓN MATEMÁTICA EN VIVO & NOTAS -->
-      <div class="p-4 bg-slate-900/40 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-4 bg-[#0A1333]/50 border border-[#142252] rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-start gap-3">
           <div class="p-2 bg-indigo-950/60 border border-indigo-800 rounded-xl text-indigo-400 mt-0.5 shrink-0">
             <i data-lucide="calculator" class="w-4 h-4"></i>
@@ -5293,7 +5324,7 @@ function renderPuntosPlacesTab() {
             value="${puntosState.placeNotes}"
             placeholder="Observación (ej: definido a penales)"
             onchange="puntosState.placeNotes = this.value"
-            class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-2 text-xs placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+            class="w-full bg-[#050C24] border border-[#142252] text-white rounded-xl px-3 py-2 text-xs placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
           >
         </div>
       </div>
@@ -5303,7 +5334,7 @@ function renderPuntosPlacesTab() {
         <button 
           id="btn-save-places"
           onclick="savePlacesResults()"
-          class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold font-heading rounded-xl shadow-lg shadow-indigo-600/20 border border-indigo-500 transition flex items-center justify-center gap-2"
+          class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-xs font-bold font-display rounded-xl shadow-lg shadow-indigo-600/20 border border-indigo-500 transition flex items-center justify-center gap-2"
         >
           <i data-lucide="check-circle-2" class="w-4 h-4"></i>
           <span>Calcular y Guardar Resultados Oficiales</span>
@@ -5527,7 +5558,7 @@ function renderPuntosTriangularTab() {
   return `
     <div class="space-y-6">
       <!-- SELECTOR DE DEPORTE -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142252] pb-4">
         <div>
           <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
             Modalidad Triangular (3 Partidos de 8 min)
@@ -5535,14 +5566,14 @@ function renderPuntosTriangularTab() {
           <div class="flex items-center gap-2">
             <button 
               onclick="selectTriangularSport('babyfutbol')"
-              class="px-4 py-2 rounded-xl text-xs font-bold font-heading transition border flex items-center gap-2 ${sportId === 'babyfutbol' ? 'bg-emerald-950 border-emerald-700 text-emerald-300 shadow-md' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+              class="px-4 py-2 rounded-xl text-xs font-bold font-display transition border flex items-center gap-2 ${sportId === 'babyfutbol' ? 'bg-emerald-950 border-emerald-700 text-emerald-300 shadow-md' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
             >
               <span>⚽ Baby Fútbol</span>
               <span class="text-[10px] font-mono opacity-70">4.000 pts</span>
             </button>
             <button 
               onclick="selectTriangularSport('quemadas')"
-              class="px-4 py-2 rounded-xl text-xs font-bold font-heading transition border flex items-center gap-2 ${sportId === 'quemadas' ? 'bg-amber-950 border-amber-700 text-amber-300 shadow-md' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+              class="px-4 py-2 rounded-xl text-xs font-bold font-display transition border flex items-center gap-2 ${sportId === 'quemadas' ? 'bg-amber-950 border-amber-700 text-amber-300 shadow-md' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
             >
               <span>🔥 Quemadas</span>
               <span class="text-[10px] font-mono opacity-70">4.000 pts</span>
@@ -5550,7 +5581,7 @@ function renderPuntosTriangularTab() {
           </div>
         </div>
 
-        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 font-mono">
+        <div class="p-3 bg-[#050C24] border border-[#142252] rounded-xl text-xs text-slate-400 font-mono">
           <span>Regla: Victoria 3 pts • Empate 1 pt • Derrota 0 pts. ${sportId === 'quemadas' ? 'Desempate: Más rondas ganadas > Más jugadores en pie.' : 'Desempate: DIF > GF > Penales.'}</span>
         </div>
       </div>
@@ -5579,8 +5610,8 @@ function renderPuntosTriangularTab() {
           };
 
           return `
-            <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-900 pb-2">
+            <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl space-y-4">
+              <div class="flex items-center justify-between border-b border-[#142252] pb-2">
                 <span class="text-[11px] font-mono font-bold text-slate-400 uppercase">Partido ${idx + 1}</span>
                 ${statusBadge}
               </div>
@@ -5589,11 +5620,11 @@ function renderPuntosTriangularTab() {
               <div class="flex items-center justify-between gap-2">
                 <!-- EQUIPO 1 -->
                 <div class="text-center flex-1 space-y-2">
-                  <span class="font-bold font-heading text-sm ${teamColors[m.team1]} block truncate">${m.team1}</span>
+                  <span class="font-bold font-display text-sm ${teamColors[m.team1]} block truncate">${m.team1}</span>
                   <div class="flex items-center justify-center gap-1">
                     <button 
                       onclick="adjustMatchScore(${idx}, 1, -1)"
-                      class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold transition flex items-center justify-center"
+                      class="w-8 h-8 rounded-lg bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-300 font-bold transition flex items-center justify-center"
                     >-</button>
                     <input 
                       type="number" 
@@ -5601,11 +5632,11 @@ function renderPuntosTriangularTab() {
                       value="${s1 !== null ? s1 : ''}" 
                       placeholder="0"
                       onchange="updateMatchScoreDirect(${idx}, 1, this.value)"
-                      class="w-12 h-8 text-center bg-slate-900 border border-slate-800 rounded-lg text-white font-mono font-bold text-base focus:outline-none focus:border-indigo-500"
+                      class="w-12 h-8 text-center bg-[#0A1333] border border-[#142252] rounded-lg text-white font-mono font-bold text-base focus:outline-none focus:border-indigo-500"
                     >
                     <button 
                       onclick="adjustMatchScore(${idx}, 1, 1)"
-                      class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold transition flex items-center justify-center"
+                      class="w-8 h-8 rounded-lg bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-300 font-bold transition flex items-center justify-center"
                     >+</button>
                   </div>
                 </div>
@@ -5614,11 +5645,11 @@ function renderPuntosTriangularTab() {
 
                 <!-- EQUIPO 2 -->
                 <div class="text-center flex-1 space-y-2">
-                  <span class="font-bold font-heading text-sm ${teamColors[m.team2]} block truncate">${m.team2}</span>
+                  <span class="font-bold font-display text-sm ${teamColors[m.team2]} block truncate">${m.team2}</span>
                   <div class="flex items-center justify-center gap-1">
                     <button 
                       onclick="adjustMatchScore(${idx}, 2, -1)"
-                      class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold transition flex items-center justify-center"
+                      class="w-8 h-8 rounded-lg bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-300 font-bold transition flex items-center justify-center"
                     >-</button>
                     <input 
                       type="number" 
@@ -5626,11 +5657,11 @@ function renderPuntosTriangularTab() {
                       value="${s2 !== null ? s2 : ''}" 
                       placeholder="0"
                       onchange="updateMatchScoreDirect(${idx}, 2, this.value)"
-                      class="w-12 h-8 text-center bg-slate-900 border border-slate-800 rounded-lg text-white font-mono font-bold text-base focus:outline-none focus:border-indigo-500"
+                      class="w-12 h-8 text-center bg-[#0A1333] border border-[#142252] rounded-lg text-white font-mono font-bold text-base focus:outline-none focus:border-indigo-500"
                     >
                     <button 
                       onclick="adjustMatchScore(${idx}, 2, 1)"
-                      class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-bold transition flex items-center justify-center"
+                      class="w-8 h-8 rounded-lg bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-300 font-bold transition flex items-center justify-center"
                     >+</button>
                   </div>
                 </div>
@@ -5638,11 +5669,11 @@ function renderPuntosTriangularTab() {
 
               <!-- PRESETS RÁPIDOS DE RESULTADO -->
               <div class="flex items-center justify-center gap-1 pt-1">
-                <button onclick="setMatchPreset(${idx}, 1, 0)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 hover:text-white border border-slate-800">1-0</button>
-                <button onclick="setMatchPreset(${idx}, 2, 1)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 hover:text-white border border-slate-800">2-1</button>
-                <button onclick="setMatchPreset(${idx}, 0, 0)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 hover:text-white border border-slate-800">0-0</button>
-                <button onclick="setMatchPreset(${idx}, 2, 2)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 hover:text-white border border-slate-800">2-2</button>
-                <button onclick="setMatchPreset(${idx}, 0, 1)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-900 text-slate-400 hover:text-white border border-slate-800">0-1</button>
+                <button onclick="setMatchPreset(${idx}, 1, 0)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0A1333] text-slate-400 hover:text-white border border-[#142252]">1-0</button>
+                <button onclick="setMatchPreset(${idx}, 2, 1)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0A1333] text-slate-400 hover:text-white border border-[#142252]">2-1</button>
+                <button onclick="setMatchPreset(${idx}, 0, 0)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0A1333] text-slate-400 hover:text-white border border-[#142252]">0-0</button>
+                <button onclick="setMatchPreset(${idx}, 2, 2)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0A1333] text-slate-400 hover:text-white border border-[#142252]">2-2</button>
+                <button onclick="setMatchPreset(${idx}, 0, 1)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-[#0A1333] text-slate-400 hover:text-white border border-[#142252]">0-1</button>
               </div>
             </div>
           `;
@@ -5650,10 +5681,10 @@ function renderPuntosTriangularTab() {
       </div>
 
       <!-- TABLA DE POSICIONES EN VIVO Y PUNTOS OFICIALES -->
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden space-y-4 p-5">
-        <div class="flex items-center justify-between border-b border-slate-900 pb-3">
+      <div class="bg-[#050C24] border border-[#142252] rounded-2xl overflow-hidden space-y-4 p-5">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-3">
           <div>
-            <h4 class="font-bold font-heading text-white text-base">Tabla de Posiciones Dinámica en Vivo</h4>
+            <h4 class="font-bold font-display text-white text-base">Tabla de Posiciones Dinámica en Vivo</h4>
             <p class="text-xs text-slate-400 mt-0.5">Se actualiza en tiempo real al modificar los marcadores arriba.</p>
           </div>
           <span class="text-[11px] font-mono text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800">
@@ -5663,7 +5694,7 @@ function renderPuntosTriangularTab() {
 
         <div class="overflow-x-auto">
           <table class="w-full text-xs text-left">
-            <thead class="text-[10px] font-mono uppercase text-slate-400 border-b border-slate-900 bg-slate-900/40">
+            <thead class="text-[10px] font-mono uppercase text-slate-400 border-b border-[#142252] bg-[#0A1333]/50">
               <tr>
                 <th class="py-2.5 px-3">Lugar</th>
                 <th class="py-2.5 px-3">Alianza</th>
@@ -5691,9 +5722,9 @@ function renderPuntosTriangularTab() {
                 };
 
                 return `
-                  <tr class="hover:bg-slate-900/30 transition">
+                  <tr class="hover:bg-[#0A1333]/30 transition">
                     <td class="py-3 px-3 font-bold text-white">${posBadge}</td>
-                    <td class="py-3 px-3 font-heading font-bold ${allianceColors[al]}">${al}</td>
+                    <td class="py-3 px-3 font-display font-bold ${allianceColors[al]}">${al}</td>
                     <td class="py-3 px-3 text-center text-slate-300">${row.pj}</td>
                     <td class="py-3 px-3 text-center text-emerald-400">${row.pg}</td>
                     <td class="py-3 px-3 text-center text-amber-400">${row.pe}</td>
@@ -5703,7 +5734,7 @@ function renderPuntosTriangularTab() {
                     <td class="py-3 px-3 text-center font-bold ${row.dg > 0 ? 'text-emerald-400' : (row.dg < 0 ? 'text-red-400' : 'text-slate-400')}">
                       ${row.dg > 0 ? '+' + row.dg : row.dg}
                     </td>
-                    <td class="py-3 px-3 text-center font-bold text-white text-sm bg-slate-900/60">${row.pts}</td>
+                    <td class="py-3 px-3 text-center font-bold text-white text-sm bg-[#0A1333]/60">${row.pts}</td>
                     <td class="py-3 px-3 text-right font-bold text-emerald-400 text-sm">
                       +${ptsWeek.toLocaleString('es-CL')} pts
                     </td>
@@ -5720,7 +5751,7 @@ function renderPuntosTriangularTab() {
         <button 
           id="btn-save-triangular"
           onclick="saveTriangularResults()"
-          class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold font-heading rounded-xl shadow-lg shadow-emerald-600/20 border border-emerald-500 transition flex items-center justify-center gap-2"
+          class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold font-display rounded-xl shadow-lg shadow-emerald-600/20 border border-emerald-500 transition flex items-center justify-center gap-2"
         >
           <i data-lucide="check-circle-2" class="w-4 h-4"></i>
           <span>Guardar Partidos y Asignar Puntos de ${currentSport.name}</span>
@@ -5874,15 +5905,15 @@ function renderPuntosGymkanasTab() {
   const results = calculateGymkanaResultsFromList(lists);
 
   const allianceThemes = {
-    Terror: { name: 'Terror', border: 'border-red-800/80', bg: 'bg-red-950/20', text: 'text-red-400', bar: 'bg-red-500' },
-    Shooter: { name: 'Shooter', border: 'border-blue-800/80', bg: 'bg-blue-950/20', text: 'text-blue-400', bar: 'bg-blue-500' },
-    Action: { name: 'Action', border: 'border-emerald-800/80', bg: 'bg-emerald-950/20', text: 'text-emerald-400', bar: 'bg-emerald-500' }
+    Terror: { name: 'Terror', border: 'border-[#E6194B]/50', bg: 'bg-[#E6194B]/10', text: 'text-[#E6194B]', bar: 'bg-[#E6194B]' },
+    Shooter: { name: 'Shooter', border: 'border-[#2D46B9]/50', bg: 'bg-[#2D46B9]/10', text: 'text-[#7F9CF5]', bar: 'bg-[#2D46B9]' },
+    Action: { name: 'Action', border: 'border-[#059669]/50', bg: 'bg-[#059669]/10', text: 'text-[#34D399]', bar: 'bg-[#059669]' }
   };
 
   return `
     <div class="space-y-6">
       <!-- BANNER FÓRMULA OFICIAL Y GUÍA RÁPIDA -->
-      <div class="p-5 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-5 bg-[#050C24] border border-[#142252] rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-start gap-3.5">
           <div class="p-2.5 bg-amber-950/60 border border-amber-800 rounded-xl text-amber-400 mt-0.5 shrink-0">
             <i data-lucide="target" class="w-5 h-5"></i>
@@ -5894,7 +5925,7 @@ function renderPuntosGymkanasTab() {
               </span>
               <span class="text-xs font-mono text-slate-500">Puestos 1 al 4</span>
             </div>
-            <h3 class="text-base font-bold font-heading text-white mt-1">Anotar Estudiantes y Asignar Puntos en Cancha</h3>
+            <h3 class="text-base font-bold font-display text-white mt-1">Anotar Estudiantes y Asignar Puntos en Cancha</h3>
             <p class="text-xs text-slate-400 mt-0.5 max-w-2xl">
               Escribe el nombre del alumno en su alianza y presiona directamente los puntos que obtuvo (0 a 8 pts). 
               La fórmula <strong>Puntos = 3.000 × (Promedio / 8)</strong> se calcula en tiempo real.
@@ -5905,7 +5936,7 @@ function renderPuntosGymkanasTab() {
         <div class="flex items-center gap-2 shrink-0">
           <button 
             onclick="switchAdminSection('participantes'); setTimeout(() => switchActivityParticipants('gymkanas'), 50);"
-            class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl border border-slate-800 transition flex items-center gap-1.5"
+            class="px-3.5 py-2 bg-[#0A1333] hover:bg-[#142252] text-slate-300 text-xs font-semibold rounded-xl border border-[#142252] transition flex items-center gap-1.5"
             title="Abrir en Participantes por Actividad"
           >
             <i data-lucide="external-link" class="w-3.5 h-3.5 text-blue-400"></i>
@@ -5926,12 +5957,12 @@ function renderPuntosGymkanasTab() {
             <div class="p-5 rounded-2xl border ${theme.border} ${theme.bg} space-y-4 flex flex-col justify-between">
               <div>
                 <!-- HEADER DE ALIANZA -->
-                <div class="flex items-center justify-between border-b border-slate-900 pb-2.5 mb-3">
+                <div class="flex items-center justify-between border-b border-[#142252] pb-2.5 mb-3">
                   <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded-full ${theme.bar}"></div>
-                    <h4 class="font-bold font-heading text-base text-white">Alianza ${theme.name}</h4>
+                    <h4 class="font-bold font-display text-base text-white">Alianza ${theme.name}</h4>
                   </div>
-                  <span class="text-xs font-mono font-bold bg-slate-900 text-slate-300 border border-slate-800 px-2.5 py-0.5 rounded-lg">
+                  <span class="text-xs font-mono font-bold bg-[#0A1333] text-slate-300 border border-[#142252] px-2.5 py-0.5 rounded-lg">
                     ${students.length} anotados
                   </span>
                 </div>
@@ -5951,13 +5982,13 @@ function renderPuntosGymkanasTab() {
                       placeholder="Escribe nombre o apellido..." 
                       onfocus="handleGymkanasTabSearch('${al}', this.value)" 
                       oninput="handleGymkanasTabSearch('${al}', this.value)"
-                      class="w-full bg-slate-950 border border-slate-800 rounded-xl text-xs py-2 pl-8 pr-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition shadow-inner font-sans"
+                      class="w-full bg-[#050C24] border border-[#142252] rounded-xl text-xs py-2 pl-8 pr-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition shadow-inner font-sans"
                     />
                   </div>
                   <!-- DROPDOWN DE AUTOCOMPLETADO CON BOTONES 0..8 -->
                   <div 
                     id="gymtab-autocomplete-${al.toLowerCase()}" 
-                    class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-30 hidden max-h-60 overflow-y-auto"
+                    class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-30 hidden max-h-60 overflow-y-auto"
                   ></div>
                 </div>
 
@@ -5968,7 +5999,7 @@ function renderPuntosGymkanasTab() {
                     <span>Puntaje (0 - 8)</span>
                   </div>
 
-                  <div class="p-2.5 bg-slate-950/90 border border-slate-800/90 rounded-xl min-h-[160px] max-h-64 overflow-y-auto space-y-1.5">
+                  <div class="p-2.5 bg-[#050C24]/90 border border-[#142252]/90 rounded-xl min-h-[160px] max-h-64 overflow-y-auto space-y-1.5">
                     ${students.length === 0 ? `
                       <div class="text-center py-10 text-slate-500 text-xs font-mono space-y-1">
                         <i data-lucide="user-plus" class="w-7 h-7 mx-auto text-slate-700"></i>
@@ -5976,7 +6007,7 @@ function renderPuntosGymkanasTab() {
                         <p class="text-[10px] text-slate-600">Busca el nombre arriba para registrarlo.</p>
                       </div>
                     ` : students.map((p, pIdx) => `
-                      <div class="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/90 flex items-center justify-between gap-2 hover:border-slate-700 transition">
+                      <div class="bg-[#0A1333]/90 p-2.5 rounded-xl border border-[#142252]/90 flex items-center justify-between gap-2 hover:border-[#142252] transition">
                         <div class="min-w-0 flex-1">
                           <div class="flex items-center gap-1.5">
                             <span class="text-[10px] font-mono text-slate-500 font-bold">${pIdx + 1}.</span>
@@ -5992,10 +6023,10 @@ function renderPuntosGymkanasTab() {
                         </div>
 
                         <!-- CONTROLES TÁCTILES STEPPERS (- y +) -->
-                        <div class="flex items-center gap-1 shrink-0 bg-slate-950 border border-slate-800 px-2 py-1 rounded-xl shadow-sm">
+                        <div class="flex items-center gap-1 shrink-0 bg-[#050C24] border border-[#142252] px-2 py-1 rounded-xl shadow-sm">
                           <button 
                             onclick="changeGymkanaTabScore('${p.studentId}', '${al}', -1)"
-                            class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
+                            class="w-6 h-6 rounded bg-[#142252] hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
                             title="Restar 1 punto"
                           >-</button>
                           <span class="font-mono font-bold text-amber-300 text-xs px-1 min-w-[2.2rem] text-center">
@@ -6003,7 +6034,7 @@ function renderPuntosGymkanasTab() {
                           </span>
                           <button 
                             onclick="changeGymkanaTabScore('${p.studentId}', '${al}', 1)"
-                            class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
+                            class="w-6 h-6 rounded bg-[#142252] hover:bg-slate-700 text-slate-200 font-bold font-mono text-xs flex items-center justify-center transition"
                             title="Sumar 1 punto"
                           >+</button>
                         </div>
@@ -6023,7 +6054,7 @@ function renderPuntosGymkanasTab() {
               </div>
 
               <!-- RESUMEN EN VIVO DE PROMEDIO Y PUNTOS DE ALIANZA -->
-              <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-2 mt-3">
+              <div class="p-3.5 bg-[#050C24] border border-[#142252] rounded-xl space-y-2 mt-3">
                 <div class="flex items-center justify-between text-xs font-mono">
                   <span class="text-slate-400">Promedio de Alianza:</span>
                   <span class="font-bold text-white text-sm">${res.avg} / 8.0 pts</span>
@@ -6032,7 +6063,7 @@ function renderPuntosGymkanasTab() {
                   <span class="text-slate-400">Puntos Asignados:</span>
                   <span class="font-bold ${theme.text} text-base">+${res.pts.toLocaleString('es-CL')} pts</span>
                 </div>
-                <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+                <div class="w-full bg-[#0A1333] rounded-full h-2 overflow-hidden">
                   <div class="h-full rounded-full transition-all duration-500 ${theme.bar}" style="width: ${pct}%;"></div>
                 </div>
                 <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono pt-0.5">
@@ -6046,14 +6077,14 @@ function renderPuntosGymkanasTab() {
       </div>
 
       <!-- BOTÓN DE GUARDADO Y CONSOLIDACIÓN -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-900">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#142252]">
         <div class="text-xs text-slate-500 font-mono">
           ✓ Los puntajes se guardan automáticamente al anotar o modificar cada alumno.
         </div>
         <button 
           id="btn-save-gymkanas"
           onclick="consolidateGymkanasOfficial()"
-          class="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-bold font-heading rounded-xl shadow-lg shadow-amber-600/20 border border-amber-500 transition flex items-center justify-center gap-2"
+          class="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-bold font-display rounded-xl shadow-lg shadow-amber-600/20 border border-amber-500 transition flex items-center justify-center gap-2"
         >
           <i data-lucide="check-circle-2" class="w-4 h-4 text-slate-950"></i>
           <span>Consolidar Puntos Oficiales en el Marcador</span>
@@ -6098,7 +6129,7 @@ async function handleGymkanasTabSearch(alliance, val) {
     }
 
     box.innerHTML = students.map(s => `
-      <div class="p-2.5 hover:bg-slate-800/90 text-xs border-b border-slate-800/60 last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition group">
+      <div class="p-2.5 hover:bg-[#142252]/90 text-xs border-b border-[#142252] last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition group">
         <div class="min-w-0 pr-2">
           <span class="font-semibold text-white block group-hover:text-amber-400 transition">${s.name}</span>
           <span class="block text-[10px] text-slate-400 truncate font-mono">${s.carrera || ''}</span>
@@ -6108,7 +6139,7 @@ async function handleGymkanasTabSearch(alliance, val) {
           ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(pts => `
             <button 
               onclick="addStudentToGymkanasTab('${s.id}', '${alliance}', ${pts})"
-              class="w-6 h-6 rounded bg-slate-950 hover:bg-amber-500 hover:text-slate-950 text-slate-200 font-mono font-bold text-xs border border-slate-700 transition flex items-center justify-center shadow-sm"
+              class="w-6 h-6 rounded bg-[#050C24] hover:bg-amber-500 hover:text-slate-950 text-slate-200 font-mono font-bold text-xs border border-[#142252] transition flex items-center justify-center shadow-sm"
               title="Anotar a ${s.name} con ${pts} pts"
             >${pts}</button>
           `).join('')}
@@ -6284,7 +6315,7 @@ function renderPuntosTarreoTab() {
   return `
     <div class="space-y-6">
       <!-- SUBSELECTOR TARREO -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142252] pb-4">
         <div>
           <label class="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
             Copa de Alianzas del Tarreo (Viernes Noche)
@@ -6292,21 +6323,21 @@ function renderPuntosTarreoTab() {
           <div class="flex items-center gap-2">
             <button 
               onclick="puntosState.tarreoTab = 'cazatesoros'; renderPuntosSubTab();"
-              class="px-3.5 py-2 rounded-xl text-xs font-bold font-heading transition border flex items-center gap-2 ${tTab === 'cazatesoros' ? 'bg-purple-950 border-purple-700 text-purple-300 shadow-md' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold font-display transition border flex items-center gap-2 ${tTab === 'cazatesoros' ? 'bg-purple-950 border-purple-700 text-purple-300 shadow-md' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
             >
               <span>🗝️ Cazatesoros</span>
               <span class="text-[10px] font-mono opacity-70">1.500 pts</span>
             </button>
             <button 
               onclick="puntosState.tarreoTab = 'justdance'; renderPuntosSubTab();"
-              class="px-3.5 py-2 rounded-xl text-xs font-bold font-heading transition border flex items-center gap-2 ${tTab === 'justdance' ? 'bg-pink-950 border-pink-700 text-pink-300 shadow-md' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold font-display transition border flex items-center gap-2 ${tTab === 'justdance' ? 'bg-pink-950 border-pink-700 text-pink-300 shadow-md' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
             >
               <span>💃 Just Dance</span>
               <span class="text-[10px] font-mono opacity-70">1.500 pts</span>
             </button>
             <button 
               onclick="puntosState.tarreoTab = 'mimica'; renderPuntosSubTab();"
-              class="px-3.5 py-2 rounded-xl text-xs font-bold font-heading transition border flex items-center gap-2 ${tTab === 'mimica' ? 'bg-amber-950 border-amber-700 text-amber-300 shadow-md' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold font-display transition border flex items-center gap-2 ${tTab === 'mimica' ? 'bg-amber-950 border-amber-700 text-amber-300 shadow-md' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
             >
               <span>🎭 Mímica Gamer</span>
               <span class="text-[10px] font-mono opacity-70">1.000 pts</span>
@@ -6314,7 +6345,7 @@ function renderPuntosTarreoTab() {
           </div>
         </div>
 
-        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 font-mono">
+        <div class="p-3 bg-[#050C24] border border-[#142252] rounded-xl text-xs text-slate-400 font-mono">
           <span>Hasta 4.000 pts extra para la alianza que sume más en la noche gamer.</span>
         </div>
       </div>
@@ -6340,26 +6371,26 @@ function renderPuntosTarreoTab() {
               const teamColors = { Terror: 'text-red-400', Shooter: 'text-blue-400', Action: 'text-emerald-400' };
 
               return `
-                <div class="p-5 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+                <div class="p-5 bg-[#050C24] border border-[#142252] rounded-2xl space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold font-heading text-sm ${teamColors[al]}">Alianza ${al}</span>
+                    <span class="font-bold font-display text-sm ${teamColors[al]}">Alianza ${al}</span>
                     <span class="text-xs font-mono text-slate-500">Tesoros</span>
                   </div>
                   <div class="flex items-center justify-center gap-3 py-2">
                     <button 
                       onclick="puntosState.cazatesoros['${al}'] = Math.max(0, ${count} - 1); renderPuntosSubTab();"
-                      class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-bold text-lg transition flex items-center justify-center"
+                      class="w-10 h-10 rounded-xl bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-200 font-bold text-lg transition flex items-center justify-center"
                     >-</button>
                     <input 
                       type="number" 
                       min="0"
                       value="${count}"
                       onchange="puntosState.cazatesoros['${al}'] = Math.max(0, Number(this.value)); renderPuntosSubTab();"
-                      class="w-16 h-10 text-center bg-slate-900 border border-slate-800 rounded-xl text-white font-mono font-bold text-lg focus:outline-none focus:border-purple-500"
+                      class="w-16 h-10 text-center bg-[#0A1333] border border-[#142252] rounded-xl text-white font-mono font-bold text-lg focus:outline-none focus:border-purple-500"
                     >
                     <button 
                       onclick="puntosState.cazatesoros['${al}'] = ${count} + 1; renderPuntosSubTab();"
-                      class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-bold text-lg transition flex items-center justify-center"
+                      class="w-10 h-10 rounded-xl bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-200 font-bold text-lg transition flex items-center justify-center"
                     >+</button>
                   </div>
                 </div>
@@ -6371,7 +6402,7 @@ function renderPuntosTarreoTab() {
             <button 
               id="btn-save-cazatesoros"
               onclick="saveTarreoCazatesoros()"
-              class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white text-xs font-bold font-heading rounded-xl shadow-lg shadow-purple-600/20 border border-purple-500 transition flex items-center justify-center gap-2"
+              class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white text-xs font-bold font-display rounded-xl shadow-lg shadow-purple-600/20 border border-purple-500 transition flex items-center justify-center gap-2"
             >
               <i data-lucide="check-circle-2" class="w-4 h-4"></i>
               <span>Guardar Cazatesoros Tarreo</span>
@@ -6381,7 +6412,7 @@ function renderPuntosTarreoTab() {
       ` : `
         <!-- VISTA JUST DANCE O MÍMICA -->
         <div class="space-y-5">
-          <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-between text-xs font-mono text-slate-400">
+          <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl flex items-center justify-between text-xs font-mono text-slate-400">
             <span>Puntajes: ${tTab === 'justdance' ? '1° (1.500 pts) • 2° (900 pts) • 3° (450 pts)' : '1° (1.000 pts) • 2° (600 pts) • 3° (300 pts)'}</span>
             <span class="text-white font-bold">Asignación por Podio</span>
           </div>
@@ -6392,23 +6423,23 @@ function renderPuntosTarreoTab() {
               const teamColors = { Terror: 'text-red-400', Shooter: 'text-blue-400', Action: 'text-emerald-400' };
 
               return `
-                <div class="p-5 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+                <div class="p-5 bg-[#050C24] border border-[#142252] rounded-2xl space-y-3">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold font-heading text-sm ${teamColors[al]}">Alianza ${al}</span>
+                    <span class="font-bold font-display text-sm ${teamColors[al]}">Alianza ${al}</span>
                     <span class="text-xs font-mono font-bold text-white">${currentPlace ? currentPlace + '° Lugar' : 'Sin asignar'}</span>
                   </div>
                   <div class="grid grid-cols-3 gap-1.5 pt-2">
                     <button 
                       onclick="puntosState.tarreoPlaces['${tTab}']['${al}'] = 1; renderPuntosSubTab();"
-                      class="py-2.5 rounded-xl text-xs font-mono font-bold border transition ${currentPlace === 1 ? 'bg-amber-500 border-amber-400 text-slate-950 font-bold' : 'bg-slate-900 border-slate-800 text-slate-300'}"
+                      class="py-2.5 rounded-xl text-xs font-mono font-bold border transition ${currentPlace === 1 ? 'bg-amber-500 border-amber-400 text-slate-950 font-bold' : 'bg-[#0A1333] border-[#142252] text-slate-300'}"
                     >🥇 1°</button>
                     <button 
                       onclick="puntosState.tarreoPlaces['${tTab}']['${al}'] = 2; renderPuntosSubTab();"
-                      class="py-2.5 rounded-xl text-xs font-mono font-bold border transition ${currentPlace === 2 ? 'bg-slate-300 border-white text-slate-950 font-bold' : 'bg-slate-900 border-slate-800 text-slate-300'}"
+                      class="py-2.5 rounded-xl text-xs font-mono font-bold border transition ${currentPlace === 2 ? 'bg-slate-300 border-white text-slate-950 font-bold' : 'bg-[#0A1333] border-[#142252] text-slate-300'}"
                     >🥈 2°</button>
                     <button 
                       onclick="puntosState.tarreoPlaces['${tTab}']['${al}'] = 3; renderPuntosSubTab();"
-                      class="py-2.5 rounded-xl text-xs font-mono font-bold border transition ${currentPlace === 3 ? 'bg-amber-800 border-amber-700 text-white font-bold' : 'bg-slate-900 border-slate-800 text-slate-300'}"
+                      class="py-2.5 rounded-xl text-xs font-mono font-bold border transition ${currentPlace === 3 ? 'bg-amber-800 border-amber-700 text-white font-bold' : 'bg-[#0A1333] border-[#142252] text-slate-300'}"
                     >🥉 3°</button>
                   </div>
                 </div>
@@ -6420,7 +6451,7 @@ function renderPuntosTarreoTab() {
             <button 
               id="btn-save-tarreo-places"
               onclick="saveTarreoPlaces('${tTab}')"
-              class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 text-white text-xs font-bold font-heading rounded-xl shadow-lg shadow-pink-600/20 border border-pink-500 transition flex items-center justify-center gap-2"
+              class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-500 hover:to-pink-600 text-white text-xs font-bold font-display rounded-xl shadow-lg shadow-pink-600/20 border border-pink-500 transition flex items-center justify-center gap-2"
             >
               <i data-lucide="check-circle-2" class="w-4 h-4"></i>
               <span>Guardar Resultados de ${tTab === 'justdance' ? 'Just Dance' : 'Mímica Gamer'}</span>
@@ -6660,9 +6691,9 @@ function renderPuntosSorpresasTab() {
   }
 
   const allianceColors = {
-    Terror: { text: 'text-red-400', bar: 'bg-red-500', border: 'border-red-900/60', bg: 'bg-red-950/20' },
-    Shooter: { text: 'text-blue-400', bar: 'bg-blue-500', border: 'border-blue-900/60', bg: 'bg-blue-950/20' },
-    Action: { text: 'text-emerald-400', bar: 'bg-emerald-500', border: 'border-emerald-900/60', bg: 'bg-emerald-950/20' }
+    Terror: { text: 'text-[#E6194B]', bar: 'bg-[#E6194B]', border: 'border-[#E6194B]/50', bg: 'bg-[#E6194B]/10' },
+    Shooter: { text: 'text-[#7F9CF5]', bar: 'bg-[#2D46B9]', border: 'border-[#2D46B9]/50', bg: 'bg-[#2D46B9]/10' },
+    Action: { text: 'text-[#34D399]', bar: 'bg-[#059669]', border: 'border-[#059669]/50', bg: 'bg-[#059669]/10' }
   };
 
   return `
@@ -6670,7 +6701,7 @@ function renderPuntosSorpresasTab() {
       <!-- HEADER CON LÍMITES Y TOPES DE LAS BASES -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
         <!-- ESTADO DE PRUEBAS REALIZADAS -->
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-between">
+        <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl flex items-center justify-between">
           <div>
             <span class="text-[10px] font-mono uppercase text-slate-500 block">Cupo de Pruebas</span>
             <span class="text-xl font-bold font-mono text-white">${completed.length} <span class="text-xs text-slate-500 font-normal">de 6 máx</span></span>
@@ -6682,36 +6713,36 @@ function renderPuntosSorpresasTab() {
         </div>
 
         <!-- ACUMULADO TERROR (MÁX 3000) -->
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-1.5">
+        <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-bold font-mono text-red-400">Terror</span>
             <span class="font-mono text-white font-bold">${accPts.Terror.toLocaleString('es-CL')} / 3.000 pts</span>
           </div>
-          <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+          <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
             <div class="h-full bg-red-500 rounded-full transition-all duration-500" style="width: ${Math.min(100, (accPts.Terror / 3000) * 100)}%;"></div>
           </div>
           <span class="text-[9px] font-mono text-slate-500 block">Tope máximo: 3.000 pts extra</span>
         </div>
 
         <!-- ACUMULADO SHOOTER (MÁX 3000) -->
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-1.5">
+        <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-bold font-mono text-blue-400">Shooter</span>
             <span class="font-mono text-white font-bold">${accPts.Shooter.toLocaleString('es-CL')} / 3.000 pts</span>
           </div>
-          <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+          <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
             <div class="h-full bg-blue-500 rounded-full transition-all duration-500" style="width: ${Math.min(100, (accPts.Shooter / 3000) * 100)}%;"></div>
           </div>
           <span class="text-[9px] font-mono text-slate-500 block">Tope máximo: 3.000 pts extra</span>
         </div>
 
         <!-- ACUMULADO ACTION (MÁX 3000) -->
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-1.5">
+        <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-bold font-mono text-emerald-400">Action</span>
             <span class="font-mono text-white font-bold">${accPts.Action.toLocaleString('es-CL')} / 3.000 pts</span>
           </div>
-          <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+          <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
             <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: ${Math.min(100, (accPts.Action / 3000) * 100)}%;"></div>
           </div>
           <span class="text-[9px] font-mono text-slate-500 block">Tope máximo: 3.000 pts extra</span>
@@ -6739,7 +6770,7 @@ function renderActiveSorpresaConsole(sorp) {
             </span>
             <span class="text-xs font-mono text-amber-300">${sorp.duration} minutos oficiales</span>
           </div>
-          <h3 class="text-2xl font-bold font-heading text-white">${sorp.name}</h3>
+          <h3 class="text-2xl font-bold font-display text-white">${sorp.name}</h3>
           <p class="text-xs text-slate-300 mt-1 max-w-2xl">${sorp.criteria || sorp.description || ''}</p>
           <div class="flex flex-wrap items-center gap-3 mt-2 text-xs font-mono text-slate-400">
             <span>Material: <strong class="text-slate-200">${sorp.material || 'Ninguno'}</strong></span>
@@ -6749,7 +6780,7 @@ function renderActiveSorpresaConsole(sorp) {
         </div>
 
         <!-- RELOJ CUENTA REGRESIVA 1 MINUTO -->
-        <div class="p-4 bg-slate-950 border border-amber-700/80 rounded-2xl text-center min-w-[160px] shrink-0 shadow-lg">
+        <div class="p-4 bg-[#050C24] border border-amber-700/80 rounded-2xl text-center min-w-[160px] shrink-0 shadow-lg">
           <span class="text-[10px] font-mono uppercase text-amber-400 block font-bold">Tiempo de Preparación</span>
           <span id="sorpresa-countdown-display" class="text-3xl font-mono font-bold text-white block my-0.5">01:00</span>
           <span id="sorpresa-countdown-status" class="text-[10px] font-mono text-slate-400">En aviso público y pantalla</span>
@@ -6760,7 +6791,7 @@ function renderActiveSorpresaConsole(sorp) {
       ${sorp.decisionType === 'jurado' ? renderJuradoConsole(preview) : renderMedicionConsole(sorp, preview)}
 
       <!-- RESUMEN PREVIO DE PUNTOS Y REGLA DE EMPATE -->
-      <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-4 bg-[#0A1333]/60 border border-[#142252] rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="p-2.5 bg-indigo-950 border border-indigo-800 rounded-xl text-indigo-400 shrink-0">
             <i data-lucide="calculator" class="w-5 h-5"></i>
@@ -6787,7 +6818,7 @@ function renderActiveSorpresaConsole(sorp) {
           <button 
             id="btn-confirm-sorpresa"
             onclick="recordActiveSorpresaResult()"
-            class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold font-heading rounded-xl shadow-lg shadow-emerald-600/20 border border-emerald-500 transition flex items-center gap-2"
+            class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold font-display rounded-xl shadow-lg shadow-emerald-600/20 border border-emerald-500 transition flex items-center gap-2"
           >
             <i data-lucide="check-circle-2" class="w-4 h-4"></i>
             <span>Confirmar y Sumar Puntos al Marcador</span>
@@ -6804,8 +6835,8 @@ function renderJuradoConsole(preview) {
 
   return `
     <div class="space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-900 pb-2">
-        <h4 class="font-bold font-heading text-base text-white flex items-center gap-2">
+      <div class="flex items-center justify-between border-b border-[#142252] pb-2">
+        <h4 class="font-bold font-display text-base text-white flex items-center gap-2">
           <span>Evaluación de los 3 Jueces de Cancha</span>
           <span class="text-xs font-mono font-normal text-slate-400">(Suma de posiciones: quien sume menos rango, gana 1°)</span>
         </h4>
@@ -6818,8 +6849,8 @@ function renderJuradoConsole(preview) {
           const currentVote = judges[jKey];
 
           return `
-            <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
-              <span class="text-xs font-bold font-mono text-white block uppercase border-b border-slate-900 pb-1.5">
+            <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl space-y-3">
+              <span class="text-xs font-bold font-mono text-white block uppercase border-b border-[#142252] pb-1.5">
                 👨‍⚖️ Juez ${jNum}
               </span>
 
@@ -6829,19 +6860,19 @@ function renderJuradoConsole(preview) {
 
                 return `
                   <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold font-heading ${teamColor}">${al}</span>
+                    <span class="text-xs font-bold font-display ${teamColor}">${al}</span>
                     <div class="grid grid-cols-3 gap-1">
                       <button 
                         onclick="updateJudgePlace('${jKey}', '${al}', 1)"
-                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${val === 1 ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-md font-bold' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}"
+                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${val === 1 ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-md font-bold' : 'bg-[#0A1333] border-[#142252] text-slate-400 hover:text-white'}"
                       >1°</button>
                       <button 
                         onclick="updateJudgePlace('${jKey}', '${al}', 2)"
-                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${val === 2 ? 'bg-slate-300 border-white text-slate-950 shadow-md font-bold' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}"
+                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${val === 2 ? 'bg-slate-300 border-white text-slate-950 shadow-md font-bold' : 'bg-[#0A1333] border-[#142252] text-slate-400 hover:text-white'}"
                       >2°</button>
                       <button 
                         onclick="updateJudgePlace('${jKey}', '${al}', 3)"
-                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${val === 3 ? 'bg-amber-800 border-amber-700 text-white shadow-md font-bold' : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'}"
+                        class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${val === 3 ? 'bg-amber-800 border-amber-700 text-white shadow-md font-bold' : 'bg-[#0A1333] border-[#142252] text-slate-400 hover:text-white'}"
                       >3°</button>
                     </div>
                   </div>
@@ -6853,7 +6884,7 @@ function renderJuradoConsole(preview) {
       </div>
 
       <!-- TABLA DE SUMAS DE JUECES -->
-      <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs font-mono">
+      <div class="p-3 bg-[#050C24] border border-[#142252] rounded-xl flex items-center justify-between text-xs font-mono">
         <span class="text-slate-400">Suma total de puestos otorgados por jueces:</span>
         <div class="flex items-center gap-4 font-bold">
           <span class="text-red-400">Terror: ${preview.sums.Terror} pts suma</span>
@@ -6871,9 +6902,9 @@ function renderMedicionConsole(sorp, preview) {
 
   return `
     <div class="space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-900 pb-2">
+      <div class="flex items-center justify-between border-b border-[#142252] pb-2">
         <div>
-          <h4 class="font-bold font-heading text-base text-white">Medición Cuantitativa en Cancha</h4>
+          <h4 class="font-bold font-display text-base text-white">Medición Cuantitativa en Cancha</h4>
           <p class="text-xs text-slate-400 mt-0.5">${sorp.metricLabel || 'Registro de datos'}</p>
         </div>
         <span class="text-xs font-mono text-blue-400 bg-blue-950 px-2.5 py-0.5 rounded border border-blue-900">
@@ -6887,25 +6918,25 @@ function renderMedicionConsole(sorp, preview) {
           const teamColor = al === 'Terror' ? 'text-red-400' : (al === 'Shooter' ? 'text-blue-400' : 'text-emerald-400');
 
           return `
-            <div class="p-5 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+            <div class="p-5 bg-[#050C24] border border-[#142252] rounded-2xl space-y-3">
               <div class="flex items-center justify-between">
-                <span class="font-bold font-heading text-sm ${teamColor}">Alianza ${al}</span>
+                <span class="font-bold font-display text-sm ${teamColor}">Alianza ${al}</span>
                 <span class="text-[10px] font-mono text-slate-500">${sorp.metricLabel || 'Valor'}</span>
               </div>
               <div class="flex items-center justify-center gap-3 py-2">
                 <button 
                   onclick="updateMetricValue('${al}', -1)"
-                  class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-bold text-lg transition flex items-center justify-center"
+                  class="w-10 h-10 rounded-xl bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-200 font-bold text-lg transition flex items-center justify-center"
                 >-</button>
                 <input 
                   type="number" 
                   value="${val}"
                   onchange="puntosState.sorpresasState.metrics['${al}'] = Math.max(0, Number(this.value)); renderPuntosSubTab();"
-                  class="w-20 h-10 text-center bg-slate-900 border border-slate-800 rounded-xl text-white font-mono font-bold text-lg focus:outline-none focus:border-indigo-500"
+                  class="w-20 h-10 text-center bg-[#0A1333] border border-[#142252] rounded-xl text-white font-mono font-bold text-lg focus:outline-none focus:border-indigo-500"
                 >
                 <button 
                   onclick="updateMetricValue('${al}', 1)"
-                  class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-bold text-lg transition flex items-center justify-center"
+                  class="w-10 h-10 rounded-xl bg-[#0A1333] border border-[#142252] hover:bg-[#142252] text-slate-200 font-bold text-lg transition flex items-center justify-center"
                 >+</button>
               </div>
             </div>
@@ -6924,25 +6955,25 @@ function renderNoActiveSorpresaView() {
   return `
     <div class="space-y-6">
       <!-- SUBBARRA DE MODOS DE SORPRESAS -->
-      <div class="flex items-center justify-between border-b border-slate-900 pb-3">
+      <div class="flex items-center justify-between border-b border-[#142252] pb-3">
         <div class="flex items-center gap-2">
           <button 
             onclick="setSorpresasSubView('banco')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border flex items-center gap-1.5 ${currentSub === 'banco' ? 'bg-amber-950 border-amber-700 text-amber-300 font-bold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border flex items-center gap-1.5 ${currentSub === 'banco' ? 'bg-amber-950 border-amber-700 text-amber-300 font-bold' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
           >
             <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
             <span>Banco Oficial (7 Sorpresas)</span>
           </button>
           <button 
             onclick="setSorpresasSubView('crear')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border flex items-center gap-1.5 ${currentSub === 'crear' ? 'bg-indigo-950 border-indigo-700 text-indigo-300 font-bold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border flex items-center gap-1.5 ${currentSub === 'crear' ? 'bg-indigo-950 border-indigo-700 text-indigo-300 font-bold' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
           >
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
             <span>Crear Prueba en Caliente</span>
           </button>
           <button 
             onclick="setSorpresasSubView('historial')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border flex items-center gap-1.5 ${currentSub === 'historial' ? 'bg-slate-800 border-slate-700 text-white font-bold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition border flex items-center gap-1.5 ${currentSub === 'historial' ? 'bg-[#142252] border-[#142252] text-white font-bold' : 'bg-[#050C24] border-[#142252] text-slate-400 hover:text-white'}"
           >
             <i data-lucide="history" class="w-3.5 h-3.5"></i>
             <span>Historial Realizado</span>
@@ -6973,10 +7004,10 @@ function renderSorpresasBankCards() {
     }
 
     return `
-      <div class="py-12 text-center text-slate-400 border border-slate-800/80 rounded-2xl bg-slate-950/60 p-8 space-y-3">
+      <div class="py-12 text-center text-slate-400 border border-[#142252] rounded-2xl bg-[#050C24]/60 p-8 space-y-3">
         <i data-lucide="loader-2" class="w-8 h-8 mx-auto text-amber-500 animate-spin"></i>
         <p class="text-sm font-medium text-slate-300">Cargando banco oficial de pruebas sorpresa...</p>
-        <button onclick="loadSorpresasBankData().then(() => renderPuntosSubTab())" class="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-xs text-amber-300 border border-amber-800/60 rounded-xl transition">
+        <button onclick="loadSorpresasBankData().then(() => renderPuntosSubTab())" class="px-4 py-1.5 bg-[#0A1333] hover:bg-[#142252] text-xs text-amber-300 border border-amber-800/60 rounded-xl transition">
           Recargar Banco
         </button>
       </div>
@@ -6990,19 +7021,19 @@ function renderSorpresasBankCards() {
         const [p1, p2, p3] = sorp.pointsDistribution || [500, 300, 150];
 
         return `
-          <div class="p-5 rounded-2xl border ${isReserve ? 'border-amber-700/80 bg-amber-950/20' : 'border-slate-800 bg-slate-950'} flex flex-col justify-between space-y-4 hover:border-slate-700 transition relative">
+          <div class="p-5 rounded-2xl border ${isReserve ? 'border-amber-700/80 bg-amber-950/20' : 'border-[#142252] bg-[#050C24]'} flex flex-col justify-between space-y-4 hover:border-[#142252] transition relative">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${isReserve ? 'bg-amber-900 text-amber-200' : 'bg-slate-900 text-slate-400 border border-slate-800'}">
+                <span class="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${isReserve ? 'bg-amber-900 text-amber-200' : 'bg-[#0A1333] text-slate-400 border border-[#142252]'}">
                   ${sorp.suggestedSlot || 'Sorpresa'}
                 </span>
                 <span class="text-[10px] font-mono text-slate-400 font-bold">${sorp.duration} min oficiales</span>
               </div>
 
-              <h4 class="text-base font-bold font-heading text-white mb-1">${sorp.name}</h4>
+              <h4 class="text-base font-bold font-display text-white mb-1">${sorp.name}</h4>
               <p class="text-xs text-slate-400 line-clamp-2 mb-3">${sorp.criteria}</p>
 
-              <div class="space-y-1.5 text-[11px] font-mono text-slate-400 border-t border-slate-900 pt-2.5">
+              <div class="space-y-1.5 text-[11px] font-mono text-slate-400 border-t border-[#142252] pt-2.5">
                 <div class="flex items-center justify-between">
                   <span class="text-slate-500">Decisión:</span>
                   <span class="text-slate-300 font-bold uppercase">${sorp.decisionType === 'jurado' ? '👨‍⚖️ Jurado (3 jueces)' : '📊 Medición (' + (sorp.metricLabel || 'Métrica') + ')'}</span>
@@ -7034,7 +7065,7 @@ function renderSorpresasBankCards() {
             <!-- BOTÓN LANZAR -->
             <button 
               onclick="launchSorpresaFromBank('${sorp.id}')"
-              class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-bold font-heading rounded-xl shadow-lg shadow-amber-600/20 border border-amber-500 transition flex items-center justify-center gap-2"
+              class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-bold font-display rounded-xl shadow-lg shadow-amber-600/20 border border-amber-500 transition flex items-center justify-center gap-2"
             >
               <i data-lucide="play" class="w-4 h-4 fill-current"></i>
               <span>Lanzar Sorpresa (1 min prep)</span>
@@ -7053,12 +7084,12 @@ function renderCreateSorpresaForm() {
   const allChecked = ch.voluntaria && ch.sinRiesgo && ch.sinContacto && ch.sinHumillacion;
 
   return `
-    <div class="p-6 bg-slate-950 border border-slate-800 rounded-3xl max-w-3xl mx-auto space-y-6">
-      <div class="border-b border-slate-900 pb-3">
+    <div class="p-6 bg-[#050C24] border border-[#142252] rounded-3xl max-w-3xl mx-auto space-y-6">
+      <div class="border-b border-[#142252] pb-3">
         <span class="text-[10px] font-mono uppercase text-indigo-400 font-bold bg-indigo-950 px-2 py-0.5 rounded-full border border-indigo-800">
           Formulario Oficial en Caliente
         </span>
-        <h3 class="text-lg font-bold font-heading text-white mt-1">Crear Prueba Sorpresa en el Momento</h3>
+        <h3 class="text-lg font-bold font-display text-white mt-1">Crear Prueba Sorpresa en el Momento</h3>
         <p class="text-xs text-slate-400 mt-0.5">
           Configuración rápida con límites reglamentarios y verificación de cuidados obligatoria.
         </p>
@@ -7074,7 +7105,7 @@ function renderCreateSorpresaForm() {
               placeholder="Ej: Adivina la canción al revés" 
               value="${form.name}"
               oninput="puntosState.sorpresasState.customForm.name = this.value"
-              class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
+              class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
             />
           </div>
           <div class="space-y-1">
@@ -7086,7 +7117,7 @@ function renderCreateSorpresaForm() {
               id="custom-sorp-duration"
               value="${form.duration}"
               oninput="puntosState.sorpresasState.customForm.duration = Number(this.value)"
-              class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-indigo-500"
+              class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs font-mono focus:outline-none focus:border-indigo-500"
             />
           </div>
         </div>
@@ -7098,7 +7129,7 @@ function renderCreateSorpresaForm() {
             rows="2" 
             placeholder="Qué deben hacer los integrantes y cómo se evalúa..."
             oninput="puntosState.sorpresasState.customForm.description = this.value"
-            class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
+            class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
           >${form.description}</textarea>
         </div>
 
@@ -7108,7 +7139,7 @@ function renderCreateSorpresaForm() {
             <select 
               id="custom-sorp-type"
               onchange="puntosState.sorpresasState.customForm.decisionType = this.value; setSorpresasSubView('crear');"
-              class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 text-xs font-sans focus:outline-none focus:border-indigo-500"
+              class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs font-sans focus:outline-none focus:border-indigo-500"
             >
               <option value="jurado" ${form.decisionType === 'jurado' ? 'selected' : ''}>👨‍⚖️ Jurado de 3 (Suma de lugares)</option>
               <option value="medicion" ${form.decisionType === 'medicion' ? 'selected' : ''}>📊 Medición Cuantitativa</option>
@@ -7124,7 +7155,7 @@ function renderCreateSorpresaForm() {
                 placeholder="Ej: Rondas ganadas, Ruidos o Segundos"
                 value="${form.metricLabel}"
                 oninput="puntosState.sorpresasState.customForm.metricLabel = this.value"
-                class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
+                class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
               />
             </div>
           ` : `
@@ -7136,14 +7167,14 @@ function renderCreateSorpresaForm() {
                 placeholder="Ej: Celular, cronómetro, parlante..."
                 value="${form.material}"
                 oninput="puntosState.sorpresasState.customForm.material = this.value"
-                class="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
+                class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-indigo-500 font-sans"
               />
             </div>
           `}
         </div>
 
         <!-- PUNTOS POR LUGAR (TOPES REGLAMENTARIOS) -->
-        <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl space-y-2">
+        <div class="p-3.5 bg-[#0A1333]/60 border border-[#142252] rounded-xl space-y-2">
           <label class="font-mono text-slate-400 block font-bold">Puntos por lugar (1° máx 500 y decreciente 1° > 2° > 3°):</label>
           <div class="grid grid-cols-3 gap-2">
             <div>
@@ -7153,7 +7184,7 @@ function renderCreateSorpresaForm() {
                 max="500" 
                 value="${form.p1}" 
                 onchange="updateCustomP1(this.value)"
-                class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 text-white font-mono text-xs text-center"
+                class="w-full bg-[#050C24] border border-[#142252] rounded-lg p-1.5 text-white font-mono text-xs text-center"
               />
             </div>
             <div>
@@ -7162,7 +7193,7 @@ function renderCreateSorpresaForm() {
                 type="number" 
                 value="${form.p2}" 
                 onchange="puntosState.sorpresasState.customForm.p2 = Number(this.value)"
-                class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 text-white font-mono text-xs text-center"
+                class="w-full bg-[#050C24] border border-[#142252] rounded-lg p-1.5 text-white font-mono text-xs text-center"
               />
             </div>
             <div>
@@ -7171,7 +7202,7 @@ function renderCreateSorpresaForm() {
                 type="number" 
                 value="${form.p3}" 
                 onchange="puntosState.sorpresasState.customForm.p3 = Number(this.value)"
-                class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 text-white font-mono text-xs text-center"
+                class="w-full bg-[#050C24] border border-[#142252] rounded-lg p-1.5 text-white font-mono text-xs text-center"
               />
             </div>
           </div>
@@ -7192,7 +7223,7 @@ function renderCreateSorpresaForm() {
                 type="checkbox" 
                 ${ch.voluntaria ? 'checked' : ''} 
                 onchange="toggleCustomChecklist('voluntaria')"
-                class="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0"
+                class="rounded border-[#142252] bg-[#0A1333] text-indigo-500 focus:ring-0"
               />
               <span>100% Voluntaria</span>
             </label>
@@ -7201,7 +7232,7 @@ function renderCreateSorpresaForm() {
                 type="checkbox" 
                 ${ch.sinRiesgo ? 'checked' : ''} 
                 onchange="toggleCustomChecklist('sinRiesgo')"
-                class="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0"
+                class="rounded border-[#142252] bg-[#0A1333] text-indigo-500 focus:ring-0"
               />
               <span>Sin riesgo físico ni caídas</span>
             </label>
@@ -7210,7 +7241,7 @@ function renderCreateSorpresaForm() {
                 type="checkbox" 
                 ${ch.sinContacto ? 'checked' : ''} 
                 onchange="toggleCustomChecklist('sinContacto')"
-                class="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0"
+                class="rounded border-[#142252] bg-[#0A1333] text-indigo-500 focus:ring-0"
               />
               <span>Sin contacto forzado</span>
             </label>
@@ -7219,7 +7250,7 @@ function renderCreateSorpresaForm() {
                 type="checkbox" 
                 ${ch.sinHumillacion ? 'checked' : ''} 
                 onchange="toggleCustomChecklist('sinHumillacion')"
-                class="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0"
+                class="rounded border-[#142252] bg-[#0A1333] text-indigo-500 focus:ring-0"
               />
               <span>Sin humillación a nadie</span>
             </label>
@@ -7228,11 +7259,11 @@ function renderCreateSorpresaForm() {
       </div>
 
       <!-- BOTONES ACCIÓN FORMULARIO -->
-      <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-900">
+      <div class="flex items-center justify-end gap-3 pt-2 border-t border-[#142252]">
         ${currentUser?.role === 'admin' ? `
           <button 
             onclick="saveCustomSorpresaToBank()"
-            class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl border border-slate-800 transition"
+            class="px-4 py-2.5 bg-[#0A1333] hover:bg-[#142252] text-slate-300 text-xs font-semibold rounded-xl border border-[#142252] transition"
           >
             Guardar en Banco
           </button>
@@ -7240,7 +7271,7 @@ function renderCreateSorpresaForm() {
         <button 
           onclick="launchCustomSorpresa()"
           ${!allChecked ? 'disabled' : ''}
-          class="px-6 py-2.5 text-xs font-bold font-heading rounded-xl shadow-lg transition flex items-center gap-2 ${allChecked ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 border border-amber-500 shadow-amber-600/20 cursor-pointer' : 'bg-slate-900 text-slate-600 border border-slate-800 cursor-not-allowed opacity-60'}"
+          class="px-6 py-2.5 text-xs font-bold font-display rounded-xl shadow-lg transition flex items-center gap-2 ${allChecked ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 border border-amber-500 shadow-amber-600/20 cursor-pointer' : 'bg-[#0A1333] text-slate-600 border border-[#142252] cursor-not-allowed opacity-60'}"
         >
           <i data-lucide="play" class="w-4 h-4 fill-current"></i>
           <span>Lanzar Inmediatamente (1 min prep)</span>
@@ -7255,9 +7286,9 @@ function renderSorpresasHistoryTable() {
   const completed = puntosState.sorpresasState.completedSorpresas || [];
 
   return `
-    <div class="p-5 bg-slate-950 border border-slate-800 rounded-3xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-900 pb-3">
-        <h4 class="font-bold font-heading text-white text-base">Historial Oficial de Pruebas Sorpresa Realizadas</h4>
+    <div class="p-5 bg-[#050C24] border border-[#142252] rounded-3xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[#142252] pb-3">
+        <h4 class="font-bold font-display text-white text-base">Historial Oficial de Pruebas Sorpresa Realizadas</h4>
         <span class="text-xs font-mono text-slate-400">${completed.length} registradas</span>
       </div>
 
@@ -7268,7 +7299,7 @@ function renderSorpresasHistoryTable() {
       ` : `
         <div class="overflow-x-auto">
           <table class="w-full text-xs text-left">
-            <thead class="text-[10px] font-mono uppercase text-slate-400 border-b border-slate-900 bg-slate-900/40">
+            <thead class="text-[10px] font-mono uppercase text-slate-400 border-b border-[#142252] bg-[#0A1333]/50">
               <tr>
                 <th class="py-2.5 px-3">Prueba</th>
                 <th class="py-2.5 px-3">Tipo</th>
@@ -7280,7 +7311,7 @@ function renderSorpresasHistoryTable() {
             </thead>
             <tbody class="divide-y divide-slate-900 font-mono">
               ${completed.map(s => `
-                <tr class="hover:bg-slate-900/40 transition">
+                <tr class="hover:bg-[#0A1333]/50 transition">
                   <td class="py-3 px-3 font-bold text-white">${s.name}</td>
                   <td class="py-3 px-3 text-slate-400 uppercase text-[10px]">${s.decisionType || 'Jurado'}</td>
                   <td class="py-3 px-3 text-center font-bold text-red-400">+${s.pointsAwarded?.Terror || 0} pts</td>
@@ -7595,7 +7626,7 @@ function filterMobileAllianceCols(alliance) {
   Object.keys(btns).forEach(k => {
     if (!btns[k]) return;
     if (k === alliance) {
-      btns[k].className = 'px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition bg-slate-800 text-white border border-slate-700 shadow-sm';
+      btns[k].className = 'px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition bg-[#142252] text-white border border-[#142252] shadow-sm';
     } else {
       btns[k].className = 'px-3 py-1.5 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent';
     }

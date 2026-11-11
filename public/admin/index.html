@@ -94,30 +94,107 @@
     h1, h2, h3, h4, .font-heading, .font-display {
       font-family: var(--font-display);
     }
+
+    /* Título Esports con sombra sólida poster */
+    .esport-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      text-shadow: -4px 6px 0px #020614, 0 0 25px rgba(45, 70, 185, 0.5);
+    }
+
+    /* Cinta Paralelogramo (Ribbon Banner) */
+    .ribbon-banner {
+      transform: var(--banner-skew);
+    }
+    .ribbon-banner > * {
+      transform: skewX(15deg);
+    }
+
+    /* Glows y Luces de Contorno (Rim Lighting) */
+    .glow-rim { box-shadow: 0 0 20px rgba(127, 156, 245, 0.35); }
+    .glow-crimson { box-shadow: 0 0 25px rgba(230, 25, 75, 0.5); }
+    .glow-electric { box-shadow: 0 0 25px rgba(45, 70, 185, 0.5); }
+
+    /* Scrollbar Synth-Tech */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #050C24; }
+    ::-webkit-scrollbar-thumb { background: #142252; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #E6194B; }
+
+    /* Dot Matrix SVG Background Pattern */
+    .dot-matrix {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+      background-size: 14px 14px;
+    }
   </style>
 </head>
-<body class="bg-[#050C24] text-white min-h-screen flex flex-col antialiased selection:bg-[#E6194B] selection:text-white">
+<body class="bg-[#050C24] text-white min-h-screen flex flex-col antialiased selection:bg-[#E6194B] selection:text-white relative overflow-x-hidden">
+
+  <!-- ======================================================== -->
+  <!-- ENMARCADO DINÁMICO: SWOOSHES CURVOS Y PATRONES DOT MATRIX -->
+  <!-- ======================================================== -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    <!-- Resplandor Radial de Fondo (Azul Noche / Índigo #0E1E48) -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[#0E1E48]/50 blur-[130px] rounded-full"></div>
+    <div class="absolute bottom-10 left-10 w-[450px] h-[450px] bg-[#2D46B9]/15 blur-[120px] rounded-full"></div>
+    <div class="absolute top-20 right-10 w-[450px] h-[450px] bg-[#E6194B]/12 blur-[130px] rounded-full"></div>
+
+    <!-- Cintas Curvas (Swooshes): Esquina Superior Izquierda -->
+    <svg class="absolute -top-10 -left-10 w-72 sm:w-96 h-72 sm:h-96 opacity-80" viewBox="0 0 300 300" fill="none">
+      <path d="M-50 180 C 40 180, 120 120, 150 -50" stroke="#2D46B9" stroke-width="26" stroke-linecap="round"/>
+      <path d="M-50 130 C 50 130, 140 80, 190 -50" stroke="#E6194B" stroke-width="14" stroke-linecap="round"/>
+      <path d="M-50 85 C 60 85, 160 50, 225 -50" stroke="#7F9CF5" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Cintas Curvas (Swooshes): Esquina Inferior Derecha -->
+    <svg class="absolute -bottom-10 -right-10 w-72 sm:w-96 h-72 sm:h-96 opacity-80" viewBox="0 0 300 300" fill="none">
+      <path d="M350 120 C 260 120, 180 180, 150 350" stroke="#E6194B" stroke-width="24" stroke-linecap="round"/>
+      <path d="M350 170 C 250 170, 160 220, 110 350" stroke="#2D46B9" stroke-width="14" stroke-linecap="round"/>
+      <path d="M350 215 C 240 215, 140 250, 75 350" stroke="#7F9CF5" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Patrón de Puntos (Dot Matrix) Triangular -->
+    <div class="absolute top-2 right-4 w-44 h-44 dot-matrix opacity-25 [mask-image:linear-gradient(to_bottom_left,black,transparent)]"></div>
+    <div class="absolute bottom-6 left-4 w-48 h-48 dot-matrix opacity-25 [mask-image:linear-gradient(to_top_right,black,transparent)]"></div>
+  </div>
 
   <!-- ========================================== -->
   <!-- 1. VISTA DE AUTENTICACIÓN OWASP (LOGIN)     -->
   <!-- ========================================== -->
-  <div id="login-view" class="flex-1 flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-xl relative">
-      <!-- Decoración superior de seguridad -->
-      <div class="w-14 h-14 bg-red-950/60 border border-red-800/60 rounded-2xl flex items-center justify-center mx-auto mb-5 text-inacap-red shadow-lg shadow-red-950/50">
+  <div id="login-view" class="flex-1 flex items-center justify-center p-4 relative z-10">
+    <div class="max-w-md w-full bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden glow-electric backdrop-blur-xl">
+      <!-- Glow superior -->
+      <div class="absolute -top-12 -right-12 w-40 h-40 bg-[#E6194B]/20 blur-3xl rounded-full pointer-events-none"></div>
+
+      <!-- Icono central -->
+      <div class="w-14 h-14 bg-[#050C24] border-2 border-[#E6194B] rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#E6194B] shadow-lg shadow-[#E6194B]/40">
         <i data-lucide="shield-check" class="w-7 h-7"></i>
       </div>
 
-      <div class="text-center space-y-1 mb-6">
-        <span class="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold bg-slate-950 px-3 py-1 rounded-full border border-slate-800">
-          OWASP ASVS • Consola Administrativa
-        </span>
-        <h2 class="text-2xl font-bold font-heading text-white tracking-tight pt-2">Mesa de Control Oficial</h2>
-        <p class="text-xs text-slate-400">Semana de las Carreras 2026 & Tarreo Gamer • TI & Diseño</p>
+      <div class="text-center space-y-1 mb-5">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#050C24] border border-[#2D46B9] text-[10px] font-mono uppercase tracking-widest text-[#7F9CF5] font-bold">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#E6194B] animate-pulse"></span>
+          <span>TI & DISEÑO DIGITAL • CONSOLA OFICIAL</span>
+        </div>
+        <h2 class="text-2xl font-black font-display text-white tracking-tight pt-2 uppercase">
+          Mesa de Control 2026
+        </h2>
+        
+        <!-- Cinta Skew Decorativa -->
+        <div class="pt-1 flex items-center justify-center gap-2">
+          <span class="text-[#E6194B] font-display font-black text-xs select-none">= =</span>
+          <span class="px-3 py-0.5 bg-[#E6194B] text-white font-display font-black text-[10px] uppercase tracking-wider shadow-md shadow-[#E6194B]/40" style="transform: var(--banner-skew);">
+            <span style="display:inline-block; transform: skewX(15deg);">ACCESO RESTRINGIDO A STAFF Y JUECES</span>
+          </span>
+          <span class="text-[#E6194B] font-display font-black text-xs select-none">= =</span>
+        </div>
       </div>
 
       <!-- Alerta de Bloqueo / Error -->
-      <div id="login-alert" class="hidden mb-5 p-3 rounded-xl text-xs font-medium border flex items-start gap-2.5">
+      <div id="login-alert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border flex items-start gap-2.5 bg-red-950/70 border-red-800 text-red-200">
         <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0 mt-0.5" id="login-alert-icon"></i>
         <div id="login-alert-text" class="leading-relaxed"></div>
       </div>
@@ -125,9 +202,9 @@
       <!-- Formulario de Acceso -->
       <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
         <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" for="login-username">Usuario</label>
+          <label class="block text-[11px] font-bold font-display text-slate-300 uppercase tracking-wider mb-1.5" for="login-username">Usuario</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <i data-lucide="user" class="w-4 h-4"></i>
             </div>
             <input 
@@ -136,15 +213,15 @@
               required 
               autocomplete="username"
               placeholder="admin, coordinacion, mesa, docente1..." 
-              class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-red-500 transition font-mono"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#050C24] border-2 border-[#142252] focus:border-[#E6194B] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none transition font-mono"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5" for="login-password">Contraseña</label>
+          <label class="block text-[11px] font-bold font-display text-slate-300 uppercase tracking-wider mb-1.5" for="login-password">Contraseña</label>
           <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
               <i data-lucide="key-round" class="w-4 h-4"></i>
             </div>
             <input 
@@ -153,7 +230,7 @@
               required 
               autocomplete="current-password"
               placeholder="••••••••••••" 
-              class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-red-500 transition font-mono"
+              class="w-full pl-10 pr-4 py-2.5 bg-[#050C24] border-2 border-[#142252] focus:border-[#E6194B] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none transition font-mono"
             />
           </div>
         </div>
@@ -161,68 +238,67 @@
         <button 
           type="submit" 
           id="login-submit-btn" 
-          class="w-full py-3 px-4 bg-inacap-red hover:bg-red-700 active:scale-[0.99] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/60 transition flex items-center justify-center gap-2"
+          class="w-full py-3.5 px-4 bg-[#E6194B] hover:bg-[#c81440] active:scale-[0.99] text-white text-xs font-display font-black uppercase tracking-wider rounded-xl shadow-lg shadow-[#E6194B]/40 transition flex items-center justify-center gap-2 hover:scale-[1.01]"
         >
           <i data-lucide="log-in" class="w-4 h-4"></i>
-          <span>Iniciar Sesión Segura</span>
+          <span>Ingresar a Mesa de Control</span>
         </button>
       </form>
 
       <!-- Guía Rápida de Cuentas Predeterminadas (Clic para Autocompletar) -->
-      <div class="mt-4 pt-3 border-t border-slate-800/80 text-left">
+      <div class="mt-4 pt-3 border-t border-[#142252] text-left">
         <details class="text-xs text-slate-400 group">
-          <summary class="font-mono text-[11px] text-slate-400 hover:text-slate-200 transition cursor-pointer select-none flex items-center justify-between">
-            <span class="flex items-center gap-1.5 font-semibold text-slate-300">
-              <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i> Ver Credenciales Oficiales
+          <summary class="font-mono text-[11px] text-slate-300 hover:text-white transition cursor-pointer select-none flex items-center justify-between">
+            <span class="flex items-center gap-1.5 font-bold text-white">
+              <i data-lucide="key" class="w-3.5 h-3.5 text-[#E6194B]"></i> Cuentas del Sistema
             </span>
-            <span class="text-[10px] text-slate-500 group-open:hidden">Click para autocompletar</span>
+            <span class="text-[10px] text-slate-400 group-open:hidden">Click para autocompletar</span>
           </summary>
           <div class="mt-2.5 space-y-1.5 font-mono text-[11px]">
-            <div onclick="fillCreds('admin', 'InacapAdmin2026!')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 hover:border-red-600/80 hover:bg-slate-900 transition cursor-pointer flex items-center justify-between">
+            <div onclick="fillCreds('admin', 'InacapAdmin2026!')" class="p-2 rounded-xl bg-[#050C24] border border-[#142252] hover:border-[#E6194B] hover:bg-[#0E1E48] transition cursor-pointer flex items-center justify-between">
               <div>
-                <span class="text-red-400 font-bold block">admin</span>
-                <span class="text-[9px] text-slate-500">Superadministrador</span>
+                <span class="text-[#E6194B] font-bold block">admin</span>
+                <span class="text-[9px] text-slate-400">Superadministrador</span>
               </div>
-              <span class="text-slate-400 text-[10px]">InacapAdmin2026!</span>
+              <span class="text-slate-300 text-[10px]">InacapAdmin2026!</span>
             </div>
-            <div onclick="fillCreds('coordinacion', 'CoordSemana2026#')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 hover:border-purple-600/80 hover:bg-slate-900 transition cursor-pointer flex items-center justify-between">
+            <div onclick="fillCreds('coordinacion', 'CoordSemana2026#')" class="p-2 rounded-xl bg-[#050C24] border border-[#142252] hover:border-[#2D46B9] hover:bg-[#0E1E48] transition cursor-pointer flex items-center justify-between">
               <div>
-                <span class="text-purple-400 font-bold block">coordinacion</span>
-                <span class="text-[9px] text-slate-500">Coordinadora de Carrera</span>
+                <span class="text-[#7F9CF5] font-bold block">coordinacion</span>
+                <span class="text-[9px] text-slate-400">Coordinadora de Carrera</span>
               </div>
-              <span class="text-slate-400 text-[10px]">CoordSemana2026#</span>
+              <span class="text-slate-300 text-[10px]">CoordSemana2026#</span>
             </div>
-            <div onclick="fillCreds('mesa', 'MesaCancha2026*')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 hover:border-blue-600/80 hover:bg-slate-900 transition cursor-pointer flex items-center justify-between">
+            <div onclick="fillCreds('mesa', 'MesaCancha2026*')" class="p-2 rounded-xl bg-[#050C24] border border-[#142252] hover:border-emerald-500 hover:bg-[#0E1E48] transition cursor-pointer flex items-center justify-between">
               <div>
-                <span class="text-blue-400 font-bold block">mesa</span>
-                <span class="text-[9px] text-slate-500">Mesa de Cancha / Jueces</span>
+                <span class="text-emerald-400 font-bold block">mesa</span>
+                <span class="text-[9px] text-slate-400">Mesa de Cancha / Jueces</span>
               </div>
-              <span class="text-slate-400 text-[10px]">MesaCancha2026*</span>
+              <span class="text-slate-300 text-[10px]">MesaCancha2026*</span>
             </div>
-            <div onclick="fillCreds('docente1', 'DocenteJuez1_2026')" class="p-2 rounded-lg bg-slate-950 border border-slate-800 hover:border-amber-600/80 hover:bg-slate-900 transition cursor-pointer flex items-center justify-between">
+            <div onclick="fillCreds('docente1', 'DocenteJuez1_2026')" class="p-2 rounded-xl bg-[#050C24] border border-[#142252] hover:border-amber-500 hover:bg-[#0E1E48] transition cursor-pointer flex items-center justify-between">
               <div>
                 <span class="text-amber-400 font-bold block">docente1</span>
-                <span class="text-[9px] text-slate-500">Docente Evaluador (Desafíos)</span>
+                <span class="text-[9px] text-slate-400">Docente Evaluador (Desafíos)</span>
               </div>
-              <span class="text-slate-400 text-[10px]">DocenteJuez1_2026</span>
+              <span class="text-slate-300 text-[10px]">DocenteJuez1_2026</span>
             </div>
           </div>
         </details>
       </div>
 
       <!-- Pie de Seguridad y Enlace Público -->
-      <div class="mt-8 pt-5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-        <span class="flex items-center gap-1">
+      <div class="mt-6 pt-4 border-t border-[#142252] flex items-center justify-between text-[11px] text-slate-400">
+        <span class="flex items-center gap-1 font-mono text-[10px]">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
           Sesión Scrypt 256-bit
         </span>
-        <button onclick="openAdminProyector()" title="Abrir Pantalla de Marcador para Proyector de Cancha" class="py-1.5 px-3 rounded-lg text-xs font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-900/50 transition flex items-center gap-1.5">
-            <i data-lucide="tv" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Modo Proyector</span>
-          </button>
-
-          <a href="/" target="_blank" class="hover:text-slate-300 transition flex items-center gap-1 font-medium">
-          Sitio Público <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        <button onclick="openAdminProyector()" title="Abrir Pantalla de Marcador para Proyector de Cancha" class="py-1 px-2.5 rounded-lg text-xs font-display font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-900/50 transition flex items-center gap-1.5">
+          <i data-lucide="tv" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Modo Proyector</span>
+        </button>
+        <a href="/" target="_blank" class="text-slate-300 hover:text-white transition flex items-center gap-1 font-display font-bold text-xs">
+          Portal Público <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
         </a>
       </div>
     </div>
@@ -231,39 +307,42 @@
   <!-- ========================================== -->
   <!-- 2. VISTA PRINCIPAL ADMINISTRATIVA          -->
   <!-- ========================================== -->
-  <div id="admin-view" class="hidden flex-1 flex flex-col">
-    <!-- Header de Consola -->
-    <header class="bg-slate-950 border-b border-slate-900 sticky top-0 z-40">
-      <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+  <div id="admin-view" class="hidden flex-1 flex flex-col relative z-10">
+    <!-- Header de Consola Synth-Tech -->
+    <header class="bg-[#050C24]/90 backdrop-blur-md border-b border-[#142252] sticky top-0 z-40">
+      <div class="container mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
         
         <!-- Logo y Rol -->
         <div class="flex items-center gap-3">
-          <a href="/admin" class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-inacap-red flex items-center justify-center text-white font-bold text-sm shadow-md">
-              TI
-            </div>
-            <div class="hidden sm:block">
-              <span class="text-xs font-bold font-heading text-white block leading-tight">Mesa de Control Central</span>
-              <span class="text-[10px] text-slate-400 font-mono">Semana Carreras 2026 • TI & Diseño</span>
+          <a href="/admin" class="flex items-center gap-2.5 group">
+            <span class="w-3.5 h-3.5 rounded-sm bg-[#E6194B] shadow-sm shadow-[#E6194B]/70 rotate-45 shrink-0 group-hover:scale-110 transition"></span>
+            <div>
+              <span class="font-display font-black text-white text-sm sm:text-base tracking-wider italic block leading-none">
+                TI & DISEÑO DIGITAL
+              </span>
+              <span class="text-[10px] text-[#7F9CF5] font-mono tracking-wide">MESA DE CONTROL CENTRAL 2026</span>
             </div>
           </a>
-          <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
-          <span id="role-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border"></span>
+          <div class="h-4 w-0.5 bg-[#2D46B9]/80 hidden sm:block"></div>
+          <span id="role-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border bg-[#0A1333] border-[#2D46B9] text-[#7F9CF5]"></span>
         </div>
 
         <!-- Perfil y Acciones Rápidas -->
         <div class="flex items-center gap-3">
           <div class="hidden md:flex flex-col text-right">
-            <span id="user-display-name" class="text-xs font-semibold text-white"></span>
-            <span id="session-timer" class="text-[10px] text-slate-400 font-mono">Sesión activa</span>
+            <span id="user-display-name" class="text-xs font-bold text-white font-display"></span>
+            <span id="session-timer" class="text-[10px] text-slate-300 font-mono flex items-center justify-end gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Sesión activa</span>
+            </span>
           </div>
 
-          <a href="/" target="_blank" title="Abrir portal público en pestaña nueva" class="py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 transition flex items-center gap-1.5">
-            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <a href="/" target="_blank" title="Abrir portal público en pestaña nueva" class="py-1.5 px-3 rounded-xl text-xs font-display font-bold text-slate-300 hover:text-white bg-[#0A1333] hover:bg-[#0E1E48] border border-[#142252] transition flex items-center gap-1.5">
+            <i data-lucide="external-link" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
             <span class="hidden sm:inline">Portal Público</span>
           </a>
 
-          <button onclick="logoutAdmin()" title="Cerrar Sesión de Administrador" class="py-1.5 px-3 rounded-lg text-xs font-semibold text-red-400 hover:text-red-300 bg-red-950/40 hover:bg-red-900/50 border border-red-900/50 transition flex items-center gap-1.5">
+          <button onclick="logoutAdmin()" title="Cerrar Sesión de Administrador" class="py-1.5 px-3 rounded-xl text-xs font-display font-bold text-[#E6194B] hover:text-white bg-[#E6194B]/10 hover:bg-[#E6194B] border border-[#E6194B]/40 transition flex items-center gap-1.5">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
             <span class="hidden sm:inline">Cerrar Sesión</span>
           </button>
@@ -277,32 +356,31 @@
 
       <!-- NAVEGACIÓN MÓVIL (< md) -->
       <div class="md:hidden mb-3 space-y-2">
-        <!-- Barra de Módulo Activo y Botón de Menú -->
-        <div class="bg-slate-950 border border-slate-900 rounded-xl p-2.5 flex items-center justify-between gap-2 shadow-md">
+        <div class="bg-[#0A1333] border border-[#142252] rounded-2xl p-2.5 flex items-center justify-between gap-2 shadow-lg">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+            <span class="w-2 h-2 rounded-full bg-[#E6194B] shrink-0 animate-pulse"></span>
             <div class="min-w-0">
-              <span class="text-[9px] font-mono uppercase text-slate-500 block leading-none">Módulo Activo</span>
-              <span id="mobile-active-module-title" class="text-xs font-bold text-white truncate block">Participantes por Actividad</span>
+              <span class="text-[9px] font-mono uppercase text-slate-400 block leading-none">Módulo Activo</span>
+              <span id="mobile-active-module-title" class="text-xs font-bold text-white truncate block font-display">Participantes por Actividad</span>
             </div>
           </div>
           <button 
             type="button"
             onclick="toggleMobileAdminMenu()" 
-            class="py-1 px-2.5 rounded-lg text-xs font-mono bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 transition flex items-center gap-1.5 shrink-0"
+            class="py-1.5 px-3 rounded-xl text-xs font-display font-bold bg-[#050C24] hover:bg-[#0E1E48] text-white border border-[#142252] transition flex items-center gap-1.5 shrink-0"
           >
-            <span id="mobile-menu-btn-label">Todos</span>
+            <span id="mobile-menu-btn-label">Menú</span>
             <i data-lucide="chevron-down" id="mobile-menu-chevron" class="w-3.5 h-3.5 transition-transform duration-200"></i>
           </button>
         </div>
 
-        <!-- Tira Horizontal Deslizable de Módulos (Scroll Swipe con el pulgar) -->
-        <div id="mobile-horizontal-nav" class="flex overflow-x-auto gap-1.5 pb-1 scrollbar-none text-xs">
+        <!-- Tira Horizontal Deslizable de Módulos -->
+        <div id="mobile-horizontal-nav" class="flex overflow-x-auto gap-2 pb-1 scrollbar-none text-xs">
           <!-- Inyectado dinámicamente -->
         </div>
 
-        <!-- Desplegable completo de módulos (oculto por defecto) -->
-        <div id="mobile-modules-drawer" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-2 space-y-1 shadow-2xl animate-in fade-in duration-200">
+        <!-- Desplegable completo de módulos -->
+        <div id="mobile-modules-drawer" class="hidden bg-[#0A1333] border-2 border-[#142252] rounded-2xl p-2.5 space-y-1.5 shadow-2xl animate-in fade-in duration-200">
           <div id="mobile-drawer-nav-container" class="space-y-1">
             <!-- Inyectado dinámicamente -->
           </div>
@@ -311,11 +389,11 @@
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 items-start">
         
-        <!-- Sidebar Dinámico según Rol (Sólo en Desktop md:block) -->
-        <aside class="hidden md:block bg-slate-950 border border-slate-900 rounded-2xl p-2.5 space-y-1.5 sticky top-20 shadow-xl" id="admin-sidebar">
-          <div class="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-slate-900 mb-1 flex items-center justify-between">
+        <!-- Sidebar Dinámico según Rol (Desktop) -->
+        <aside class="hidden md:block bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#142252] rounded-2xl p-3 space-y-1.5 sticky top-20 shadow-2xl" id="admin-sidebar">
+          <div class="px-3 py-2 text-[10px] font-display font-black uppercase tracking-wider text-[#7F9CF5] border-b border-[#142252] mb-1.5 flex items-center justify-between">
             <span>Módulos de Gestión</span>
-            <span id="sidebar-role-indicator" class="text-[9px] text-slate-400 font-bold uppercase"></span>
+            <span id="sidebar-role-indicator" class="text-[9px] text-[#E6194B] font-mono font-bold uppercase"></span>
           </div>
           <div id="sidebar-nav-container" class="space-y-1">
             <!-- Botones de módulo inyectados según RBAC -->
@@ -323,7 +401,7 @@
         </aside>
 
         <!-- Panel Principal del Módulo Activo -->
-        <main class="md:col-span-3 bg-slate-950 border border-slate-900 rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-xl min-w-0 overflow-hidden" id="admin-main-view">
+        <main class="md:col-span-3 bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#142252] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl min-w-0 overflow-hidden relative" id="admin-main-view">
           <!-- Renderizado dinámico del módulo -->
         </main>
 
@@ -331,9 +409,9 @@
     </div>
 
     <!-- Footer Administrativo -->
-    <footer class="bg-slate-950 border-t border-slate-900 py-4 text-center text-[11px] text-slate-400 font-mono">
+    <footer class="bg-[#050C24] border-t border-[#142252] py-4 text-center text-[11px] text-slate-400 font-mono">
       <div class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <span>Consola Administrativa Segura • Informática, Telecomunicaciones & Diseño Digital</span>
+        <span class="text-slate-300 font-display font-medium">Consola Oficial de Control • Informática, Telecomunicaciones & Diseño Digital</span>
         <span class="text-slate-400">Protección contra ataques por diccionario y control de acceso estricto RBAC</span>
       </div>
     </footer>
@@ -344,15 +422,15 @@
   <!-- ========================================== -->
 
   <!-- Modal Justificación Obligatoria de Auditoría -->
-  <div id="reason-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-amber-900/60 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-left">
+  <div id="reason-modal" class="fixed inset-0 bg-[#050C24]/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-left glow-electric">
       <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-950/60 border border-amber-700/60 flex items-center justify-center text-amber-400 shrink-0">
+        <div class="w-10 h-10 rounded-xl bg-[#050C24] border border-amber-500/60 flex items-center justify-center text-amber-400 shrink-0">
           <i data-lucide="alert-circle" class="w-5 h-5"></i>
         </div>
         <div>
-          <h3 class="text-base font-bold text-white">Justificación Obligatoria</h3>
-          <span class="text-xs text-slate-400">Trazabilidad oficial de la mesa de control</span>
+          <h3 class="text-base font-bold font-display text-white">Justificación Obligatoria</h3>
+          <span class="text-xs text-slate-400 font-mono">Trazabilidad oficial de la mesa de control</span>
         </div>
       </div>
       <p class="text-xs text-slate-300 mb-4" id="reason-modal-desc">
@@ -361,10 +439,10 @@
       <form onsubmit="confirmReasonAction(event)">
         <div class="mb-4">
           <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Motivo justificado</label>
-          <textarea id="reason-modal-input" required rows="3" placeholder="Ej: Corrección autorizada por Coordinación de Carrera tras revisión..." class="w-full text-xs p-3 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-amber-500 transition"></textarea>
+          <textarea id="reason-modal-input" required rows="3" placeholder="Ej: Corrección autorizada por Coordinación de Carrera tras revisión..." class="w-full text-xs p-3 rounded-xl bg-[#050C24] border border-[#142252] text-white focus:outline-none focus:border-amber-500 transition"></textarea>
         </div>
         <div class="flex gap-2">
-          <button type="button" onclick="closeReasonModal()" class="flex-1 py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">Cancelar</button>
+          <button type="button" onclick="closeReasonModal()" class="flex-1 py-2 px-4 rounded-xl bg-[#050C24] hover:bg-[#142252] border border-[#142252] text-slate-300 text-xs font-semibold transition">Cancelar</button>
           <button type="submit" class="flex-1 py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow transition">Confirmar y Registrar</button>
         </div>
       </form>
@@ -372,9 +450,9 @@
   </div>
 
   <!-- Modal Ficha de Participación por Persona -->
-  <div id="student-profile-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeStudentProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+  <div id="student-profile-modal" class="fixed inset-0 bg-[#050C24]/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto glow-electric">
+      <button onclick="closeStudentProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#142252] transition">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
       <div id="student-profile-content">
@@ -384,9 +462,9 @@
   </div>
 
   <!-- Modal para Detalle de Cálculo de Actividades -->
-  <div id="calc-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-      <button onclick="closeCalcModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+  <div id="calc-modal" class="fixed inset-0 bg-[#050C24]/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative glow-electric">
+      <button onclick="closeCalcModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#142252] transition">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
       <div id="calc-modal-content">
@@ -398,6 +476,6 @@
   <!-- Scripts -->
   <script src="/admin/admin.js"></script>
   <!-- CONTENEDOR MODAL PANTALLA PROYECTOR DE CANCHA -->
-  <div id="admin-proyector-overlay" class="fixed inset-0 bg-slate-950 z-[100] hidden overflow-hidden"></div>
+  <div id="admin-proyector-overlay" class="fixed inset-0 bg-[#050C24] z-[100] hidden overflow-hidden"></div>
 </body>
 </html>

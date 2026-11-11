@@ -702,6 +702,14 @@
   ],
   "auditLogs": [
     {
+      "timestamp": "2026-11-11T15:50:30.643Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
       "timestamp": "2026-11-11T11:57:57.303Z",
       "action": "Inicio de sesión exitoso: \"admin\"",
       "user": "admin",

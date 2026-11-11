@@ -13,7 +13,7 @@ const ALLIANCE_META = {
     name: 'Alianza Terror',
     carrera: 'Informática & Analista Programador',
     desafio: 'Videojuego con IA (Godot/Unity)',
-    mascotImg: 'img/mascota-terror.png',
+    mascotImg: 'https://semanacarr.vercel.app/img/mascota-terror.png',
     themeColor: '#E6194B',
     glowClass: 'glow-crimson',
     shadowColor: 'rgba(230,25,75,0.7)',
@@ -25,7 +25,7 @@ const ALLIANCE_META = {
     name: 'Alianza Shooter',
     carrera: 'Informática & Analista Programador',
     desafio: 'Asistente con IA (Local/API)',
-    mascotImg: 'img/mascota-shooter.png',
+    mascotImg: 'https://semanacarr.vercel.app/img/mascota-shooter.png',
     themeColor: '#2D46B9',
     glowClass: 'glow-electric',
     shadowColor: 'rgba(45,70,185,0.7)',
@@ -37,7 +37,7 @@ const ALLIANCE_META = {
     name: 'Alianza Action',
     carrera: 'Diseño e Industria Digital',
     desafio: 'Collage Digital / Identidad Visual',
-    mascotImg: 'img/mascota-action.png',
+    mascotImg: 'https://semanacarr.vercel.app/img/mascota-action.png',
     themeColor: '#059669',
     glowClass: 'glow-rim',
     shadowColor: 'rgba(5,150,105,0.7)',
@@ -56,27 +56,42 @@ let sessionSecondsRemaining = 15 * 60;
 let globalStats = null;
 let termsAccepted = false;
 
-// Configuración dinámica de endpoint base (Soporte dual: Vercel en la nube y archivo local file://)
+// Configuración dinámica de endpoint base (Soporte Power Pages, Vercel y Localhost)
 function getApiBase() {
-  if (typeof window !== 'undefined' && (window.location.protocol === 'file:' || !window.location.host)) {
-    return 'https://semanacarr.vercel.app';
+  if (typeof window !== 'undefined') {
+    const host = window.location.host || '';
+    const proto = window.location.protocol || '';
+    // Si corre en Power Pages, en archivo local (file://), o en cualquier host que no sea el backend directo
+    if (proto === 'file:' || !host || host.includes('powerappsportals.com') || host.includes('powerpages.microsoft.com')) {
+      return 'https://semanacarr.vercel.app';
+    }
+    if (host !== 'localhost:5173' && host !== 'localhost:3000' && host !== 'semanacarr.vercel.app') {
+      return 'https://semanacarr.vercel.app';
+    }
   }
   return '';
 }
 let API_BASE = getApiBase();
 
 async function detectApiBase() {
-  if (typeof window !== 'undefined' && (window.location.protocol === 'file:' || !window.location.host)) {
-    for (const port of [5173, 3000]) {
-      try {
-        const localTest = await fetch(`http://localhost:${port}/api/public/alliance/stats`, { signal: AbortSignal.timeout(300) });
-        if (localTest.ok) {
-          API_BASE = `http://localhost:${port}`;
-          return;
-        }
-      } catch (_) {}
+  if (typeof window !== 'undefined') {
+    const host = window.location.host || '';
+    if (host.includes('powerappsportals.com') || host.includes('powerpages.microsoft.com')) {
+      API_BASE = 'https://semanacarr.vercel.app';
+      return;
     }
-    API_BASE = 'https://semanacarr.vercel.app';
+    if (window.location.protocol === 'file:' || !host) {
+      for (const port of [5173, 3000]) {
+        try {
+          const localTest = await fetch(`http://localhost:${port}/api/public/alliance/stats`, { signal: AbortSignal.timeout(300) });
+          if (localTest.ok) {
+            API_BASE = `http://localhost:${port}`;
+            return;
+          }
+        } catch (_) {}
+      }
+      API_BASE = 'https://semanacarr.vercel.app';
+    }
   }
 }
 
