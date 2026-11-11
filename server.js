@@ -128,47 +128,14 @@ function recalculateGlobalPoints(data) {
     });
   });
 
-  // 2. Desafíos creativos
-  // Check favorite (highest score among the 3)
-  const rubrics = data.creativeChallenges.rubrics;
-  let maxScore = -1;
-  let topAlliance = null;
-  let tieTop = false;
+  // 2. Desafíos creativos (con Decisión 1 de obra favorita y regla de discrepancia > 20)
+  const creativeResult = rules.calculateCreativeScores(data.creativeChallenges);
+  data.creativeChallenges.pointsAwarded = creativeResult.pointsAwarded;
+  data.creativeChallenges.favoriteAlliance = creativeResult.favoriteAllianceText;
+  data.creativeChallenges.hasProvisional = creativeResult.hasProvisional;
 
   ['Terror', 'Shooter', 'Action'].forEach(al => {
-    const avg = rubrics[al].notaPromedio;
-    if (avg !== null && avg !== undefined) {
-      if (avg > maxScore) {
-        maxScore = avg;
-        topAlliance = al;
-        tieTop = false;
-      } else if (avg === maxScore && maxScore > 0) {
-        tieTop = true;
-      }
-    }
-  });
-
-  data.creativeChallenges.favoriteAlliance = tieTop ? 'Empate' : topAlliance;
-
-  ['Terror', 'Shooter', 'Action'].forEach(al => {
-    let pts = 0;
-    // 1000 pts por entrega
-    if (data.creativeChallenges.status[al].delivered) {
-      pts += 1000;
-    }
-    // Hasta 2500 pts por nota docente
-    const avg = rubrics[al].notaPromedio;
-    if (avg !== null && avg !== undefined) {
-      pts += Math.round((avg / 100) * 2500);
-    }
-    // 500 pts si tiene la obra con la mejor nota
-    if (topAlliance === al && !tieTop) {
-      pts += 500;
-    } else if (tieTop && rubrics[al].notaPromedio === maxScore && maxScore > 0) {
-      pts += 250; // split favorite on exact tie
-    }
-    data.creativeChallenges.pointsAwarded[al] = pts;
-    totals[al].creative += pts;
+    totals[al].creative = Number(creativeResult.pointsAwarded[al] || 0);
   });
 
   // 3. Copa de Alianzas Tarreo
@@ -713,7 +680,7 @@ app.post('/api/admin/docentes/evaluar', requireAdminOrCoordOrDocente, (req, res)
   const { alliance, docenteNum, scores, delivered, loggedBy } = req.body;
   // scores: { c1: 'Excelente' | 'Bueno' | 'Regular' | 'Básico', ... }
   const data = loadData();
-  const rubric = data.creativeChallenges.rubrics[alliance];
+  const rubric = data.creativeChallenges?.rubrics?.[alliance];
   if (!rubric) return res.status(404).json({ error: 'Alianza no encontrada' });
 
   if (delivered !== undefined) {
@@ -723,35 +690,40 @@ app.post('/api/admin/docentes/evaluar', requireAdminOrCoordOrDocente, (req, res)
     }
   }
 
-  const levelMultipliers = {
-    'Excelente': 1.0,
-    'Bueno': 0.8,
-    'Regular': 0.5,
-    'Básico': 0.2,
-    'Insatisfactorio': 0.0
-  };
-
-  // Calculate teacher score (0 to 100)
+  // Validar y calcular nota del docente según los 4 niveles estrictos de las Bases
   let totalScore = 0;
-  rubric.criterios.forEach(crit => {
-    const lvl = scores[crit.id] || 'Básico';
-    const mult = levelMultipliers[lvl] ?? 0.2;
-    totalScore += crit.peso * mult;
-  });
+  try {
+    totalScore = rules.calculateDocenteScore(rubric.criterios, scores || {});
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  const prevNota = docenteNum === 1 ? rubric.docente1Nota : rubric.docente2Nota;
 
   if (docenteNum === 1) {
     rubric.docente1 = scores;
-    rubric.docente1Nota = Math.round(totalScore);
+    rubric.docente1Nota = totalScore;
   } else if (docenteNum === 2) {
     rubric.docente2 = scores;
-    rubric.docente2Nota = Math.round(totalScore);
+    rubric.docente2Nota = totalScore;
   }
 
-  // If both evaluated, compute average and check discrepancy (> 20)
-  if (rubric.docente1Nota !== null && rubric.docente2Nota !== null) {
-    rubric.notaPromedio = Math.round((rubric.docente1Nota + rubric.docente2Nota) / 2);
+  // Si ambos docentes evaluaron, calcular promedio y validar discrepancia (> 20)
+  if (rubric.docente1Nota !== null && rubric.docente1Nota !== undefined &&
+      rubric.docente2Nota !== null && rubric.docente2Nota !== undefined) {
+    rubric.notaPromedio = (rubric.docente1Nota + rubric.docente2Nota) / 2;
     const diff = Math.abs(rubric.docente1Nota - rubric.docente2Nota);
-    rubric.discrepancyAlert = diff > 20;
+    if (diff > 20) {
+      rubric.discrepancyAlert = true;
+      rubric.estado = 'revisión conjunta pendiente';
+      rubric.notaDefinitiva = false;
+      rubric.discrepancyResolved = false;
+    } else {
+      rubric.discrepancyAlert = false;
+      rubric.estado = 'definitiva';
+      rubric.notaDefinitiva = true;
+      rubric.discrepancyResolved = true;
+    }
     data.creativeChallenges.status[alliance].evaluated = true;
   }
 
@@ -759,11 +731,53 @@ app.post('/api/admin/docentes/evaluar', requireAdminOrCoordOrDocente, (req, res)
     timestamp: new Date().toISOString(),
     action: `Evaluación docente ${docenteNum} para ${alliance}`,
     user: getAuditAuthor(req, loggedBy || `Docente ${docenteNum}`),
-    details: { totalScore, discrepancyAlert: rubric.discrepancyAlert }
+    details: { 
+      docenteNum, 
+      valorAnterior: prevNota, 
+      valorNuevo: totalScore, 
+      estado: rubric.estado, 
+      discrepancyAlert: rubric.discrepancyAlert 
+    }
   });
 
   saveData(data);
-  res.json({ success: true, rubric, discrepancyAlert: rubric.discrepancyAlert });
+  res.json({ success: true, rubric, discrepancyAlert: rubric.discrepancyAlert, estado: rubric.estado });
+});
+
+// Registro de nota acordada tras revisión conjunta por discrepancia > 20 pts
+app.post('/api/admin/docentes/acordar-nota', requireAdminOrCoordOrDocente, (req, res) => {
+  const { alliance, notaAcordada, motivo, loggedBy } = req.body;
+  const data = loadData();
+  const rubric = data.creativeChallenges?.rubrics?.[alliance];
+  if (!rubric) return res.status(404).json({ error: 'Alianza no encontrada' });
+
+  const nota = Number(notaAcordada);
+  if (isNaN(nota) || nota < 0 || nota > 100) {
+    return res.status(400).json({ error: 'La nota acordada debe ser un número entre 0 y 100.' });
+  }
+  if (!motivo || !motivo.trim()) {
+    return res.status(400).json({ error: 'Debe ingresar el motivo o acuerdo de la revisión conjunta.' });
+  }
+
+  const prevNota = rubric.notaPromedio;
+  rubric.notaAcordada = nota;
+  rubric.notaPromedio = nota;
+  rubric.estado = 'definitiva';
+  rubric.notaDefinitiva = true;
+  rubric.discrepancyResolved = true;
+  rubric.discrepancyAlert = false;
+  rubric.acuerdoMotivo = motivo.trim();
+  data.creativeChallenges.status[alliance].evaluated = true;
+
+  data.auditLogs.unshift({
+    timestamp: new Date().toISOString(),
+    action: `Resolución de discrepancia docente para ${alliance}: nota acordada ${nota}`,
+    user: getAuditAuthor(req, loggedBy),
+    details: { valorAnterior: prevNota, valorNuevo: nota, motivo: motivo.trim() }
+  });
+
+  saveData(data);
+  res.json({ success: true, rubric });
 });
 
 // 6. Copa Tarreo: Cazatesoros (with 950 pts tie if all zero)

@@ -790,8 +790,7 @@ function recalculateRubricLiveScore() {
     'Excelente': 1.0,
     'Bueno': 0.8,
     'Regular': 0.5,
-    'Básico': 0.2,
-    'Insatisfactorio': 0.0
+    'Básico': 0.2
   };
 
   let totalScore = 0;
@@ -822,7 +821,7 @@ function setRubricCritScore(critId, levelName) {
   const input = document.getElementById(`rubric-crit-${critId}`);
   if (input) input.value = levelName;
 
-  const levels = ['Excelente', 'Bueno', 'Regular', 'Insatisfactorio'];
+  const levels = ['Excelente', 'Bueno', 'Regular', 'Básico'];
   levels.forEach(lvl => {
     const btn = document.getElementById(`btn-crit-${critId}-${lvl}`);
     if (!btn) return;
@@ -865,7 +864,7 @@ function renderDocenteRubricForm() {
     { key: 'Excelente', mult: 1.0 },
     { key: 'Bueno', mult: 0.8 },
     { key: 'Regular', mult: 0.5 },
-    { key: 'Insatisfactorio', mult: 0.0 }
+    { key: 'Básico', mult: 0.2 }
   ];
 
   container.innerHTML = `

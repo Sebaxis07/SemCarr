@@ -531,6 +531,136 @@ function calculateTriangularStandings(activityId, matches, distribution = [4000,
   return { table, sorted, places, awarded };
 }
 
+// Cálculo del puntaje docente según los 4 niveles estrictos de las Bases
+function calculateDocenteScore(criterios, scores) {
+  const allowed = {
+    'Excelente': 1.0,
+    'Bueno': 0.8,
+    'Regular': 0.5,
+    'Básico': 0.2,
+    'Basico': 0.2
+  };
+
+  let totalScore = 0;
+  for (const crit of (criterios || [])) {
+    const lvl = scores[crit.id];
+    if (lvl === 'sin evaluar' || lvl === null || lvl === undefined) {
+      continue;
+    }
+    if (!(lvl in allowed)) {
+      throw new Error(`Nivel de rúbrica inválido: "${lvl}". Solo se permiten los 4 niveles oficiales: Excelente (100%), Bueno (80%), Regular (50%) y Básico (20%).`);
+    }
+    totalScore += crit.peso * allowed[lvl];
+  }
+  return totalScore;
+}
+
+// Cálculo del Desafío Creativo (Entrega 1.000 + Nota Docente hasta 2.500 + Obra Favorita 500)
+// Aplica Decisión 1 (máx 500 repartido en empates) y Regla de Discrepancia > 20 pts
+function calculateCreativeScores(creativeChallenges) {
+  if (!creativeChallenges || !creativeChallenges.rubrics) {
+    return {
+      pointsAwarded: { Terror: 0, Shooter: 0, Action: 0 },
+      breakdown: {},
+      favoriteAlliances: [],
+      favoriteAllianceText: null,
+      hasProvisional: false
+    };
+  }
+
+  const rubrics = creativeChallenges.rubrics;
+  const status = creativeChallenges.status || {};
+  const alliances = ['Terror', 'Shooter', 'Action'];
+
+  // Identificar alianzas con nota docente válida y definitiva (no en revisión por discrepancia)
+  let maxScore = -1;
+  let eligibleTopAlliances = [];
+  let hasProvisional = false;
+
+  alliances.forEach(al => {
+    const r = rubrics[al];
+    if (!r) return;
+
+    const isPendingDiscrepancy = (r.discrepancyAlert || r.estado === 'revisión conjunta pendiente') && !r.discrepancyResolved;
+    if (isPendingDiscrepancy) {
+      hasProvisional = true;
+      r.estado = 'revisión conjunta pendiente';
+      r.notaDefinitiva = false;
+      return; // Queda fuera de la obra favorita hasta acordar nota
+    }
+
+    const avg = r.notaPromedio;
+    if (avg !== null && avg !== undefined && !isNaN(avg)) {
+      if (avg > maxScore) {
+        maxScore = avg;
+        eligibleTopAlliances = [al];
+      } else if (avg === maxScore && maxScore > 0) {
+        eligibleTopAlliances.push(al);
+      }
+    }
+  });
+
+  // Reparto exacto de los 500 puntos de Obra Favorita (Decisión 1)
+  const favoritePointsPerAlliance = { Terror: 0, Shooter: 0, Action: 0 };
+  if (eligibleTopAlliances.length === 1) {
+    favoritePointsPerAlliance[eligibleTopAlliances[0]] = 500;
+  } else if (eligibleTopAlliances.length === 2) {
+    eligibleTopAlliances.forEach(al => favoritePointsPerAlliance[al] = 250);
+  } else if (eligibleTopAlliances.length === 3) {
+    eligibleTopAlliances.forEach(al => favoritePointsPerAlliance[al] = Number((500 / 3).toFixed(2))); // 166.67
+  }
+
+  const pointsAwarded = {};
+  const breakdown = {};
+
+  alliances.forEach(al => {
+    const r = rubrics[al] || {};
+    const st = status[al] || {};
+    let pts = 0;
+
+    // 1000 pts por entrega dentro de plazo
+    const isDelivered = st.delivered === true || st.delivered === 'true';
+    const deliveryPts = isDelivered ? 1000 : 0;
+    pts += deliveryPts;
+
+    // Hasta 2500 pts proporcionales a la nota docente promedio
+    let gradePts = 0;
+    const avg = r.notaPromedio;
+    if (avg !== null && avg !== undefined && !isNaN(avg)) {
+      gradePts = (Number(avg) / 100) * 2500;
+      pts += gradePts;
+    }
+
+    // Puntos de obra favorita (solo si califica)
+    const favPts = favoritePointsPerAlliance[al] || 0;
+    pts += favPts;
+
+    pointsAwarded[al] = pts;
+    breakdown[al] = {
+      delivered: isDelivered,
+      deliveryPts,
+      notaPromedio: avg,
+      gradePts,
+      favoritePts: favPts,
+      isPendingDiscrepancy: (r.discrepancyAlert || r.estado === 'revisión conjunta pendiente') && !r.discrepancyResolved,
+      total: pts
+    };
+  });
+
+  const favoriteAllianceText = eligibleTopAlliances.length === 1 
+    ? eligibleTopAlliances[0] 
+    : (eligibleTopAlliances.length > 1 ? `Empate (${eligibleTopAlliances.join(', ')})` : null);
+
+  return {
+    pointsAwarded,
+    breakdown,
+    favoriteAlliances: eligibleTopAlliances,
+    favoriteAllianceText,
+    favoritePointsPerAlliance,
+    hasProvisional
+  };
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -546,5 +676,7 @@ module.exports = {
   getSportsPoints,
   getRetroPlace,
   resolveGeneralRanking,
-  calculateTriangularStandings
+  calculateTriangularStandings,
+  calculateDocenteScore,
+  calculateCreativeScores
 };
