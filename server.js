@@ -2438,8 +2438,13 @@ app.get('/api/dashboard/stats', requireAdminOrCoord, (req, res) => {
   const totalActivities = (data.activities || []).length;
 
   // 4. Balance de Reclamos y Sanciones
+  const reclamosDentroDePlazo = (data.reclamos || []).filter(r => !r.fueraDePlazo && r.plazo !== 'fuera de plazo').length;
+  const reclamosFueraDePlazo = (data.reclamos || []).filter(r => r.fueraDePlazo || r.plazo === 'fuera de plazo').length;
+
   const reclamosSummary = {
     total: (data.reclamos || []).length,
+    dentroDePlazo: reclamosDentroDePlazo,
+    fueraDePlazo: reclamosFueraDePlazo,
     resueltos: (data.reclamos || []).filter(r => r.status === 'Aceptado' || r.status === 'Rechazado').length,
     pendientes: (data.reclamos || []).filter(r => r.status === 'Pendiente' || r.status === 'En Revisión').length
   };
@@ -2451,6 +2456,52 @@ app.get('/api/dashboard/stats', requireAdminOrCoord, (req, res) => {
     favoriteAlliance: data.creativeChallenges?.favoriteAlliance || null,
     pointsAwarded: data.creativeChallenges?.pointsAwarded || {},
     status: data.creativeChallenges?.status || {}
+  };
+
+  // 6. Reporte Consolidado para Jefatura y Coordinación (Punto 11)
+  const activitiesSummary = (data.activities || []).map(act => ({
+    id: act.id,
+    name: act.name,
+    status: act.status,
+    horaInicio: act.horaInicio || null,
+    horaTermino: act.horaTermino || null,
+    pointsAwarded: act.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+    results: act.results || null
+  }));
+
+  const jefaturaReport = {
+    puntosPorAlianzaYActividad: {
+      activities: activitiesSummary,
+      creative: data.creativeChallenges?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+      tarreoCopa: {
+        cazatesoros: data.tarreoCopa?.cazatesoros?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+        justdance: data.tarreoCopa?.justdance?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+        mimica: data.tarreoCopa?.mimica?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 }
+      },
+      sorpresas: (data.sorpresas || []).map(s => ({ name: s.name, points: s.pointsAwarded })),
+      totales: totals
+    },
+    inscritosVsAsistentes: {
+      totalInscritos: totalRegistered,
+      asistentesReales: uniqueCount,
+      noAsistentes: nonParticipantsCount,
+      tasaAsistencia: participationRate
+    },
+    participacionPorAlianza: allianceParticipation,
+    sanciones: {
+      totalSanciones: (data.sanciones || []).length,
+      totalPuntosDeducidos: totalSancionesPoints,
+      list: data.sanciones || []
+    },
+    reclamos: {
+      total: (data.reclamos || []).length,
+      dentroDePlazo: reclamosDentroDePlazo,
+      fueraDePlazo: reclamosFueraDePlazo,
+      resueltos: reclamosSummary.resueltos,
+      pendientes: reclamosSummary.pendientes,
+      list: data.reclamos || []
+    },
+    estadoActividades: activitiesSummary
   };
 
   res.json({
@@ -2517,6 +2568,92 @@ app.get('/api/dashboard/stats', requireAdminOrCoord, (req, res) => {
       resources: data.logisticsResources || [],
       incidents: data.technicalIncidents || [],
       security: data.tarreoResults?.security || { expulsions: 0, emergencyExits: 0, minorInfractions: 1 }
+    },
+    jefaturaReport
+  });
+});
+
+// Endpoint exclusivo de reporte ejecutivo para Jefatura y Coordinación (Punto 11)
+app.get('/api/reports/jefatura', requireAdminOrCoord, (req, res) => {
+  const data = loadData();
+  const students = loadStudents();
+  const { totals, ranks, sorted, tieBreaks, tieBreakDecisions } = recalculateGlobalPoints(data);
+
+  const totalRegistered = students.length;
+  const uniqueParticipants = Array.from(new Set(
+    (data.activityParticipants ? Object.values(data.activityParticipants).flatMap(act => 
+      ['Terror', 'Shooter', 'Action'].flatMap(al => (act.lists?.[al] || []).map(p => p.studentId || p.id))
+    ) : []).filter(Boolean)
+  ));
+  const uniqueCount = uniqueParticipants.length;
+
+  const reclamosDentro = (data.reclamos || []).filter(r => !r.fueraDePlazo && r.plazo !== 'fuera de plazo').length;
+  const reclamosFuera = (data.reclamos || []).filter(r => r.fueraDePlazo || r.plazo === 'fuera de plazo').length;
+
+  const activitiesSummary = (data.activities || []).map(act => ({
+    id: act.id,
+    name: act.name,
+    status: act.status,
+    horaInicio: act.horaInicio || null,
+    horaTermino: act.horaTermino || null,
+    pointsAwarded: act.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+    results: act.results || null
+  }));
+
+  const allianceParticipation = {
+    Terror: { 
+      total: students.filter(s => s.alliance === 'Terror').length, 
+      participated: uniqueParticipants.filter(id => students.find(s => s.id === id)?.alliance === 'Terror').length 
+    },
+    Shooter: { 
+      total: students.filter(s => s.alliance === 'Shooter').length, 
+      participated: uniqueParticipants.filter(id => students.find(s => s.id === id)?.alliance === 'Shooter').length 
+    },
+    Action: { 
+      total: students.filter(s => s.alliance === 'Action').length, 
+      participated: uniqueParticipants.filter(id => students.find(s => s.id === id)?.alliance === 'Action').length 
+    }
+  };
+
+  res.json({
+    puntosPorAlianzaYActividad: {
+      activities: activitiesSummary,
+      creative: data.creativeChallenges?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+      tarreoCopa: {
+        cazatesoros: data.tarreoCopa?.cazatesoros?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+        justdance: data.tarreoCopa?.justdance?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 },
+        mimica: data.tarreoCopa?.mimica?.pointsAwarded || { Terror: 0, Shooter: 0, Action: 0 }
+      },
+      sorpresas: (data.sorpresas || []).map(s => ({ name: s.name, points: s.pointsAwarded })),
+      totales: totals
+    },
+    inscritosVsAsistentes: {
+      totalInscritos: totalRegistered,
+      asistentesReales: uniqueCount,
+      noAsistentes: Math.max(0, totalRegistered - uniqueCount),
+      tasaAsistencia: totalRegistered > 0 ? Number(((uniqueCount / totalRegistered) * 100).toFixed(1)) : 0
+    },
+    participacionPorAlianza: allianceParticipation,
+    sanciones: {
+      totalSanciones: (data.sanciones || []).length,
+      totalPuntosDeducidos: (data.sanciones || []).reduce((acc, s) => acc + Number(s.pointsDeducted || 0), 0),
+      list: data.sanciones || []
+    },
+    reclamos: {
+      total: (data.reclamos || []).length,
+      dentroDePlazo: reclamosDentro,
+      fueraDePlazo: reclamosFuera,
+      resueltos: (data.reclamos || []).filter(r => r.status === 'Aceptado' || r.status === 'Rechazado').length,
+      pendientes: (data.reclamos || []).filter(r => r.status === 'Pendiente' || r.status === 'En Revisión').length,
+      list: data.reclamos || []
+    },
+    estadoActividades: activitiesSummary,
+    ranking: {
+      podio: sorted,
+      ranks,
+      totals,
+      tieBreaks,
+      tieBreakDecisions
     }
   });
 });

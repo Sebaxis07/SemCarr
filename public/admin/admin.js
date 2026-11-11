@@ -1262,7 +1262,8 @@ function renderDashboardPanel() {
     { id: 'dia19', label: '3. Día 19 (En Cancha)', icon: 'clock' },
     { id: 'creativos', label: '4. Desafíos Creativos', icon: 'sparkles' },
     { id: 'tarreo', label: '5. Tarreo & Torneos', icon: 'gamepad-2' },
-    { id: 'logistica', label: '6. Logística & Soporte', icon: 'shield-check' }
+    { id: 'logistica', label: '6. Logística & Soporte', icon: 'shield-check' },
+    { id: 'jefatura', label: '7. Reporte Jefatura', icon: 'file-text' }
   ];
 
   return `
@@ -1374,8 +1375,232 @@ function renderDashboardSubTabContent() {
     case 'creativos': return renderDashboardCreativosView(dashboardStatsData);
     case 'tarreo': return renderDashboardTarreoView(dashboardStatsData);
     case 'logistica': return renderDashboardLogisticaView(dashboardStatsData);
+    case 'jefatura': return renderDashboardJefaturaReport(dashboardStatsData);
     default: return renderDashboardResumenView(dashboardStatsData);
   }
+}
+
+// ----------------- SUB-VISTA 7: REPORTE INTEGRAL PARA JEFATURA Y COORDINACIÓN (PUNTO 11) -----------------
+function renderDashboardJefaturaReport(data) {
+  const r = data.jefaturaReport || {};
+  const s = data.summary || {};
+  const part = data.participation || {};
+  const activities = r.estadoActividades || r.puntosPorAlianzaYActividad?.activities || [];
+  const tot = r.puntosPorAlianzaYActividad?.totales || s.totals || {};
+  const recl = r.reclamos || {};
+  const sanc = r.sanciones || {};
+  const insc = r.inscritosVsAsistentes || {};
+  const alPart = r.participacionPorAlianza || part.allianceParticipation || {};
+
+  return `
+    <div class="space-y-6">
+      <!-- ENCABEZADO DEL REPORTE DIRECTIVO -->
+      <div class="p-4 bg-gradient-to-r from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-indigo-500/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
+        <div>
+          <span class="text-[10px] font-mono uppercase text-indigo-400 font-bold block">Documento de Gestión Directiva</span>
+          <h3 class="text-xl font-bold font-display text-white mt-0.5">Informe Consolidado para Jefatura y Coordinación</h3>
+          <p class="text-xs text-slate-300 font-mono mt-0.5">Semana de la Carrera 2026: INACAP Sede Antofagasta</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-mono font-bold">
+            Auditoría Activa
+          </span>
+        </div>
+      </div>
+
+      <!-- BLOQUE 1: INSCRITOS VS ASISTENTES REALES Y PARTICIPACIÓN POR ALIANZA -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Inscritos vs Asistentes -->
+        <div class="bg-[#050C24] border border-[#142252] p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-[#142252] pb-2">
+            <h4 class="text-xs font-bold uppercase font-display text-white">Inscritos frente a Asistentes Reales</h4>
+            <span class="text-[10px] font-mono text-slate-400">Padrón Oficial: 281</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center font-mono">
+            <div class="p-2.5 rounded-xl bg-[#0A1333] border border-[#142252]">
+              <span class="text-[10px] text-slate-400 block">Inscritos</span>
+              <span class="text-xl font-bold text-white">${insc.totalInscritos || 281}</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#0A1333] border border-emerald-900/60">
+              <span class="text-[10px] text-emerald-400 block">Asistentes Reales</span>
+              <span class="text-xl font-bold text-emerald-400">${insc.asistentesReales || 0}</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#0A1333] border border-[#142252]">
+              <span class="text-[10px] text-slate-400 block">Tasa Asistencia</span>
+              <span class="text-xl font-bold text-indigo-400">${insc.tasaAsistencia || 0}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Participación por Alianza -->
+        <div class="bg-[#050C24] border border-[#142252] p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-[#142252] pb-2">
+            <h4 class="text-xs font-bold uppercase font-display text-white">Participación por Alianza</h4>
+            <span class="text-[10px] font-mono text-slate-400">3 Alianzas en Competencia</span>
+          </div>
+          <div class="space-y-2 font-mono text-xs">
+            ${['Terror', 'Shooter', 'Action'].map(al => {
+              const ap = alPart[al] || { total: 0, participated: 0 };
+              const pct = ap.total > 0 ? ((ap.participated / ap.total) * 100).toFixed(1) : 0;
+              const colorClass = al === 'Terror' ? 'text-red-400' : (al === 'Shooter' ? 'text-blue-400' : 'text-emerald-400');
+              return `
+                <div class="flex items-center justify-between p-2 rounded-xl bg-[#0A1333] border border-[#142252]">
+                  <span class="font-bold ${colorClass}">Alianza ${al}</span>
+                  <span class="text-slate-300">${ap.participated} de ${ap.total} estudiantes (${pct}%)</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 2: PUNTOS POR ALIANZA Y POR ACTIVIDAD (MATRIZ COMPLETA) -->
+      <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between border-b border-[#142252] pb-2">
+          <div>
+            <h4 class="text-xs font-bold uppercase font-display text-white">Matriz Oficial: Puntos por Alianza y por Actividad</h4>
+            <p class="text-[11px] text-slate-400">Puntajes calculados exclusivamente en el servidor según bases oficiales</p>
+          </div>
+          <span class="text-[10px] font-mono px-2.5 py-1 rounded bg-[#0A1333] text-indigo-300 border border-[#142252]">
+            Total Evento: 32.000 pts
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="text-[10px] font-mono uppercase text-slate-400 border-b border-[#142252] bg-[#0A1333]/50">
+              <tr>
+                <th class="py-2.5 px-3">Actividad</th>
+                <th class="py-2.5 px-3 text-center">Estado</th>
+                <th class="py-2.5 px-3 text-right text-red-400">Terror</th>
+                <th class="py-2.5 px-3 text-right text-blue-400">Shooter</th>
+                <th class="py-2.5 px-3 text-right text-emerald-400">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-900 font-mono">
+              ${activities.map(act => {
+                const pts = act.pointsAwarded || {};
+                return `
+                  <tr class="hover:bg-[#0A1333]/30 transition">
+                    <td class="py-2 px-3 font-semibold text-slate-200">${act.name}</td>
+                    <td class="py-2 px-3 text-center">
+                      <span class="px-2 py-0.5 rounded text-[10px] ${
+                        act.status === 'Terminada' ? 'bg-emerald-950 text-emerald-400 border border-emerald-900' :
+                        (act.status === 'En curso' ? 'bg-amber-950 text-amber-400 border border-amber-900 animate-pulse' :
+                        'bg-slate-900 text-slate-500 border border-slate-800')
+                      }">
+                        ${act.status}
+                      </span>
+                    </td>
+                    <td class="py-2 px-3 text-right font-bold text-slate-200">${(pts.Terror || 0).toLocaleString('es-CL')}</td>
+                    <td class="py-2 px-3 text-right font-bold text-slate-200">${(pts.Shooter || 0).toLocaleString('es-CL')}</td>
+                    <td class="py-2 px-3 text-right font-bold text-slate-200">${(pts.Action || 0).toLocaleString('es-CL')}</td>
+                  </tr>
+                `;
+              }).join('')}
+              <!-- Fila Desafíos Creativos -->
+              <tr class="bg-[#0A1333]/40 font-bold border-t border-[#142252]">
+                <td class="py-2.5 px-3 text-white">Desafíos Creativos (Entrega + Nota + Obra)</td>
+                <td class="py-2.5 px-3 text-center text-slate-400">Evaluado</td>
+                <td class="py-2.5 px-3 text-right text-red-300">${(tot.Terror?.creative || 0).toLocaleString('es-CL')}</td>
+                <td class="py-2.5 px-3 text-right text-blue-300">${(tot.Shooter?.creative || 0).toLocaleString('es-CL')}</td>
+                <td class="py-2.5 px-3 text-right text-emerald-300">${(tot.Action?.creative || 0).toLocaleString('es-CL')}</td>
+              </tr>
+              <!-- Fila Sanciones Restadas -->
+              <tr class="bg-red-950/20 text-red-400">
+                <td class="py-2 px-3">Sanciones Disciplinarias (Deducción)</td>
+                <td class="py-2 px-3 text-center">-</td>
+                <td class="py-2 px-3 text-right">-${(tot.Terror?.sanciones || 0).toLocaleString('es-CL')}</td>
+                <td class="py-2 px-3 text-right">-${(tot.Shooter?.sanciones || 0).toLocaleString('es-CL')}</td>
+                <td class="py-2 px-3 text-right">-${(tot.Action?.sanciones || 0).toLocaleString('es-CL')}</td>
+              </tr>
+              <!-- TOTAL GENERAL ACUMULADO -->
+              <tr class="bg-[#0A1333] font-bold text-sm border-t-2 border-white/20">
+                <td class="py-3 px-3 text-white uppercase tracking-wider">PUNTAJE TOTAL ACUMULADO</td>
+                <td class="py-3 px-3 text-center text-indigo-400">Oficial</td>
+                <td class="py-3 px-3 text-right text-red-400 text-base">${(tot.Terror?.total || 0).toLocaleString('es-CL')}</td>
+                <td class="py-3 px-3 text-right text-blue-400 text-base">${(tot.Shooter?.total || 0).toLocaleString('es-CL')}</td>
+                <td class="py-3 px-3 text-right text-emerald-400 text-base">${(tot.Action?.total || 0).toLocaleString('es-CL')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BLOQUE 3: RECLAMOS (DENTRO Y FUERA DE PLAZO) Y SANCIONES -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Reclamos -->
+        <div class="bg-[#050C24] border border-[#142252] p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-[#142252] pb-2">
+            <div>
+              <h4 class="text-xs font-bold uppercase font-display text-white">Reclamos y Ventana de 15 Minutos</h4>
+              <p class="text-[11px] text-slate-400">Control estricto de plazo según sección 8</p>
+            </div>
+            <span class="text-xs font-mono font-bold text-slate-300">${recl.total || 0} Total</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-center font-mono">
+            <div class="p-2.5 rounded-xl bg-[#0A1333] border border-emerald-900/60">
+              <span class="text-[10px] text-emerald-400 block">Dentro de Plazo (≤ 15 min)</span>
+              <span class="text-xl font-bold text-emerald-400">${recl.dentroDePlazo || 0}</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#0A1333] border border-amber-900/60">
+              <span class="text-[10px] text-amber-400 block">Fuera de Plazo (> 15 min)</span>
+              <span class="text-xl font-bold text-amber-400">${recl.fueraDePlazo || 0}</span>
+            </div>
+          </div>
+
+          <!-- Listado de reclamos -->
+          <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            ${(recl.list || []).length > 0 ? (recl.list || []).map(rc => `
+              <div class="p-2 rounded-xl bg-[#0A1333]/60 border border-[#142252] text-xs font-mono space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-white">Alianza ${rc.alliance}</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded ${
+                    rc.fueraDePlazo || rc.plazo === 'fuera de plazo' ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                  }">
+                    ${rc.plazo || (rc.fueraDePlazo ? 'fuera de plazo' : 'dentro de plazo')}
+                  </span>
+                </div>
+                <p class="text-slate-300 text-[11px] truncate">${rc.detail}</p>
+                ${rc.motivoFueraDePlazo ? `<p class="text-amber-400/90 text-[10px]">Motivo fuera de plazo: ${rc.motivoFueraDePlazo}</p>` : ''}
+              </div>
+            `).join('') : '<span class="text-xs text-slate-500 font-mono block text-center py-4">No hay reclamos registrados</span>'}
+          </div>
+        </div>
+
+        <!-- Sanciones -->
+        <div class="bg-[#050C24] border border-[#142252] p-4 rounded-2xl space-y-3">
+          <div class="flex items-center justify-between border-b border-[#142252] pb-2">
+            <div>
+              <h4 class="text-xs font-bold uppercase font-display text-white">Sanciones Disciplinarias</h4>
+              <p class="text-[11px] text-slate-400">Rango oficial: 200 a 600 puntos por falta</p>
+            </div>
+            <span class="text-xs font-mono font-bold text-red-400">${sanc.totalSanciones || 0} Aplicadas</span>
+          </div>
+
+          <div class="p-3 rounded-xl bg-red-950/20 border border-red-900/40 flex items-center justify-between font-mono">
+            <span class="text-xs text-slate-300">Puntos Totales Deducidos:</span>
+            <span class="text-lg font-bold text-red-400">-${(sanc.totalPuntosDeducidos || 0).toLocaleString('es-CL')} pts</span>
+          </div>
+
+          <!-- Listado de sanciones -->
+          <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            ${(sanc.list || []).length > 0 ? (sanc.list || []).map(sc => `
+              <div class="p-2 rounded-xl bg-[#0A1333]/60 border border-[#142252] text-xs font-mono space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-white">Alianza ${sc.alliance}</span>
+                  <span class="font-bold text-red-400">-${sc.pointsDeducted} pts</span>
+                </div>
+                <p class="text-slate-300 text-[11px]">${sc.reason}</p>
+                <span class="text-[10px] text-slate-500 block">Autorizado por: ${sc.authorizedBy}</span>
+              </div>
+            `).join('') : '<span class="text-xs text-slate-500 font-mono block text-center py-4">Sin sanciones disciplinarias registradas</span>'}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // ----------------- SUB-VISTA 1: RESUMEN DEL EVENTO (1 PANTALLA) -----------------
