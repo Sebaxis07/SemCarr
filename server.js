@@ -280,8 +280,56 @@ function normalizeAlliance(al) {
   return al;
 }
 
-// API: Search Students (Busca por RUT, Nombre o Carrera, con filtro estricto por alianza y exclusión de inscritos)
+// Helper: Obtener usuario autenticado si existe sesión válida
+function getAuthUser(req) {
+  const authHeader = req.headers['authorization'];
+  let token = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7).trim();
+  } else if (req.headers['x-session-token']) {
+    token = req.headers['x-session-token'];
+  } else if (req.query && req.query.token) {
+    token = req.query.token;
+  }
+  if (!token) return null;
+  return security.getSession(token);
+}
+
+// Rate limiter en memoria para buscador público por dispositivo/IP (30 req/min)
+const searchRateLimiter = new Map();
+function checkSearchRateLimit(ip) {
+  const now = Date.now();
+  let rec = searchRateLimiter.get(ip);
+  if (!rec || now > rec.resetAt) {
+    rec = { count: 1, resetAt: now + 60000 };
+    searchRateLimiter.set(ip, rec);
+    return { ok: true };
+  }
+  rec.count++;
+  if (rec.count > 30) {
+    const retryAfter = Math.ceil((rec.resetAt - now) / 1000);
+    return { ok: false, retryAfter };
+  }
+  return { ok: true };
+}
+
+// API: Search Students (Busca por Nombre o Carrera en público; RUT solo para administradores autenticados)
 app.get('/api/students/search', (req, res) => {
+  const ip = security.getClientIp(req);
+  const authUser = getAuthUser(req);
+  const isAdminOrStaff = Boolean(authUser && ['admin', 'coordinacion', 'mesa', 'staff'].includes(authUser.role));
+
+  if (!isAdminOrStaff) {
+    const rate = checkSearchRateLimit(ip);
+    if (!rate.ok) {
+      res.setHeader('Retry-After', rate.retryAfter);
+      return res.status(429).json({
+        error: 'Límite de consultas excedido para este dispositivo: por favor espera un momento antes de volver a buscar',
+        retryAfterSeconds: rate.retryAfter
+      });
+    }
+  }
+
   const rawQuery = (req.query.q || '').trim();
   const rawAlliance = req.query.alliance || null;
   const targetAlliance = normalizeAlliance(rawAlliance);
@@ -308,9 +356,9 @@ app.get('/api/students/search', (req, res) => {
     }
   }
 
-  // 3. Si no hay query de texto y se especificó alianza, devolver los disponibles para seleccionar de inmediato
+  // 3. Si no hay query de texto y se especificó alianza (uso admin para selectores rápidos)
   if (!rawQuery) {
-    if (targetAlliance) {
+    if (targetAlliance && isAdminOrStaff) {
       return res.json(
         filtered.slice(0, 30).map(s => ({
           id: s.id,
@@ -325,17 +373,25 @@ app.get('/api/students/search', (req, res) => {
 
   const queryNormalized = normalizeSearchText(rawQuery);
   const queryCleanRut = cleanRut(rawQuery);
-  const isRutSearch = queryCleanRut.length >= 3 && /^[0-9]+[0-9kK]?$/.test(queryCleanRut);
+  const isRutPattern = queryCleanRut.length >= 3 && /^[0-9]+[0-9kK]?$/.test(queryCleanRut);
   const queryTerms = queryNormalized.split(/\s+/).filter(t => t.length > 0);
+
+  // La búsqueda por RUT solo está disponible para personal autenticado de mesa de control
+  const allowRutMatch = isAdminOrStaff;
 
   const matches = filtered
     .filter(s => {
-      // Coincidencia por RUT
-      if (isRutSearch && s.rut) {
+      // Coincidencia por RUT solo para personal autorizado
+      if (allowRutMatch && isRutPattern && s.rut) {
         const studentCleanRut = cleanRut(s.rut);
         if (studentCleanRut.includes(queryCleanRut)) {
           return true;
         }
+      }
+
+      // Si la consulta pública es por RUT, no confirmar existencia y rechazar coincidencia
+      if (!allowRutMatch && isRutPattern) {
+        return false;
       }
 
       // Coincidencia por Nombre y Carrera
@@ -350,12 +406,22 @@ app.get('/api/students/search', (req, res) => {
       );
     })
     .slice(0, 30)
-    .map(s => ({
-      id: s.id,
-      name: s.name,
-      carrera: s.carrera,
-      alliance: s.alliance
-    }));
+    .map(s => {
+      if (isAdminOrStaff) {
+        return {
+          id: s.id,
+          name: s.name,
+          carrera: s.carrera,
+          alliance: s.alliance
+        };
+      }
+      // Público: devuelve única y exclusivamente nombre, alianza y carrera. Nunca RUT, correo ni id.
+      return {
+        name: s.name,
+        alliance: s.alliance,
+        carrera: s.carrera
+      };
+    });
 
   res.json(matches);
 });

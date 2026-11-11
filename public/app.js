@@ -1208,14 +1208,6 @@ let currentAllianceFilter = 'all';
 async function loadAllStudentsByAlliance() {
   if (allStudentsByAlliance) return allStudentsByAlliance;
 
-  if (typeof window !== 'undefined' && Array.isArray(window.STUDENTS_DATA) && window.STUDENTS_DATA.length > 0) {
-    allStudentsByAlliance = { Terror: [], Shooter: [], Action: [] };
-    window.STUDENTS_DATA.forEach(st => {
-      if (allStudentsByAlliance[st.alliance]) allStudentsByAlliance[st.alliance].push(st);
-    });
-    return allStudentsByAlliance;
-  }
-
   try {
     const res = await fetch('/api/students/by-alliance');
     if (res.ok) {
@@ -1390,7 +1382,7 @@ function renderMiAlianza() {
               type="text" 
               id="student-search-input" 
               oninput="handleStudentSearch(this.value)"
-              placeholder="Escribe tu nombre, apellido o RUT (ej. Sebastián, Aguilera, 21.661...)" 
+              placeholder="Escribe tu nombre o apellido (ej. Sebastián, Aguilera...)" 
               class="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-[#050C24] border-2 border-[#142252] focus:border-[#E6194B] text-sm text-white placeholder-slate-500 focus:outline-none transition shadow-inner font-sans font-medium"
             />
             <button 
@@ -1749,25 +1741,14 @@ function handleStudentSearch(val) {
           list = await res.json();
         }
       } catch (e) {
-        console.warn('API search fallback a datos locales:', e);
-      }
-
-      if ((!list || list.length === 0) && typeof window !== 'undefined' && Array.isArray(window.STUDENTS_DATA)) {
-        const qNorm = (query || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const qClean = (query || '').toLowerCase().replace(/[^0-9k]/g, '');
-        list = window.STUDENTS_DATA.filter(s => {
-          const nNorm = (s.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          const rClean = (s.rut || '').toLowerCase().replace(/[^0-9k]/g, '');
-          const cNorm = (s.carrera || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          return nNorm.includes(qNorm) || (qClean.length >= 3 && rClean.includes(qClean)) || cNorm.includes(qNorm);
-        }).slice(0, 10);
+        console.warn('Error en búsqueda de estudiantes:', e);
       }
 
       if (list.length === 0) {
         box.innerHTML = `
           <div class="bg-[#050C24] border-2 border-[#142252] rounded-2xl p-6 text-center text-slate-300 text-xs font-display">
             <i data-lucide="alert-circle" class="w-8 h-8 text-[#E6194B] mx-auto mb-2"></i>
-            No se encontró ningún estudiante con "<strong>${query}</strong>". Verifica que el RUT o apellido esté bien escrito o consulta en la mesa de control en cancha.
+            No se encontró ningún estudiante con "<strong>${query}</strong>". Verifica que el nombre o apellido esté bien escrito o consulta en la mesa de control en cancha.
           </div>
         `;
         lucide.createIcons();
@@ -2170,10 +2151,7 @@ function renderReglas() {
           <div class="p-3 bg-slate-900/30 rounded-lg border border-slate-900 space-y-1">
             <strong class="text-white block font-medium">“¿Se puede cambiar de alianza?”</strong>
             <p class="text-slate-400">
-              <strong>Sí</strong>, se puede solicitar cambio de alianza enviando un correo a la administración del evento: 
-              <span class="text-white font-medium">Sebastián Vásquez</span> 
-              (<a href="mailto:sebastian.vasquez88@inacapmail.cl" class="text-blue-400 hover:underline font-mono">sebastian.vasquez88@inacapmail.cl</a>) 
-              hasta el <strong>17 de noviembre como plazo máximo</strong>. Luego de esa fecha, las nóminas quedan cerradas y ya no se podrá cambiar bajo ningún motivo.
+              <strong>Sí</strong>, se puede solicitar cambio de alianza directamente en la mesa de control con la coordinación del evento hasta el <strong>17 de noviembre como plazo máximo</strong>. Luego de esa fecha, las nóminas quedan cerradas y ya no se podrá cambiar bajo ningún motivo.
             </p>
           </div>
 
