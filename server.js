@@ -581,6 +581,34 @@ app.post('/api/admin/activity/matches', requireStaffOrPoints, (req, res) => {
   const act = data.activities.find(a => a.id === activityId);
   if (!act) return res.status(404).json({ error: 'Actividad no encontrada' });
 
+  // Validar paridad y mínimos reglamentarios por partido si se informan jugadores
+  for (let i = 0; i < (matches || []).length; i++) {
+    const m = matches[i];
+    const c1 = m.team1Count ?? (Array.isArray(m.lineup1) ? m.lineup1.length : null);
+    const c2 = m.team2Count ?? (Array.isArray(m.lineup2) ? m.lineup2.length : null);
+
+    if (c1 !== null && c2 !== null) {
+      const v = rules.validateMatchLineup(activityId, c1, c2, {
+        allowException: m.allowException,
+        exceptionReason: m.exceptionReason,
+        authorizedBy: loggedBy
+      });
+
+      if (!v.valid) {
+        return res.status(400).json({ error: `Partido ${i + 1} (${m.team1} vs ${m.team2}): ${v.error}` });
+      }
+
+      if (v.hasException) {
+        data.auditLogs.unshift({
+          timestamp: new Date().toISOString(),
+          action: `Excepción de alineación autorizada en ${act.name}: ${m.team1} (${c1}) vs ${m.team2} (${c2})`,
+          user: getAuditAuthor(req, loggedBy),
+          details: { activityId, partido: i + 1, motivo: v.exceptionReason }
+        });
+      }
+    }
+  }
+
   act.matches = matches;
   act.status = 'Terminada';
   if (!act.horaTermino) act.horaTermino = new Date().toISOString();
@@ -603,15 +631,69 @@ app.post('/api/admin/activity/matches', requireStaffOrPoints, (req, res) => {
   res.json({ success: true, activity: act });
 });
 
+// Validar paridad y cantidad de jugadores por partido (Baby fútbol, Quemadas, Retro, Taca-taca, Ping pong)
+app.post('/api/admin/matches/validate-lineup', requireStaffOrPoints, (req, res) => {
+  const { activityId, team1Count, team2Count, allowException, exceptionReason, loggedBy } = req.body;
+  const validation = rules.validateMatchLineup(activityId, team1Count, team2Count, {
+    allowException: Boolean(allowException),
+    exceptionReason,
+    authorizedBy: loggedBy
+  });
+
+  if (!validation.valid) {
+    return res.status(400).json(validation);
+  }
+
+  if (validation.hasException) {
+    const data = loadData();
+    data.auditLogs.unshift({
+      timestamp: new Date().toISOString(),
+      action: `Excepción de alineación autorizada en ${activityId}`,
+      user: getAuditAuthor(req, loggedBy),
+      details: { activityId, team1Count, team2Count, motivo: validation.exceptionReason }
+    });
+    saveData(data);
+  }
+
+  res.json(validation);
+});
+
+// Ingreso de suplente durante el partido (sustitución oficial)
+app.post('/api/admin/matches/substitute', requireStaffOrPoints, (req, res) => {
+  const { activityId, alliance, playerOutId, playerInId, reason, matchIndex, loggedBy } = req.body;
+  const data = loadData();
+  const students = loadStudents();
+
+  const playerOut = students.find(s => s.id === playerOutId);
+  const playerIn = students.find(s => s.id === playerInId);
+
+  if (!playerOut || !playerIn) {
+    return res.status(404).json({ error: 'Uno o ambos jugadores no existen en el padrón.' });
+  }
+
+  if (playerIn.alliance !== alliance) {
+    return res.status(400).json({ error: `El suplente ${playerIn.name} debe pertenecer a la Alianza ${alliance}.` });
+  }
+
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),
-    action: `Registro partidos: ${act.name}`,
+    action: `Sustitución en cancha: ${alliance} en ${activityId}`,
     user: getAuditAuthor(req, loggedBy),
-    details: { matches, table, pointsAwarded: awarded }
+    details: {
+      activityId,
+      alliance,
+      sale: { id: playerOut.id, name: playerOut.name },
+      entra: { id: playerIn.id, name: playerIn.name },
+      motivo: reason || 'Cambio de suplente',
+      partido: matchIndex
+    }
   });
 
   saveData(data);
-  res.json({ success: true, activity: act });
+  res.json({
+    success: true,
+    message: `Sustitución registrada: sale ${playerOut.name}, entra suplente ${playerIn.name}.`
+  });
 });
 
 // 3. Update Gymkanas con trazabilidad por persona y por puesto (4 puestos de destreza)

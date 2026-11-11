@@ -731,6 +731,64 @@ function migrateGymkanaScoreToPosts(score) {
   return posts;
 }
 
+// Validación de cantidad y paridad de jugadores por partido (Sección 5 y 8 de las Bases)
+function validateMatchLineup(activityId, team1Count, team2Count, options = {}) {
+  const sportRules = ACTIVITY_POINTS[activityId];
+  if (!sportRules || !sportRules.minPlayers) {
+    return { valid: true };
+  }
+
+  const min = sportRules.minPlayers;
+  const max = sportRules.maxPlayers || min;
+  const c1 = typeof team1Count === 'number' ? team1Count : (Array.isArray(team1Count) ? team1Count.length : 0);
+  const c2 = typeof team2Count === 'number' ? team2Count : (Array.isArray(team2Count) ? team2Count.length : 0);
+
+  const hasParity = c1 === c2;
+  const meetsMin1 = c1 >= min;
+  const meetsMin2 = c2 >= min;
+  const withinMax1 = c1 <= max;
+  const withinMax2 = c2 <= max;
+
+  if (hasParity && meetsMin1 && meetsMin2 && withinMax1 && withinMax2) {
+    return { valid: true, count1: c1, count2: c2, min, max };
+  }
+
+  // Autorización excepcional de administración
+  if (options.allowException && options.exceptionReason && options.exceptionReason.trim()) {
+    return {
+      valid: true,
+      hasException: true,
+      exceptionReason: options.exceptionReason.trim(),
+      authorizedBy: options.authorizedBy || 'Administrador',
+      count1: c1,
+      count2: c2,
+      min,
+      max
+    };
+  }
+
+  let errorMsg = `Disparidad o incumplimiento de alineación en ${sportRules.name}: `;
+  if (!hasParity) {
+    errorMsg += `Ambas alianzas deben presentar la misma cantidad de jugadores (${c1} vs ${c2}). `;
+  }
+  if (!meetsMin1 || !meetsMin2) {
+    errorMsg += `El mínimo reglamentario es de ${min} jugadores por equipo. `;
+  }
+  if (!withinMax1 || !withinMax2) {
+    errorMsg += `El máximo permitido con suplentes es de ${max} jugadores. `;
+  }
+  errorMsg += 'El administrador puede autorizar una excepción dejando un motivo justificado.';
+
+  return {
+    valid: false,
+    error: errorMsg.trim(),
+    count1: c1,
+    count2: c2,
+    min,
+    max
+  };
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -752,5 +810,6 @@ module.exports = {
   evaluateClaimWindow,
   calculateGymkanaParticipantTotal,
   calculateGymkanaAlliancePoints,
-  migrateGymkanaScoreToPosts
+  migrateGymkanaScoreToPosts,
+  validateMatchLineup
 };
