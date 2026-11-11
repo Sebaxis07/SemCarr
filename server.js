@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5173;
 
 const security = require('./server_security');
+const rules = require('./config/rules');
 
 app.use(cors());
 app.use(express.json());
@@ -199,16 +200,18 @@ function recalculateGlobalPoints(data) {
   ['Terror', 'Shooter', 'Action'].forEach(al => {
     totals[al].total = totals[al].day19 + totals[al].creative + totals[al].tarreoCopa + totals[al].sorpresas - totals[al].sanciones;
     if (totals[al].total < 0) totals[al].total = 0;
+    totals[al].displayTotal = rules.roundForDisplay(totals[al].total);
+    totals[al].displayDay19 = rules.roundForDisplay(totals[al].day19);
+    totals[al].displayCreative = rules.roundForDisplay(totals[al].creative);
+    totals[al].displayTarreoCopa = rules.roundForDisplay(totals[al].tarreoCopa);
+    totals[al].displaySorpresas = rules.roundForDisplay(totals[al].sorpresas);
+    totals[al].displaySanciones = rules.roundForDisplay(totals[al].sanciones);
   });
 
-  // Ranks
-  const sorted = ['Terror', 'Shooter', 'Action'].sort((a, b) => totals[b].total - totals[a].total);
-  const ranks = {};
-  sorted.forEach((al, idx) => {
-    ranks[al] = idx + 1;
-  });
+  // Ranks con desempate general de 3 niveles según Sección 8 de las Bases
+  const { sorted, ranks, tieBreaks, tieBreakDecisions } = rules.resolveGeneralRanking(totals, data);
 
-  return { totals, ranks };
+  return { totals, ranks, sorted, tieBreaks, tieBreakDecisions };
 }
 
 // API: Global Stats
@@ -216,7 +219,7 @@ app.get('/api/stats', (req, res) => {
   try {
     const data = loadData();
     const students = loadStudents();
-    const { totals, ranks } = recalculateGlobalPoints(data);
+    const { totals, ranks, sorted, tieBreaks, tieBreakDecisions } = recalculateGlobalPoints(data);
 
     // Alliance summary
     const alliancesSummary = {};
@@ -226,7 +229,8 @@ app.get('/api/stats', (req, res) => {
         ...(data.alliances?.[al] || {}),
         totalStudents: studentCount,
         points: totals[al],
-        rank: ranks[al]
+        rank: ranks[al],
+        tieBreak: tieBreaks?.[al] || null
       };
     });
 
@@ -238,6 +242,9 @@ app.get('/api/stats', (req, res) => {
 
     res.json({
       alliances: alliancesSummary,
+      sortedAlliances: sorted,
+      tieBreaks: tieBreaks,
+      tieBreakDecisions: tieBreakDecisions,
       activeActivity: activeAct,
       lastFinishedActivity: lastFinished,
       nextActivity: nextPending,
@@ -2057,7 +2064,7 @@ app.get('/api/admin/attendance/export', requireAdminOrCoordOrMesa, (req, res) =>
 app.get('/api/dashboard/stats', requireAdminOrCoord, (req, res) => {
   const data = loadData();
   const students = loadStudents();
-  const { totals, ranks } = recalculateGlobalPoints(data);
+  const { totals, ranks, sorted, tieBreaks, tieBreakDecisions } = recalculateGlobalPoints(data);
 
   // 1. Participantes únicos y análisis del padrón (281)
   const uniqueStudentsMap = new Map();
@@ -2172,7 +2179,7 @@ app.get('/api/dashboard/stats', requireAdminOrCoord, (req, res) => {
   const activeAlliancesCount = Object.values(allianceParticipation).filter(a => a.participated > 0).length;
 
   // 2. Podio y Brechas
-  const sortedAlliances = ['Terror', 'Shooter', 'Action'].sort((a, b) => totals[b].total - totals[a].total);
+  const sortedAlliances = sorted;
   const leaderMargin = totals[sortedAlliances[0]].total - totals[sortedAlliances[1]].total;
   const secondThirdMargin = totals[sortedAlliances[1]].total - totals[sortedAlliances[2]].total;
 

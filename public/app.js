@@ -718,11 +718,16 @@ function renderBigScreen() {
     }
   ];
 
-  // Ordenar para ranking (1°, 2°, 3°)
-  const sorted = [...alliancesList].sort((a, b) => b.pts - a.pts);
+  // Ordenar para ranking (1°, 2°, 3°) según servidor oficial
+  const sorted = [...alliancesList].sort((a, b) => {
+    const rA = appData.alliances?.[a.name]?.rank || 99;
+    const rB = appData.alliances?.[b.name]?.rank || 99;
+    if (rA !== rB) return rA - rB;
+    return b.pts - a.pts;
+  });
   const placesMap = {};
   sorted.forEach((item, idx) => {
-    placesMap[item.name] = idx + 1;
+    placesMap[item.name] = appData.alliances?.[item.name]?.rank || (idx + 1);
   });
 
   const leader = sorted[0];
@@ -833,6 +838,12 @@ function renderBigScreen() {
                         </span>
                       </div>
                       <span class="text-xs text-slate-400 font-mono">${item.carrera}</span>
+                      ${appData.alliances?.[item.name]?.tieBreak?.applied ? `
+                        <div class="text-[11px] font-mono text-amber-300 flex items-center gap-1.5 mt-0.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                          <span>Desempate aplicado: ${appData.alliances[item.name].tieBreak.reason}</span>
+                        </div>
+                      ` : ''}
                     </div>
                   </div>
 
@@ -1591,6 +1602,9 @@ function renderAlliancesRosterContent() {
             <div class="bg-[#050C24] px-5 py-3 rounded-2xl border border-[#142252] text-center sm:text-right shadow-inner">
               <span class="text-[10px] text-slate-400 uppercase font-display block">Posición Oficial</span>
               <span class="text-xl font-black font-display text-white" style="color: ${info.themeColor};">#${appData.alliances?.[alKey]?.rank || '-'} Lugar</span>
+              ${appData.alliances?.[alKey]?.tieBreak?.applied ? `
+                <span class="text-[9px] text-amber-300 font-mono block mt-1 leading-tight">Desempate: ${appData.alliances[alKey].tieBreak.reason}</span>
+              ` : ''}
             </div>
           </div>
         </div>
@@ -1657,9 +1671,16 @@ function renderAlliancesRosterContent() {
                 ${info.carrera}
               </p>
               
-              <div class="mt-2.5 text-[10px] text-slate-300 font-mono bg-[#050C24] p-2 rounded-xl border border-[#142252] flex items-center justify-between shadow-inner">
-                <span class="truncate pr-1">Desafío: ${info.desafio}</span>
-                <span class="text-white font-bold shrink-0" style="color: ${info.themeColor};">#${appData.alliances?.[alKey]?.rank || '-'} Lugar</span>
+              <div class="mt-2.5 text-[10px] text-slate-300 font-mono bg-[#050C24] p-2 rounded-xl border border-[#142252] shadow-inner">
+                <div class="flex items-center justify-between">
+                  <span class="truncate pr-1">Desafío: ${info.desafio}</span>
+                  <span class="text-white font-bold shrink-0" style="color: ${info.themeColor};">#${appData.alliances?.[alKey]?.rank || '-'} Lugar</span>
+                </div>
+                ${appData.alliances?.[alKey]?.tieBreak?.applied ? `
+                  <div class="text-[9px] text-amber-300 font-mono mt-1 pt-1 border-t border-[#142252] leading-tight">
+                    Desempate: ${appData.alliances[alKey].tieBreak.reason}
+                  </div>
+                ` : ''}
               </div>
             </div>
 
@@ -1825,6 +1846,9 @@ function handleStudentSearch(val) {
                   <div class="text-left sm:text-right shrink-0 bg-[#050C24] px-3.5 py-1.5 rounded-xl border border-[#142252]">
                     <span class="text-[10px] font-display font-bold uppercase text-slate-400 block">Posición en Cancha</span>
                     <span class="text-lg font-black font-display text-white" style="color: ${themeColor};">#${rank} Lugar</span>
+                    ${alData.tieBreak?.applied ? `
+                      <span class="text-[9px] text-amber-300 font-mono block mt-0.5 max-w-[160px] leading-tight">Desempate: ${alData.tieBreak.reason}</span>
+                    ` : ''}
                   </div>
                 </div>
 
