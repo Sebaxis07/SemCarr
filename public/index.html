@@ -4,157 +4,269 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Semana de las Carreras 2026 & Tarreo Gamer | TI & Diseño Digital</title>
+  
+  <!-- Google Fonts: Montserrat (800-900 Black Italic), Kanit (Display), Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            inacap: {
-              red: '#C8102E',
-              darkred: '#9B0014',
-              gray: '#F4F5F7',
-              dark: '#0F172A'
+            'bg-primary': '#050C24',
+            'bg-glow': '#0E1E48',
+            'accent-crimson': '#E6194B',
+            'accent-electric': '#2D46B9',
+            'accent-rim': '#7F9CF5',
+            'text-light': '#FFFFFF',
+            
+            // Re-mapping dark slate to match our deep navy and glowing synth-tech palette
+            slate: {
+              950: '#050C24',
+              900: '#0A1333',
+              850: '#0E1E48',
+              800: '#142252',
+              700: '#2D46B9',
+              600: '#4763D4',
+              500: '#7F9CF5',
+              400: '#9FB5F8',
+              300: '#C7D5FA',
+              200: '#E4EBFF',
+              100: '#F5F7FF',
+              50: '#FFFFFF'
             },
             terror: {
-              DEFAULT: '#DC2626',
-              dark: '#991B1B',
-              light: '#FEE2E2',
-              glow: 'rgba(220, 38, 38, 0.4)'
+              DEFAULT: '#E6194B',
+              dark: '#9B0024',
+              light: '#FFE4E9',
+              glow: 'rgba(230, 25, 75, 0.45)'
             },
             shooter: {
-              DEFAULT: '#2563EB',
-              dark: '#1E40AF',
+              DEFAULT: '#2D46B9',
+              dark: '#172777',
               light: '#DBEAFE',
-              glow: 'rgba(37, 99, 235, 0.4)'
+              glow: 'rgba(45, 70, 185, 0.45)'
             },
             action: {
-              DEFAULT: '#16A34A',
-              dark: '#166534',
-              light: '#DCFCE7',
-              glow: 'rgba(22, 163, 74, 0.4)'
+              DEFAULT: '#059669',
+              dark: '#064E3B',
+              light: '#D1FAE5',
+              glow: 'rgba(5, 150, 105, 0.45)'
             }
+          },
+          fontFamily: {
+            display: ['Montserrat', 'Kanit', 'sans-serif'],
+            heading: ['Montserrat', 'Kanit', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
           }
         }
       }
     }
   </script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+    :root {
+      /* Tokens Oficiales de la Guía */
+      --bg-primary: #050C24;
+      --bg-glow: #0E1E48;
+      --accent-crimson: #E6194B;
+      --accent-electric: #2D46B9;
+      --accent-rim: #7F9CF5;
+      --text-light: #FFFFFF;
+
+      --font-display: 'Montserrat', 'Kanit', sans-serif;
+      --font-body: 'Inter', 'Montserrat', sans-serif;
+
+      --banner-skew: skewX(-15deg);
+      --title-shadow: -4px 6px 0px #020614;
+      --qr-border-radius: 20px;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-body);
+      background-color: var(--bg-primary);
+      color: var(--text-light);
     }
-    h1, h2, h3, h4, .font-heading {
-      font-family: 'Outfit', sans-serif;
+
+    h1, h2, h3, h4, .font-heading, .font-display {
+      font-family: var(--font-display);
     }
-    .text-glow-red {
-      text-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+
+    /* Título Principal con Tratamiento Poster Esports */
+    .esport-title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      text-shadow: -4px 6px 0px #020614, 0 0 25px rgba(45, 70, 185, 0.5);
+      transform: perspective(600px) rotateX(4deg);
     }
-    .text-glow-blue {
-      text-shadow: 0 0 15px rgba(37, 99, 235, 0.6);
+
+    /* Cinta Paralelogramo (Ribbon Banner) */
+    .ribbon-banner {
+      transform: var(--banner-skew);
     }
-    .text-glow-green {
-      text-shadow: 0 0 15px rgba(22, 163, 74, 0.6);
+    .ribbon-banner > * {
+      transform: skewX(15deg);
     }
-    /* Smooth transitions */
-    .tab-transition {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Glows y Luces de Contorno (Rim Lighting) */
+    .glow-rim {
+      box-shadow: 0 0 20px rgba(127, 156, 245, 0.35);
     }
-    /* Custom scrollbar */
+    .glow-crimson {
+      box-shadow: 0 0 25px rgba(230, 25, 75, 0.5);
+    }
+    .glow-electric {
+      box-shadow: 0 0 25px rgba(45, 70, 185, 0.5);
+    }
+
+    .border-dual {
+      border: 1px solid rgba(45, 70, 185, 0.6);
+      box-shadow: inset 0 0 15px rgba(230, 25, 75, 0.08);
+    }
+
+    /* Scrollbar con colores de la paleta */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
     }
     ::-webkit-scrollbar-track {
-      background: #0f172a;
+      background: #050C24;
     }
     ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 3px;
+      background: #142252;
+      border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #C8102E;
+      background: #E6194B;
+    }
+
+    /* Dot Matrix SVG Background Pattern */
+    .dot-matrix {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+      background-size: 14px 14px;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-red-600 selection:text-white">
+<body class="bg-[#050C24] text-white min-h-screen flex flex-col antialiased selection:bg-[#E6194B] selection:text-white relative overflow-x-hidden">
 
-  <!-- MINIMALIST HEADER -->
-  <header class="bg-slate-950/80 backdrop-blur-md border-b border-slate-900 sticky top-0 z-40">
+  <!-- ======================================================== -->
+  <!-- ENMARCADO DINÁMICO: SWOOSHES CURVOS Y PATRONES DOT MATRIX -->
+  <!-- ======================================================== -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    <!-- Resplandor Radial de Fondo (Azul Noche / Índigo #0E1E48) -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[#0E1E48]/60 blur-[130px] rounded-full"></div>
+    <div class="absolute bottom-10 left-10 w-[450px] h-[450px] bg-[#2D46B9]/15 blur-[120px] rounded-full"></div>
+    <div class="absolute top-20 right-10 w-[450px] h-[450px] bg-[#E6194B]/12 blur-[130px] rounded-full"></div>
+
+    <!-- Cintas Curvas (Swooshes): Esquina Superior Izquierda -->
+    <svg class="absolute -top-10 -left-10 w-72 sm:w-96 h-72 sm:h-96 opacity-85" viewBox="0 0 300 300" fill="none">
+      <path d="M-50 180 C 40 180, 120 120, 150 -50" stroke="#2D46B9" stroke-width="26" stroke-linecap="round"/>
+      <path d="M-50 130 C 50 130, 140 80, 190 -50" stroke="#E6194B" stroke-width="14" stroke-linecap="round"/>
+      <path d="M-50 85 C 60 85, 160 50, 225 -50" stroke="#7F9CF5" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Cintas Curvas (Swooshes): Esquina Inferior Derecha -->
+    <svg class="absolute -bottom-10 -right-10 w-72 sm:w-96 h-72 sm:h-96 opacity-85" viewBox="0 0 300 300" fill="none">
+      <path d="M350 120 C 260 120, 180 180, 150 350" stroke="#E6194B" stroke-width="24" stroke-linecap="round"/>
+      <path d="M350 170 C 250 170, 160 220, 110 350" stroke="#2D46B9" stroke-width="14" stroke-linecap="round"/>
+      <path d="M350 215 C 240 215, 140 250, 75 350" stroke="#7F9CF5" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Patrón de Puntos (Dot Matrix) Triangular: Esquina Superior Derecha -->
+    <div class="absolute top-2 right-4 w-44 h-44 dot-matrix opacity-35 [mask-image:linear-gradient(to_bottom_left,black,transparent)]"></div>
+
+    <!-- Patrón de Puntos (Dot Matrix) Triangular: Esquina Inferior Izquierda -->
+    <div class="absolute bottom-6 left-4 w-48 h-48 dot-matrix opacity-35 [mask-image:linear-gradient(to_top_right,black,transparent)]"></div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- TOP BAR INSTITUCIONAL & SUB-NAV ESPORTS                 -->
+  <!-- ======================================================== -->
+  <header class="bg-[#050C24]/90 backdrop-blur-md border-b border-[#142252] sticky top-0 z-40">
+    <!-- Top Bar Superior -->
     <div class="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
       
-      <!-- Logo & Brand Minimal -->
+      <!-- Brand & Título de Área -->
       <div class="flex items-center gap-3 cursor-pointer shrink-0" onclick="navigate('inicio')">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-[#E30613]"></span>
-          <span class="font-heading font-black text-white text-base tracking-tight">TI & DISEÑO</span>
+        <div class="flex items-center gap-2.5">
+          <span class="w-3 h-3 rounded-sm bg-[#E6194B] shadow-sm shadow-[#E6194B]/70 rotate-45"></span>
+          <span class="font-display font-black text-white text-base tracking-wider italic">TI & DISEÑO DIGITAL</span>
         </div>
-        <div class="h-4 w-px bg-slate-800"></div>
+        <div class="h-4 w-0.5 bg-[#2D46B9]/80"></div>
         <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold text-slate-300">Semana de las Carreras 2026</span>
-          <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">• Informática • Analista • Telecom • Diseño Web</span>
+          <span class="text-xs font-bold text-slate-200 uppercase tracking-wide">Semana de las Carreras 2026</span>
+          <span class="text-[10px] text-[#7F9CF5] font-mono hidden sm:inline">• 19 al 26 de Noviembre</span>
         </div>
       </div>
 
-      <!-- Live Ticker Minimal / Compact -->
-      <div id="announcement-banner" class="hidden md:flex items-center gap-2 text-xs text-slate-400 bg-slate-900/40 border border-slate-800/60 px-3 py-1 rounded-full max-w-md truncate">
-        <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0"></span>
-        <span id="announcement-text" class="truncate font-normal text-slate-300 text-[11px]">Cargando avisos oficiales...</span>
+      <!-- Live Ticker Compacto con Acento Carmesí -->
+      <div id="announcement-banner" class="hidden md:flex items-center gap-2 text-xs text-slate-300 bg-[#0A1333]/90 border border-[#2D46B9]/50 px-3.5 py-1 rounded-full max-w-md truncate shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-[#E6194B] animate-pulse shrink-0 shadow-sm shadow-[#E6194B]"></span>
+        <span id="announcement-text" class="truncate font-medium text-slate-200 text-[11px]">Cargando avisos oficiales...</span>
       </div>
 
-      <!-- Quick Actions Minimal -->
+      <!-- Badge Rápido de Estado -->
       <div class="flex items-center gap-2 shrink-0">
-        
-
-        
+        <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-[#0E1E48] border border-[#2D46B9] text-[#7F9CF5]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#7F9CF5] animate-ping"></span>
+          <span>En Directo</span>
+        </span>
       </div>
 
     </div>
 
-    <!-- Minimal Sub-Navbar (Pills sobrios) -->
-    <div class="border-t border-slate-900/80 bg-slate-950/95 overflow-x-auto scrollbar-none">
-      <div class="container mx-auto px-4 flex items-center space-x-1 py-1.5 text-xs whitespace-nowrap min-w-max">
-        <button onclick="navigate('inicio')" id="nav-inicio" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+    <!-- Sub-Navbar Esports (Píldoras dinámicas) -->
+    <div class="border-t border-[#142252]/80 bg-[#050C24]/95 overflow-x-auto scrollbar-none">
+      <div class="container mx-auto px-4 flex items-center space-x-1.5 py-2 text-xs whitespace-nowrap min-w-max">
+        <button onclick="navigate('inicio')" id="nav-inicio" class="nav-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition flex items-center gap-1.5 font-display font-bold uppercase text-[11px] tracking-wider">
           <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
-          <span>Posiciones</span>
+          <span>Inicio & Posiciones</span>
         </button>
-        <button onclick="navigate('actividades')" id="nav-actividades" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+        <button onclick="navigate('actividades')" id="nav-actividades" class="nav-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition flex items-center gap-1.5 font-display font-bold uppercase text-[11px] tracking-wider">
           <i data-lucide="calendar-check" class="w-3.5 h-3.5"></i>
           <span>Actividades 19</span>
         </button>
-        <button onclick="navigate('desafios')" id="nav-desafios" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+        <button onclick="navigate('desafios')" id="nav-desafios" class="nav-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition flex items-center gap-1.5 font-display font-bold uppercase text-[11px] tracking-wider">
           <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
           <span>Desafíos Creativos</span>
         </button>
-        <button onclick="navigate('mialianza')" id="nav-mialianza" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+        <button onclick="navigate('mialianza')" id="nav-mialianza" class="nav-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition flex items-center gap-1.5 font-display font-bold uppercase text-[11px] tracking-wider">
           <i data-lucide="users" class="w-3.5 h-3.5"></i>
           <span>Mi Alianza</span>
         </button>
-        <button onclick="navigate('reglas')" id="nav-reglas" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+        <button onclick="navigate('reglas')" id="nav-reglas" class="nav-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition flex items-center gap-1.5 font-display font-bold uppercase text-[11px] tracking-wider">
           <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
           <span>Reglas & FAQ</span>
         </button>
-        <button onclick="navigate('premios')" id="nav-premios" class="nav-btn px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition flex items-center gap-1.5">
+        <button onclick="navigate('premios')" id="nav-premios" class="nav-btn px-3 py-1.5 rounded-md text-slate-300 hover:text-white transition flex items-center gap-1.5 font-display font-bold uppercase text-[11px] tracking-wider">
           <i data-lucide="award" class="w-3.5 h-3.5"></i>
           <span>Premios</span>
         </button>
-        
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
-  <main class="flex-1 container mx-auto px-4 py-6" id="app-container">
-    <!-- Views rendered dynamically -->
+  <!-- ======================================================== -->
+  <!-- MAIN CONTENT CONTAINER                                   -->
+  <!-- ======================================================== -->
+  <main class="flex-1 container mx-auto px-4 py-6 relative z-10" id="app-container">
+    <!-- Views rendered dynamically from app.js -->
   </main>
 
   <!-- MODAL PARA DETALLE DE CÁLCULO DE ACTIVIDADES -->
-  <div id="calc-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeCalcModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+  <div id="calc-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-[#0A1333] border-2 border-[#2D46B9] rounded-2xl max-w-xl w-full p-5 sm:p-7 shadow-2xl relative max-h-[90vh] overflow-y-auto glow-electric">
+      <button onclick="closeCalcModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition p-1 hover:bg-[#142252] rounded-lg">
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
       <div id="calc-modal-content">
@@ -163,23 +275,162 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-xs text-slate-500">
-    <div class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-400">Semana de las Carreras 2026</span>
-        <span>•</span>
-        <span>Área Tecnologías de la Información, Telecomunicaciones y Diseño Digital</span>
+  <!-- ======================================================== -->
+  <!-- FOOTER ASIMÉTRICO (2 COLUMNAS SEGÚN GUÍA DE ESTILOS)     -->
+  <!-- ======================================================== -->
+  <footer class="bg-[#050C24] border-t-2 border-[#142252] pt-10 pb-8 text-white relative z-10 overflow-hidden">
+    <!-- Franja de acento superior dual -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2D46B9] via-[#E6194B] to-[#2D46B9]"></div>
+
+    <div class="container mx-auto px-4">
+      
+      <!-- GRID DE 2 COLUMNAS ASIMÉTRICAS -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center pb-8 border-b border-[#142252]">
+        
+        <!-- COLUMNA IZQUIERDA: DATOS LOGÍSTICOS (7 Columnas) -->
+        <div class="md:col-span-7 space-y-4 md:pr-6">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[#E6194B] font-display font-black tracking-widest text-xs uppercase">/// INFORMACIÓN OFICIAL DEL EVENTO</span>
+          </div>
+
+          <!-- Item 1: Fecha -->
+          <div class="flex items-center gap-4 bg-[#0A1333]/60 border border-[#142252] rounded-xl p-3.5 hover:border-[#2D46B9] transition">
+            <!-- Icono sólido rojo carmesí #E6194B -->
+            <div class="w-11 h-11 rounded-lg bg-[#E6194B] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#E6194B]/40">
+              <i data-lucide="calendar" class="w-6 h-6 fill-white stroke-none"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display block">
+                DEL <span class="text-slate-300 font-medium">PROGRAMA GENERAL</span> DE NOVIEMBRE
+              </span>
+              <span class="text-2xl sm:text-3xl font-black font-display text-white tracking-tight leading-none mt-0.5 block">
+                19 AL 26 <span class="text-base sm:text-lg font-bold text-[#E6194B]">DE NOVIEMBRE</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Item 2: Hora -->
+          <div class="flex items-center gap-4 bg-[#0A1333]/60 border border-[#142252] rounded-xl p-3.5 hover:border-[#2D46B9] transition">
+            <!-- Icono sólido rojo carmesí #E6194B -->
+            <div class="w-11 h-11 rounded-lg bg-[#E6194B] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#E6194B]/40">
+              <i data-lucide="clock" class="w-6 h-6 fill-white stroke-none"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display block">
+                DESDE LAS <span class="text-slate-300 font-medium">JORNADAS MATUTINA Y VESPERTINA</span>
+              </span>
+              <span class="text-2xl sm:text-3xl font-black font-display text-white tracking-tight leading-none mt-0.5 block">
+                09:30 HRS <span class="text-base sm:text-lg font-bold text-[#7F9CF5]">CONTINUO</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Item 3: Sede / Ubicación -->
+          <div class="flex items-center gap-4 bg-[#0A1333]/60 border border-[#142252] rounded-xl p-3.5 hover:border-[#2D46B9] transition">
+            <!-- Icono sólido rojo carmesí #E6194B -->
+            <div class="w-11 h-11 rounded-lg bg-[#E6194B] flex items-center justify-center text-white shrink-0 shadow-md shadow-[#E6194B]/40">
+              <i data-lucide="map-pin" class="w-6 h-6 fill-white stroke-none"></i>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-display block">
+                SEDE OFICIAL <span class="text-slate-300 font-medium">• PATIO CENTRAL, LABS & AUDITORIO</span>
+              </span>
+              <span class="text-xl sm:text-2xl font-black font-display text-white tracking-tight leading-none mt-0.5 block">
+                ANTOFAGASTA <span class="text-xs sm:text-sm font-semibold text-slate-400 font-body block sm:inline">• ÁREA TI & DISEÑO DIGITAL</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIVISOR VERTICAL BLANCO PURO (Desktop) -->
+        <!-- COLUMNA DERECHA: MÓDULO QR (5 Columnas) -->
+        <div class="md:col-span-5 flex flex-col items-center md:items-end justify-center md:border-l-2 md:border-white/30 md:pl-8 relative">
+          
+          <div class="relative flex flex-col items-center">
+            
+            <!-- Spark Lines radiantes rojas (=) a la izquierda -->
+            <div class="hidden sm:flex flex-col gap-1 absolute -left-8 top-10 text-[#E6194B] font-black text-xl select-none" aria-hidden="true">
+              <span>=</span>
+              <span>=</span>
+            </div>
+
+            <!-- Badge Inclinado Rojo Carmesí con corte -->
+            <div class="mb-2.5 px-3 py-1 bg-[#E6194B] text-white font-display font-black text-xs uppercase tracking-wider rounded-md shadow-lg shadow-[#E6194B]/50 transform -rotate-2 hover:rotate-0 transition" style="transform: rotate(2deg) skewX(-10deg);">
+              ESCANEA PARA DESCUBRIR MÁS
+            </div>
+
+            <!-- Contenedor QR Blanco Puro con marco exterior rojo carmesí y bordes redondeados (20px) -->
+            <div class="bg-white p-3.5 border-4 border-[#E6194B] shadow-2xl relative" style="border-radius: var(--qr-border-radius); box-shadow: 0 0 30px rgba(230, 25, 75, 0.4);">
+              <!-- Código QR SVG con enlace a la app -->
+              <svg class="w-36 h-36 sm:w-40 sm:h-40" viewBox="0 0 100 100" fill="#050C24">
+                <!-- Marco QR esquina superior izquierda -->
+                <rect x="5" y="5" width="28" height="28" fill="#050C24" rx="4"/>
+                <rect x="9" y="9" width="20" height="20" fill="#FFFFFF" rx="2"/>
+                <rect x="13" y="13" width="12" height="12" fill="#E6194B" rx="1"/>
+
+                <!-- Marco QR esquina superior derecha -->
+                <rect x="67" y="5" width="28" height="28" fill="#050C24" rx="4"/>
+                <rect x="71" y="9" width="20" height="20" fill="#FFFFFF" rx="2"/>
+                <rect x="75" y="13" width="12" height="12" fill="#E6194B" rx="1"/>
+
+                <!-- Marco QR esquina inferior izquierda -->
+                <rect x="5" y="67" width="28" height="28" fill="#050C24" rx="4"/>
+                <rect x="9" y="71" width="20" height="20" fill="#FFFFFF" rx="2"/>
+                <rect x="13" y="75" width="12" height="12" fill="#E6194B" rx="1"/>
+
+                <!-- Puntos de datos centrales estilizados (Synth-Tech pattern) -->
+                <rect x="38" y="10" width="8" height="8" rx="1"/>
+                <rect x="50" y="10" width="8" height="8" rx="1"/>
+                <rect x="38" y="22" width="12" height="6" rx="1"/>
+                <rect x="10" y="38" width="6" height="12" rx="1"/>
+                <rect x="22" y="44" width="8" height="8" rx="1"/>
+                <rect x="38" y="38" width="24" height="24" fill="#2D46B9" rx="3"/>
+                <circle cx="50" cy="50" r="5" fill="#FFFFFF"/>
+                <rect x="68" y="38" width="10" height="8" rx="1"/>
+                <rect x="82" y="42" width="8" height="14" rx="1"/>
+                <rect x="42" y="68" width="8" height="18" rx="1"/>
+                <rect x="56" y="68" width="14" height="8" rx="1"/>
+                <rect x="74" y="74" width="16" height="16" rx="2"/>
+              </svg>
+            </div>
+
+            <!-- Flecha Curva Blanca Apuntando al Código -->
+            <div class="mt-2 flex items-center gap-2 text-slate-300 text-xs font-display font-bold italic">
+              <svg class="w-5 h-5 text-[#7F9CF5] animate-bounce" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19V5M5 12l7-7 7 7"/>
+              </svg>
+              <span>Acceso directo desde tu móvil</span>
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
-      <div class="flex items-center gap-4 text-slate-400">
-        <span>Informática • Telecomunicaciones • Analista • Diseño Web</span>
-        <span>•</span>
-        <span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 281 Estudiantes Registrados</span>
+
+      <!-- CRÉDITOS Y ESPECIALIDADES INFERIORES -->
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="font-display font-bold text-white tracking-wide">Semana de las Carreras 2026</span>
+          <span class="text-[#E6194B]">•</span>
+          <span>Área Tecnologías de la Información, Telecomunicaciones y Diseño Digital</span>
+        </div>
+        <div class="flex items-center gap-3 font-mono text-[11px] text-slate-300">
+          <span>Ing. en Informática</span>
+          <span>•</span>
+          <span>Telecomunicaciones</span>
+          <span>•</span>
+          <span>Analista</span>
+          <span>•</span>
+          <span>Diseño Web</span>
+        </div>
       </div>
+
     </div>
   </footer>
 
-  <!-- SCRIPT APPLICATION LOGIC -->
+  <!-- SCRIPT APPLICATION LOGIC & STUDENTS DATA -->
+  <script src="/students-data.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "includeFiles": "*.json"
+      "includeFiles": "{*.json,public/**,alianzas/**}"
     }
   },
   "rewrites": [

@@ -702,6 +702,55 @@
   ],
   "auditLogs": [
     {
+      "timestamp": "2026-11-11T11:57:57.303Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-11T11:51:38.147Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-11T11:47:52.299Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-11T11:47:36.516Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-11T11:46:47.524Z",
+      "action": "Intento de acceso fallido para usuario: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1",
+        "attemptsLeft": 4
+      }
+    },
+    {
+      "timestamp": "2026-11-11T00:42:26.334Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
       "timestamp": "2026-11-10T13:47:56.847Z",
       "action": "Inicio de sesión exitoso: \"admin\"",
       "user": "admin",
@@ -1443,5 +1492,43 @@
       "status": "reserva"
     }
   ],
-  "activeSorpresa": null
+  "activeSorpresa": null,
+  "allianceChangeConfig": {
+    "open": true,
+    "deadline": "2026-11-16T23:59:59-03:00",
+    "maxDiff": 4
+  },
+  "allianceRequests": [
+    {
+      "id": "req_1794398268340_21wr1",
+      "studentId": "ter-119",
+      "studentName": "Sebastián Ignacio Vásquez Núñez",
+      "carrera": "Ingeniería en Informática",
+      "currentAlliance": "Terror",
+      "targetAlliance": "Shooter",
+      "reason": "mi amigo esta alla",
+      "status": "approved",
+      "createdAt": "2026-11-11T11:57:48.340Z",
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+      "isSwap": false,
+      "swapPartnerId": null,
+      "approvedAt": "2026-11-11T11:58:08.448Z",
+      "approvedBy": "Superadministrador (Jefatura/Soporte) [admin]"
+    }
+  ],
+  "allianceAuditLog": [
+    {
+      "timestamp": "2026-11-11T11:58:08.448Z",
+      "action": "APROBAR_CAMBIO_ALIANZA",
+      "author": "Superadministrador (Jefatura/Soporte) [admin]",
+      "details": {
+        "requestId": "req_1794398268340_21wr1",
+        "studentName": "Sebastián Ignacio Vásquez Núñez",
+        "oldAlliance": "Terror",
+        "newAlliance": "Shooter",
+        "isSwap": false
+      }
+    }
+  ]
 }

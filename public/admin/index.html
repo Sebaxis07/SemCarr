@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mesa de Control & Administración - Semana de las Carreras 2026 | TI & Diseño</title>
+  <title>Mesa de Control & Administración - Semana de las Carreras 2026 | TI & Diseño Digital</title>
+  
+  <!-- Google Fonts: Montserrat, Kanit, Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Kanit:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=Montserrat:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -13,46 +19,84 @@
       theme: {
         extend: {
           colors: {
+            'bg-primary': '#050C24',
+            'bg-glow': '#0E1E48',
+            'accent-crimson': '#E6194B',
+            'accent-electric': '#2D46B9',
+            'accent-rim': '#7F9CF5',
+            'text-light': '#FFFFFF',
+            slate: {
+              950: '#050C24',
+              900: '#0A1333',
+              850: '#0E1E48',
+              800: '#142252',
+              700: '#2D46B9',
+              600: '#4763D4',
+              500: '#7F9CF5',
+              400: '#9FB5F8',
+              300: '#C7D5FA',
+              200: '#E4EBFF',
+              100: '#F5F7FF',
+              50: '#FFFFFF'
+            },
             inacap: {
-              red: '#C8102E',
-              darkred: '#9B0014',
+              red: '#E6194B',
+              darkred: '#9B0024',
               gray: '#F4F5F7',
-              dark: '#0F172A'
+              dark: '#050C24'
             },
             terror: {
-              DEFAULT: '#DC2626',
-              dark: '#991B1B',
-              light: '#FEE2E2',
-              glow: 'rgba(220, 38, 38, 0.4)'
+              DEFAULT: '#E6194B',
+              dark: '#9B0024',
+              light: '#FFE4E9',
+              glow: 'rgba(230, 25, 75, 0.45)'
             },
             shooter: {
-              DEFAULT: '#2563EB',
-              dark: '#1E40AF',
+              DEFAULT: '#2D46B9',
+              dark: '#172777',
               light: '#DBEAFE',
-              glow: 'rgba(37, 99, 235, 0.4)'
+              glow: 'rgba(45, 70, 185, 0.45)'
             },
             action: {
-              DEFAULT: '#16A34A',
-              dark: '#166534',
-              light: '#DCFCE7',
-              glow: 'rgba(22, 163, 74, 0.4)'
+              DEFAULT: '#059669',
+              dark: '#064E3B',
+              light: '#D1FAE5',
+              glow: 'rgba(5, 150, 105, 0.45)'
             }
+          },
+          fontFamily: {
+            display: ['Montserrat', 'Kanit', 'sans-serif'],
+            heading: ['Montserrat', 'Kanit', 'sans-serif'],
+            body: ['Inter', 'sans-serif']
           }
         }
       }
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
-    body {
-      font-family: 'Inter', sans-serif;
+    :root {
+      --bg-primary: #050C24;
+      --bg-glow: #0E1E48;
+      --accent-crimson: #E6194B;
+      --accent-electric: #2D46B9;
+      --accent-rim: #7F9CF5;
+      --text-light: #FFFFFF;
+      --font-display: 'Montserrat', 'Kanit', sans-serif;
+      --font-body: 'Inter', 'Montserrat', sans-serif;
+      --banner-skew: skewX(-15deg);
+      --title-shadow: -4px 6px 0px #020614;
     }
-    h1, h2, h3, h4, .font-heading {
-      font-family: 'Outfit', sans-serif;
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-primary);
+      color: var(--text-light);
+    }
+    h1, h2, h3, h4, .font-heading, .font-display {
+      font-family: var(--font-display);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-red-900 selection:text-white">
+<body class="bg-[#050C24] text-white min-h-screen flex flex-col antialiased selection:bg-[#E6194B] selection:text-white">
 
   <!-- ========================================== -->
   <!-- 1. VISTA DE AUTENTICACIÓN OWASP (LOGIN)     -->

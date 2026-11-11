@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 5173;
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
+app.use('/alianzas', express.static(path.join(__dirname, 'alianzas')));
 
 let defaultData = null;
 try {
@@ -2196,9 +2198,638 @@ app.get('/api/dashboard/stats', requireAdminOrCoord, (req, res) => {
   });
 });
 
+// =========================================================================
+// MÓDULO PÚBLICO "MI ALIANZA" & SISTEMA DE SOLICITUDES DE CAMBIO CON APROBACIÓN
+// =========================================================================
+
+// Helpers de validación de RUT
+function cleanRut(rut) {
+  return (rut || '').toString().toUpperCase().replace(/[^0-9K]/g, '');
+}
+
+function validateRut(rawRut) {
+  const rut = cleanRut(rawRut);
+  if (rut.length < 2) return false;
+  const body = rut.slice(0, -1);
+  const dv = rut.slice(-1);
+  if (!/^\d+$/.test(body)) return false;
+
+  let sum = 0;
+  let multiplier = 2;
+  for (let i = body.length - 1; i >= 0; i--) {
+    sum += parseInt(body[i], 10) * multiplier;
+    multiplier = multiplier === 7 ? 2 : multiplier + 1;
+  }
+  const mod11 = 11 - (sum % 11);
+  const expectedDv = mod11 === 11 ? '0' : mod11 === 10 ? 'K' : mod11.toString();
+  return dv === expectedDv;
+}
+
+// Rate Limiter en Memoria para consultas públicas
+const publicRateLimitMap = new Map();
+
+function checkPublicRateLimit(ip) {
+  const now = Date.now();
+  let record = publicRateLimitMap.get(ip);
+  if (!record) {
+    record = { attempts: 0, firstAttemptAt: now, failedRuts: new Set(), blockedUntil: 0 };
+    publicRateLimitMap.set(ip, record);
+  }
+
+  if (record.blockedUntil > now) {
+    const minsLeft = Math.ceil((record.blockedUntil - now) / 60000);
+    return { blocked: true, message: `Dispositivo bloqueado temporalmente por exceso de intentos. Espere ${minsLeft} minuto(s).` };
+  }
+
+  // Ventana de 1 hora
+  if (now - record.firstAttemptAt > 3600000) {
+    record.attempts = 0;
+    record.firstAttemptAt = now;
+    record.failedRuts.clear();
+    record.blockedUntil = 0;
+  }
+
+  if (record.attempts >= 10) {
+    record.blockedUntil = now + 900000; // 15 minutos
+    return { blocked: true, message: 'Límite de 10 consultas por hora alcanzado. Bloqueado temporalmente por 15 minutos.' };
+  }
+
+  record.attempts++;
+  return { blocked: false, attempts: record.attempts };
+}
+
+function recordFailedRutAttempt(ip, rut) {
+  const record = publicRateLimitMap.get(ip);
+  if (record) {
+    record.failedRuts.add(rut);
+    if (record.failedRuts.size >= 5) {
+      record.blockedUntil = Date.now() + 900000; // 15 minutos de bloqueo por fuerza bruta
+    }
+  }
+}
+
+// Sesiones públicas temporales (15 minutos)
+const publicSessions = new Map();
+
+function createPublicSession(student, req) {
+  const token = 'pub_' + crypto.randomBytes(24).toString('hex');
+  const ip = security.getClientIp(req);
+  const userAgent = req.headers['user-agent'] || 'Unknown';
+  const expiresAt = Date.now() + 15 * 60 * 1000;
+
+  publicSessions.set(token, {
+    studentId: student.id,
+    rut: cleanRut(student.rut),
+    name: student.name,
+    carrera: student.carrera,
+    alliance: student.alliance,
+    expiresAt,
+    ip,
+    userAgent
+  });
+
+  return token;
+}
+
+function getPublicSession(req) {
+  const authHeader = req.headers['authorization'];
+  let token = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7).trim();
+  } else if (req.headers['x-public-token']) {
+    token = req.headers['x-public-token'];
+  }
+  if (!token) return null;
+
+  const sess = publicSessions.get(token);
+  if (!sess) return null;
+  if (Date.now() > sess.expiresAt) {
+    publicSessions.delete(token);
+    return null;
+  }
+  return sess;
+}
+
+// 1. Estadísticas públicas de cupos y alianzas
+app.get('/api/public/alliance/stats', (req, res) => {
+  const data = loadData();
+  const students = loadStudents();
+
+  const counts = { Terror: 0, Shooter: 0, Action: 0 };
+  (students || []).forEach(s => {
+    if (counts[s.alliance] !== undefined) counts[s.alliance]++;
+  });
+
+  const cfg = data.allianceChangeConfig || { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
+  const maxDiff = cfg.maxDiff || 4;
+  const isPastDeadline = cfg.deadline ? (new Date() > new Date(cfg.deadline)) : false;
+  const isOpen = cfg.open && !isPastDeadline;
+
+  // Cálculo de cupos disponibles para Terror y Shooter
+  const diff = counts.Terror - counts.Shooter;
+  const terrorCanGrow = (diff + 2) <= maxDiff;
+  const shooterCanGrow = (-diff + 2) <= maxDiff;
+
+  res.json({
+    counts,
+    config: {
+      open: isOpen,
+      rawOpen: cfg.open,
+      deadline: cfg.deadline,
+      maxDiff
+    },
+    slots: {
+      terrorCurrent: counts.Terror,
+      shooterCurrent: counts.Shooter,
+      actionCurrent: counts.Action,
+      diff: Math.abs(diff),
+      terrorCanAccept: terrorCanGrow,
+      shooterCanAccept: shooterCanGrow
+    }
+  });
+});
+
+// 2. Autenticación pública de estudiante con RUT (NO DEVUELVE NINGÚN RUT)
+app.post('/api/public/alliance/auth', (req, res) => {
+  const { rut } = req.body;
+  const ip = security.getClientIp(req);
+
+  const rateCheck = checkPublicRateLimit(ip);
+  if (rateCheck.blocked) {
+    return res.status(429).json({ error: rateCheck.message });
+  }
+
+  if (!rut || !validateRut(rut)) {
+    recordFailedRutAttempt(ip, cleanRut(rut));
+    return res.status(400).json({ error: 'RUT no registrado en el padrón oficial o datos incorrectos.' });
+  }
+
+  const targetRut = cleanRut(rut);
+  const students = loadStudents();
+  const student = students.find(s => cleanRut(s.rut) === targetRut);
+
+  if (!student) {
+    recordFailedRutAttempt(ip, targetRut);
+    return res.status(404).json({ error: 'RUT no registrado en el padrón oficial o datos incorrectos.' });
+  }
+
+  // Crear sesión pública (15 min)
+  const token = createPublicSession(student, req);
+  const data = loadData();
+  const myRequest = (data.allianceRequests || []).find(r => r.studentId === student.id && r.status !== 'reverted');
+
+  // NINGÚN RUT SALE EN LA RESPUESTA
+  res.json({
+    success: true,
+    token,
+    student: {
+      id: student.id,
+      name: student.name,
+      carrera: student.carrera,
+      alliance: student.alliance
+    },
+    hasRequestedChange: !!myRequest,
+    request: myRequest || null
+  });
+});
+
+// 3. Solicitar cambio de alianza
+app.post('/api/public/alliance/request', (req, res) => {
+  const sess = getPublicSession(req);
+  if (!sess) {
+    return res.status(401).json({ error: 'Sesión expirada o no válida. Por favor ingrese su RUT nuevamente.' });
+  }
+
+  const data = loadData();
+  const cfg = data.allianceChangeConfig || { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
+  const isPastDeadline = cfg.deadline ? (new Date() > new Date(cfg.deadline)) : false;
+  if (!cfg.open || isPastDeadline) {
+    return res.status(403).json({ error: 'El periodo oficial de recepción de solicitudes de cambio se encuentra cerrado.' });
+  }
+
+  // Alianza Action (Diseño) está CERRADA
+  if (sess.alliance === 'Action' || (sess.carrera && sess.carrera.toLowerCase().includes('diseño'))) {
+    return res.status(403).json({ error: 'La Alianza Action (Diseño e Industria Digital) es exclusiva y no admite cambios.' });
+  }
+
+  const { targetAlliance, reason, termsAccepted } = req.body;
+  if (!termsAccepted) {
+    return res.status(400).json({ error: 'Debes leer y aceptar el reglamento y condiciones de traslado antes de formalizar la solicitud.' });
+  }
+  if (!targetAlliance || (targetAlliance !== 'Terror' && targetAlliance !== 'Shooter')) {
+    return res.status(400).json({ error: 'El cambio solo está permitido entre Alianza Terror y Alianza Shooter.' });
+  }
+
+  if (targetAlliance === sess.alliance) {
+    return res.status(400).json({ error: `Ya perteneces a la Alianza ${sess.alliance}.` });
+  }
+
+  // Comprobar si ya tiene una solicitud registrada
+  data.allianceRequests = data.allianceRequests || [];
+  const existing = data.allianceRequests.find(r => r.studentId === sess.studentId && r.status !== 'rejected' && r.status !== 'reverted');
+  if (existing) {
+    return res.status(400).json({ error: 'Ya tienes una solicitud de cambio registrada. Solo se permite una por estudiante.' });
+  }
+
+  const students = loadStudents();
+  const counts = { Terror: 0, Shooter: 0, Action: 0 };
+  students.forEach(s => {
+    if (counts[s.alliance] !== undefined) counts[s.alliance]++;
+  });
+
+  // Verificar si existe una solicitud opuesta que pueda emparejarse como Swap
+  const swapCandidate = data.allianceRequests.find(r => 
+    (r.status === 'pending' || r.status === 'waiting_list') &&
+    r.currentAlliance === targetAlliance &&
+    r.targetAlliance === sess.alliance &&
+    !r.swapPartnerId
+  );
+
+  let initialStatus = 'pending';
+  let isSwap = false;
+  let swapPartnerId = null;
+
+  if (swapCandidate) {
+    // Emparejado como permuta: no consume cupos netos
+    isSwap = true;
+    swapPartnerId = swapCandidate.id;
+    initialStatus = 'pending';
+  } else {
+    // Evaluar cupo con maxDiff
+    const maxDiff = cfg.maxDiff || 4;
+    const newTargetCount = counts[targetAlliance] + 1;
+    const newSourceCount = counts[sess.alliance] - 1;
+    const diffAfter = Math.abs(newTargetCount - newSourceCount);
+
+    if (diffAfter > maxDiff) {
+      initialStatus = 'waiting_list'; // Sin cupo inmediato
+    } else {
+      initialStatus = 'pending';
+    }
+  }
+
+  const newRequest = {
+    id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    studentId: sess.studentId,
+    studentName: sess.name,
+    carrera: sess.carrera,
+    currentAlliance: sess.alliance,
+    targetAlliance,
+    reason: (reason || '').trim(),
+    status: initialStatus, // 'pending' | 'waiting_list'
+    createdAt: new Date().toISOString(),
+    termsAccepted: true,
+    termsAcceptedAt: new Date().toISOString(),
+    ip: sess.ip,
+    userAgent: sess.userAgent,
+    isSwap,
+    swapPartnerId
+  };
+
+  data.allianceRequests.unshift(newRequest);
+
+  // Si se emparejó con swapCandidate, actualizar swapCandidate
+  if (swapCandidate) {
+    swapCandidate.isSwap = true;
+    swapCandidate.swapPartnerId = newRequest.id;
+    if (swapCandidate.status === 'waiting_list') {
+      swapCandidate.status = 'pending'; // Promover ya que ahora está emparejada
+    }
+  }
+
+  saveData(data);
+
+  res.json({
+    success: true,
+    request: newRequest,
+    message: initialStatus === 'pending' 
+      ? 'Solicitud recibida correctamente. Queda en estado Pendiente de Revisión por el administrador.' 
+      : 'No hay cupos disponibles de inmediato. Tu solicitud ha quedado registrada en Lista de Espera por orden de llegada.'
+  });
+});
+
+// 4. Consultar estado propio
+app.get('/api/public/alliance/my-request', (req, res) => {
+  const sess = getPublicSession(req);
+  if (!sess) {
+    return res.status(401).json({ error: 'Sesión no válida o expirada.' });
+  }
+
+  const data = loadData();
+  const request = (data.allianceRequests || []).find(r => r.studentId === sess.studentId && r.status !== 'reverted') || null;
+
+  res.json({
+    success: true,
+    student: {
+      id: sess.studentId,
+      name: sess.name,
+      carrera: sess.carrera,
+      alliance: sess.alliance
+    },
+    request
+  });
+});
+
+// ----------------- RUTAS ADMIN DE GESTIÓN DE SOLICITUDES -----------------
+
+// Listar solicitudes
+app.get('/api/admin/alliance-requests', security.requireAuth, security.requireRole(['admin', 'coordinacion']), (req, res) => {
+  const data = loadData();
+  const students = loadStudents();
+
+  const counts = { Terror: 0, Shooter: 0, Action: 0 };
+  students.forEach(s => {
+    if (counts[s.alliance] !== undefined) counts[s.alliance]++;
+  });
+
+  const requests = data.allianceRequests || [];
+
+  // Detección de dispositivos sospechosos: contar solicitudes por IP
+  const ipCounts = {};
+  requests.forEach(r => {
+    if (r.ip) ipCounts[r.ip] = (ipCounts[r.ip] || 0) + 1;
+  });
+
+  const enriched = requests.map(r => ({
+    ...r,
+    multiRutDeviceAlert: (ipCounts[r.ip] || 0) > 1
+  }));
+
+  res.json({
+    requests: enriched,
+    counts,
+    config: data.allianceChangeConfig || { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 },
+    auditLog: data.allianceAuditLog || []
+  });
+});
+
+// Aprobar solicitud
+app.post('/api/admin/alliance-requests/:id/approve', security.requireAuth, security.requireRole(['admin', 'coordinacion']), (req, res) => {
+  const reqId = req.params.id;
+  const data = loadData();
+  const requests = data.allianceRequests || [];
+  const reqItem = requests.find(r => r.id === reqId);
+
+  if (!reqItem) return res.status(404).json({ error: 'Solicitud no encontrada.' });
+  if (reqItem.status === 'approved') return res.status(400).json({ error: 'Esta solicitud ya fue aprobada.' });
+
+  const students = loadStudents();
+  const student = students.find(s => s.id === reqItem.studentId);
+  if (!student) return res.status(404).json({ error: 'Estudiante no encontrado en el padrón.' });
+
+  const oldAlliance = student.alliance;
+  student.alliance = reqItem.targetAlliance;
+  saveStudents(students);
+
+  // Marcar como aprobada
+  reqItem.status = 'approved';
+  reqItem.approvedAt = new Date().toISOString();
+  reqItem.approvedBy = getAuditAuthor(req, 'Admin');
+
+  // Registrar auditoría
+  data.allianceAuditLog = data.allianceAuditLog || [];
+  data.allianceAuditLog.unshift({
+    timestamp: new Date().toISOString(),
+    action: 'APROBAR_CAMBIO_ALIANZA',
+    author: getAuditAuthor(req, 'Admin'),
+    details: {
+      requestId: reqItem.id,
+      studentName: student.name,
+      oldAlliance,
+      newAlliance: reqItem.targetAlliance,
+      isSwap: !!reqItem.isSwap
+    }
+  });
+
+  // Si era un swap, buscar partner y aprobarlo también
+  if (reqItem.isSwap && reqItem.swapPartnerId) {
+    const partnerReq = requests.find(r => r.id === reqItem.swapPartnerId && r.status !== 'approved');
+    if (partnerReq) {
+      const partnerStudent = students.find(s => s.id === partnerReq.studentId);
+      if (partnerStudent) {
+        const partnerOld = partnerStudent.alliance;
+        partnerStudent.alliance = partnerReq.targetAlliance;
+        saveStudents(students);
+
+        partnerReq.status = 'approved';
+        partnerReq.approvedAt = new Date().toISOString();
+        partnerReq.approvedBy = getAuditAuthor(req, 'Admin (Permuta Automática)');
+
+        data.allianceAuditLog.unshift({
+          timestamp: new Date().toISOString(),
+          action: 'APROBAR_PERMUTA_AUTOMATICA',
+          author: getAuditAuthor(req, 'Admin'),
+          details: {
+            requestId: partnerReq.id,
+            studentName: partnerStudent.name,
+            oldAlliance: partnerOld,
+            newAlliance: partnerReq.targetAlliance
+          }
+        });
+      }
+    }
+  }
+
+  // Reevaluar lista de espera
+  reevaluateWaitingList(data, students);
+
+  saveData(data);
+
+  res.json({ success: true, request: reqItem, message: `Cambio de ${student.name} aprobado exitosamente a ${reqItem.targetAlliance}.` });
+});
+
+// Rechazar solicitud
+app.post('/api/admin/alliance-requests/:id/reject', security.requireAuth, security.requireRole(['admin', 'coordinacion']), (req, res) => {
+  const reqId = req.params.id;
+  const { reason } = req.body;
+  if (!reason || !reason.trim()) {
+    return res.status(400).json({ error: 'El motivo de rechazo es obligatorio para fines de auditoría.' });
+  }
+
+  const data = loadData();
+  const requests = data.allianceRequests || [];
+  const reqItem = requests.find(r => r.id === reqId);
+
+  if (!reqItem) return res.status(404).json({ error: 'Solicitud no encontrada.' });
+  if (reqItem.status === 'rejected') return res.status(400).json({ error: 'Esta solicitud ya está rechazada.' });
+
+  reqItem.status = 'rejected';
+  reqItem.rejectedAt = new Date().toISOString();
+  reqItem.rejectedBy = getAuditAuthor(req, 'Admin');
+  reqItem.rejectReason = reason.trim();
+
+  // Si era parte de un swap, desvincular al compañero
+  if (reqItem.isSwap && reqItem.swapPartnerId) {
+    const partnerReq = requests.find(r => r.id === reqItem.swapPartnerId);
+    if (partnerReq) {
+      partnerReq.isSwap = false;
+      partnerReq.swapPartnerId = null;
+    }
+  }
+
+  data.allianceAuditLog = data.allianceAuditLog || [];
+  data.allianceAuditLog.unshift({
+    timestamp: new Date().toISOString(),
+    action: 'RECHAZAR_CAMBIO_ALIANZA',
+    author: getAuditAuthor(req, 'Admin'),
+    details: {
+      requestId: reqItem.id,
+      studentName: reqItem.studentName,
+      reason: reqItem.rejectReason
+    }
+  });
+
+  saveData(data);
+
+  res.json({ success: true, request: reqItem, message: 'Solicitud rechazada correctamente.' });
+});
+
+// Aprobación Excepcional (Bypass de cupos)
+app.post('/api/admin/alliance-requests/:id/force-approve', security.requireAuth, security.requireRole(['admin', 'coordinacion']), (req, res) => {
+  const reqId = req.params.id;
+  const data = loadData();
+  const requests = data.allianceRequests || [];
+  const reqItem = requests.find(r => r.id === reqId);
+
+  if (!reqItem) return res.status(404).json({ error: 'Solicitud no encontrada.' });
+
+  const students = loadStudents();
+  const student = students.find(s => s.id === reqItem.studentId);
+  if (!student) return res.status(404).json({ error: 'Estudiante no encontrado en el padrón.' });
+
+  const oldAlliance = student.alliance;
+  student.alliance = reqItem.targetAlliance;
+  saveStudents(students);
+
+  reqItem.status = 'approved';
+  reqItem.approvedAt = new Date().toISOString();
+  reqItem.approvedBy = getAuditAuthor(req, 'Admin [Excepción Directiva]');
+  reqItem.isForced = true;
+
+  data.allianceAuditLog = data.allianceAuditLog || [];
+  data.allianceAuditLog.unshift({
+    timestamp: new Date().toISOString(),
+    action: 'APROBACION_EXCEPCIONAL_DIRECTIVA',
+    author: getAuditAuthor(req, 'Admin'),
+    details: {
+      requestId: reqItem.id,
+      studentName: student.name,
+      oldAlliance,
+      newAlliance: reqItem.targetAlliance,
+      reason: 'Bypass de cupos aprobado manualmente por la coordinación/admin'
+    }
+  });
+
+  saveData(data);
+
+  res.json({ success: true, request: reqItem, message: `Aprobación excepcional aplicada para ${student.name}.` });
+});
+
+// Revertir cambio
+app.post('/api/admin/alliance-requests/:id/revert', security.requireAuth, security.requireRole(['admin', 'coordinacion']), (req, res) => {
+  const reqId = req.params.id;
+  const data = loadData();
+  const requests = data.allianceRequests || [];
+  const reqItem = requests.find(r => r.id === reqId);
+
+  if (!reqItem) return res.status(404).json({ error: 'Solicitud no encontrada.' });
+  if (reqItem.status !== 'approved') return res.status(400).json({ error: 'Solo se pueden revertir solicitudes aprobadas.' });
+
+  const students = loadStudents();
+  const student = students.find(s => s.id === reqItem.studentId);
+  if (!student) return res.status(404).json({ error: 'Estudiante no encontrado en el padrón.' });
+
+  // Restaurar alianza original
+  student.alliance = reqItem.currentAlliance;
+  saveStudents(students);
+
+  reqItem.status = 'reverted';
+  reqItem.revertedAt = new Date().toISOString();
+  reqItem.revertedBy = getAuditAuthor(req, 'Admin');
+
+  data.allianceAuditLog = data.allianceAuditLog || [];
+  data.allianceAuditLog.unshift({
+    timestamp: new Date().toISOString(),
+    action: 'REVERTIR_CAMBIO_ALIANZA',
+    author: getAuditAuthor(req, 'Admin'),
+    details: {
+      requestId: reqItem.id,
+      studentName: student.name,
+      restoredAlliance: reqItem.currentAlliance
+    }
+  });
+
+  reevaluateWaitingList(data, students);
+
+  saveData(data);
+
+  res.json({ success: true, message: `Cambio revertido. ${student.name} ha sido devuelto a su alianza oficial ${reqItem.currentAlliance}.` });
+});
+
+// Configurar parámetros de recepción
+app.put('/api/admin/alliance-requests/settings', security.requireAuth, security.requireRole(['admin', 'coordinacion']), (req, res) => {
+  const { open, deadline, maxDiff } = req.body;
+  const data = loadData();
+  data.allianceChangeConfig = data.allianceChangeConfig || {};
+
+  if (open !== undefined) data.allianceChangeConfig.open = Boolean(open);
+  if (deadline !== undefined) data.allianceChangeConfig.deadline = deadline;
+  if (maxDiff !== undefined) data.allianceChangeConfig.maxDiff = parseInt(maxDiff, 10) || 4;
+
+  data.allianceAuditLog = data.allianceAuditLog || [];
+  data.allianceAuditLog.unshift({
+    timestamp: new Date().toISOString(),
+    action: 'ACTUALIZAR_CONFIG_SOLICITUDES',
+    author: getAuditAuthor(req, 'Admin'),
+    details: data.allianceChangeConfig
+  });
+
+  saveData(data);
+
+  res.json({ success: true, config: data.allianceChangeConfig });
+});
+
+// Función auxiliar para reevaluar lista de espera y promover el primero si hay cupo
+function reevaluateWaitingList(data, students) {
+  const requests = data.allianceRequests || [];
+  const waiting = requests.filter(r => r.status === 'waiting_list').sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  if (waiting.length === 0) return;
+
+  const counts = { Terror: 0, Shooter: 0, Action: 0 };
+  students.forEach(s => {
+    if (counts[s.alliance] !== undefined) counts[s.alliance]++;
+  });
+
+  const maxDiff = data.allianceChangeConfig?.maxDiff || 4;
+
+  for (const candidate of waiting) {
+    const newTarget = counts[candidate.targetAlliance] + 1;
+    const newSource = counts[candidate.currentAlliance] - 1;
+    if (Math.abs(newTarget - newSource) <= maxDiff) {
+      candidate.status = 'pending';
+      data.allianceAuditLog.unshift({
+        timestamp: new Date().toISOString(),
+        action: 'PROMOVER_LISTA_ESPERA',
+        author: 'Sistema Automático',
+        details: {
+          requestId: candidate.id,
+          studentName: candidate.studentName,
+          targetAlliance: candidate.targetAlliance
+        }
+      });
+      break; // Promover 1 por cada cupo liberado
+    }
+  }
+}
+
 // SPA Fallback for Admin Portal
 app.get(/^\/admin(\/.+)?$/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+});
+
+// SPA Fallback for Alianzas Portal
+app.get(/^\/alianzas(\/.+)?$/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'alianzas', 'index.html'));
 });
 
 // Fallback to index.html for Public SPA

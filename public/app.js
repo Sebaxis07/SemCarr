@@ -72,14 +72,14 @@ function navigate(tab) {
   
   // Highlight active tab
   document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.classList.remove('text-white', 'bg-slate-800', 'font-semibold', 'shadow-sm', 'border', 'border-slate-700/60');
-    btn.classList.add('text-slate-400');
+    btn.classList.remove('text-white', 'bg-[#E6194B]', 'bg-slate-800', 'font-bold', 'shadow-lg', 'shadow-[#E6194B]/40', 'border', 'border-white/30', 'border-slate-700/60');
+    btn.classList.add('text-slate-300');
   });
   
   const activeBtn = document.getElementById(`nav-${tab}`);
   if (activeBtn) {
-    activeBtn.classList.remove('text-slate-400');
-    activeBtn.classList.add('text-white', 'bg-slate-800', 'font-semibold', 'shadow-sm', 'border', 'border-slate-700/60');
+    activeBtn.classList.remove('text-slate-300');
+    activeBtn.classList.add('text-white', 'bg-[#E6194B]', 'font-bold', 'shadow-lg', 'shadow-[#E6194B]/40', 'border', 'border-white/30');
   }
 
   // Tab navigation
@@ -93,7 +93,7 @@ function navigate(tab) {
 let countdownInterval = null;
 function initCountdown() {
   if (countdownInterval) clearInterval(countdownInterval);
-  const targetDate = new Date('2026-11-19T09:00:00-03:00').getTime();
+  const targetDate = new Date('2026-11-19T09:30:00-03:00').getTime();
 
   function update() {
     const timerEl = document.getElementById('countdown-timer');
@@ -216,33 +216,211 @@ function renderInicio() {
   const lastPodium = lastClosedAct ? getActivityPodium(lastClosedAct) : null;
 
   return `
-    <div class="space-y-6 max-w-6xl mx-auto">
+    <div class="space-y-8 max-w-6xl mx-auto">
       
-      <!-- HEADER CON CUENTA REGRESIVA -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900 pb-5">
+      <!-- ======================================================== -->
+      <!-- HERO POSTER ESPORTS & GUÍA GRÁFICA SYNTH-TECH            -->
+      <!-- ======================================================== -->
+      <section class="relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9]/60 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden glow-rim">
+        
+        <!-- Destellos radiales internos -->
+        <div class="absolute -top-24 -left-24 w-80 h-80 bg-[#E6194B]/15 blur-3xl rounded-full pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-[#2D46B9]/20 blur-3xl rounded-full pointer-events-none"></div>
+
+        <!-- 1. Encabezado del Póster: Subtítulo + Año flanqueado + Título de Impacto -->
+        <div class="relative z-10 text-center space-y-1">
+          <p class="font-display font-black italic tracking-widest text-slate-300 text-sm sm:text-lg uppercase">
+            SEMANA DE LAS
+          </p>
+
+          <!-- Año en Rojo Carmesí flanqueado por 2 líneas blancas horizontales -->
+          <div class="flex items-center justify-center gap-3 sm:gap-4 my-1">
+            <span class="h-0.5 w-12 sm:w-24 bg-white/90"></span>
+            <span class="text-[#E6194B] font-display font-black text-2xl sm:text-3xl italic tracking-widest">
+              2026
+            </span>
+            <span class="h-0.5 w-12 sm:w-24 bg-white/90"></span>
+          </div>
+
+          <!-- Título Principal de Impacto con Deformación y Sombra Sólida -->
+          <h1 class="esport-title text-4xl sm:text-6xl md:text-7xl font-black italic tracking-tight text-white uppercase text-center drop-shadow-2xl">
+            CARRERAS
+          </h1>
+        </div>
+
+        <!-- 2. Ilustración Central Synth-Tech / Esports (Tríada con Renders Oficiales PNG) -->
+        <div class="relative z-10 my-4 flex items-center justify-center">
+          <div class="w-full max-w-4xl relative">
+            
+            <!-- Resplandor de fondo y horizonte curvo -->
+            <div class="relative flex items-end justify-center gap-2 sm:gap-6 pt-6 pb-2">
+              
+              <!-- Halo de Fondo Central -->
+              <div class="absolute inset-0 bg-[#0E1E48]/80 blur-3xl rounded-full -z-10"></div>
+              
+              <!-- 1. Operador Gamer Azul (Izquierda - Alianza Shooter) -->
+              <div class="relative w-28 sm:w-44 md:w-52 h-44 sm:h-56 md:h-64 flex items-end justify-center -mr-4 sm:-mr-6 z-10 group cursor-pointer" onclick="navigate('mialianza'); setAllianceFilter('Shooter');" title="Alianza Shooter">
+                <div class="absolute inset-0 bg-[#2D46B9]/30 blur-2xl rounded-full"></div>
+                <img 
+                  src="/img/mascota-shooter.png" 
+                  alt="Operador Gamer Azul - Alianza Shooter" 
+                  class="relative z-10 max-h-full object-contain filter drop-shadow-[0_10px_25px_rgba(45,70,185,0.6)] group-hover:scale-105 group-hover:-translate-y-2 transition duration-300"
+                />
+              </div>
+
+              <!-- 2. Mascota Gamer Enmascarada Roja (Centro - Alianza Terror - Protagonista) -->
+              <div class="relative w-36 sm:w-56 md:w-64 h-52 sm:h-64 md:h-72 flex items-end justify-center z-20 group cursor-pointer" onclick="navigate('mialianza'); setAllianceFilter('Terror');" title="Alianza Terror">
+                <div class="absolute inset-0 bg-[#E6194B]/35 blur-3xl rounded-full"></div>
+                <img 
+                  src="/img/mascota-terror.png" 
+                  alt="Mascota Enmascarada Roja - Alianza Terror" 
+                  class="relative z-20 max-h-full object-contain filter drop-shadow-[0_15px_30px_rgba(230,25,75,0.7)] group-hover:scale-105 group-hover:-translate-y-2 transition duration-300"
+                />
+              </div>
+
+              <!-- 3. Gamer Cinéfilo Neón (Derecha - Alianza Action) -->
+              <div class="relative w-28 sm:w-44 md:w-52 h-44 sm:h-56 md:h-64 flex items-end justify-center -ml-4 sm:-ml-6 z-10 group cursor-pointer" onclick="navigate('mialianza'); setAllianceFilter('Action');" title="Alianza Action">
+                <div class="absolute inset-0 bg-[#059669]/30 blur-2xl rounded-full"></div>
+                <img 
+                  src="/img/mascota-action.png" 
+                  alt="Gamer Cinéfilo Neón - Alianza Action" 
+                  class="relative z-10 max-h-full object-contain filter drop-shadow-[0_10px_25px_rgba(5,150,105,0.6)] group-hover:scale-105 group-hover:-translate-y-2 transition duration-300"
+                />
+              </div>
+
+            </div>
+
+            <!-- Arco Curvo Bicolor que sirve de Horizonte -->
+            <div class="w-full h-2 rounded-full bg-gradient-to-r from-[#2D46B9] via-[#E6194B] to-[#7F9CF5] shadow-lg shadow-[#E6194B]/40 -mt-2 relative z-30"></div>
+          </div>
+        </div>
+
+        <!-- 3. Cinta Divisoria (Ribbon Banner Parallelogram en Rojo Carmesí #E6194B) -->
+        <div class="relative z-10 my-5">
+          <div class="mx-auto max-w-3xl bg-[#E6194B] shadow-2xl shadow-[#E6194B]/50 p-2.5 sm:p-3 text-center transition hover:scale-[1.01]" style="transform: var(--banner-skew);">
+            <div style="transform: skewX(15deg);" class="flex items-center justify-center gap-3">
+              <span class="text-white font-black text-sm sm:text-base select-none tracking-widest hidden sm:inline">= = =</span>
+              <span class="font-display font-black italic uppercase tracking-wider text-white text-xs sm:text-base md:text-lg">
+                CUATRO CARRERAS, UN SOLO TROFEO
+              </span>
+              <span class="text-white font-black text-sm sm:text-base select-none tracking-widest hidden sm:inline">= = =</span>
+            </div>
+          </div>
+
+          <!-- Frase de Invitación Inferior flanqueada por Spark Lines (=) -->
+          <div class="mt-3 flex items-center justify-center gap-3 text-center">
+            <span class="text-[#E6194B] font-display font-black text-lg select-none">=</span>
+            <span class="font-display font-bold italic text-slate-200 text-xs sm:text-sm tracking-wide">
+              ¡Ven a disfrutar de los torneos, gymkanas y desafíos en vivo!
+            </span>
+            <span class="text-[#E6194B] font-display font-black text-lg select-none">=</span>
+          </div>
+        </div>
+
+        <!-- 4. Grilla de 4 Columnas de Especialidades (Líneas de trazo outline 3-4px blanco) -->
+        <div class="relative z-10 mt-7 pt-6 border-t border-[#142252] grid grid-cols-2 md:grid-cols-4 gap-4">
+          
+          <!-- Columna 1: Informática -->
+          <div class="flex flex-col items-center text-center p-3 md:border-r md:border-[#E6194B]/40 group">
+            <div class="w-14 h-14 rounded-2xl bg-[#0A1333] border-2 border-[#2D46B9] flex items-center justify-center mb-3 group-hover:border-[#E6194B] transition shadow-md shadow-[#2D46B9]/20">
+              <!-- Laptop con </> Outline Blanco (~3-4px stroke) -->
+              <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="12" rx="2" />
+                <line x1="2" y1="20" x2="22" y2="20" />
+                <polyline points="9 9 7 11 9 13" />
+                <polyline points="15 9 17 11 15 13" />
+              </svg>
+            </div>
+            <h4 class="font-display font-semibold text-white text-xs sm:text-sm leading-tight">
+              Ingeniería en Informática
+            </h4>
+            <span class="text-[10px] text-slate-400 font-mono mt-1">Desarrollo & Algoritmos</span>
+          </div>
+
+          <!-- Columna 2: Telecomunicaciones -->
+          <div class="flex flex-col items-center text-center p-3 md:border-r md:border-[#E6194B]/40 group">
+            <div class="w-14 h-14 rounded-2xl bg-[#0A1333] border-2 border-[#2D46B9] flex items-center justify-center mb-3 group-hover:border-[#E6194B] transition shadow-md shadow-[#2D46B9]/20">
+              <!-- Antena Telecom Outline Blanco (~3-4px stroke) -->
+              <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 10a12 12 0 0 1 16 0" />
+                <path d="M7 13a7 7 0 0 1 10 0" />
+                <line x1="12" y1="16" x2="12" y2="22" />
+                <circle cx="12" cy="16" r="2" fill="white" />
+              </svg>
+            </div>
+            <h4 class="font-display font-semibold text-white text-xs sm:text-sm leading-tight">
+              Telecomunicaciones & Redes
+            </h4>
+            <span class="text-[10px] text-slate-400 font-mono mt-1">Conectividad & Ciberseguridad</span>
+          </div>
+
+          <!-- Columna 3: Analista Programador -->
+          <div class="flex flex-col items-center text-center p-3 md:border-r md:border-[#E6194B]/40 group">
+            <div class="w-14 h-14 rounded-2xl bg-[#0A1333] border-2 border-[#2D46B9] flex items-center justify-center mb-3 group-hover:border-[#E6194B] transition shadow-md shadow-[#2D46B9]/20">
+              <!-- Servidor en Rack Outline Blanco (~3-4px stroke) -->
+              <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="7" rx="2" />
+                <rect x="2" y="14" width="20" height="7" rx="2" />
+                <line x1="6" y1="6.5" x2="6.01" y2="6.5" stroke-width="4" />
+                <line x1="6" y1="17.5" x2="6.01" y2="17.5" stroke-width="4" />
+                <line x1="14" y1="6.5" x2="18" y2="6.5" />
+                <line x1="14" y1="17.5" x2="18" y2="17.5" />
+              </svg>
+            </div>
+            <h4 class="font-display font-semibold text-white text-xs sm:text-sm leading-tight">
+              Analista Programador
+            </h4>
+            <span class="text-[10px] text-slate-400 font-mono mt-1">Bases de Datos & Sistemas</span>
+          </div>
+
+          <!-- Columna 4: Diseño Web & Mobile -->
+          <div class="flex flex-col items-center text-center p-3 group">
+            <div class="w-14 h-14 rounded-2xl bg-[#0A1333] border-2 border-[#2D46B9] flex items-center justify-center mb-3 group-hover:border-[#E6194B] transition shadow-md shadow-[#2D46B9]/20">
+              <!-- Pluma Bézier Outline Blanco (~3-4px stroke) -->
+              <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                <path d="M2 2l7.586 7.586" />
+                <circle cx="11" cy="11" r="2" />
+              </svg>
+            </div>
+            <h4 class="font-display font-semibold text-white text-xs sm:text-sm leading-tight">
+              Diseño Web & Mobile
+            </h4>
+            <span class="text-[10px] text-slate-400 font-mono mt-1">UI/UX & Multimedia</span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- RESULTADOS OFICIALES EN CANCHA Y CONTADOR                -->
+      <!-- ======================================================== -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142252] pb-5">
         <div>
           <div class="flex items-center gap-2 mb-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Resultados Oficiales en Cancha</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#E6194B] animate-pulse"></span>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#7F9CF5]">Resultados Oficiales en Cancha</span>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-bold font-heading text-white tracking-tight">Competencias y Actividades</h2>
-          <p class="text-xs text-slate-400 mt-1">Sigue el resultado oficial de cada actividad de la Semana de las Carreras 2026 • Informática, Telecomunicaciones y Diseño Digital.</p>
+          <h2 class="text-2xl sm:text-3xl font-bold font-display text-white tracking-tight">Competencias y Actividades</h2>
+          <p class="text-xs text-slate-300 mt-1">Sigue el resultado oficial de cada actividad de la Semana de las Carreras 2026 • Informática, Telecomunicaciones y Diseño Digital.</p>
           <div class="mt-2.5">
-            <button onclick="navigate('reglas')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-semibold bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 border border-amber-800/60 transition shadow-sm">
-              <i data-lucide="calculator" class="w-3.5 h-3.5 text-amber-400"></i>
+            <button onclick="navigate('reglas')" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-semibold bg-[#0E1E48] hover:bg-[#142252] text-[#7F9CF5] border border-[#2D46B9] transition shadow-sm">
+              <i data-lucide="calculator" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
               <span>¿Cómo se calculó? Entiéndelo en 1 minuto →</span>
             </button>
           </div>
         </div>
 
-        <!-- Cronómetro / Estado del evento -->
-        <div class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 flex items-center gap-3.5 shrink-0 shadow-sm">
-          <div class="p-2 rounded-lg bg-slate-900 text-slate-400">
-            <i data-lucide="clock-3" class="w-4 h-4"></i>
+        <!-- Cronómetro / Estado del evento con Token Navy & Bordes de Acento -->
+        <div class="bg-[#0A1333] border-2 border-[#2D46B9] rounded-2xl px-5 py-3.5 flex items-center gap-4 shrink-0 shadow-lg glow-electric">
+          <div class="p-2.5 rounded-xl bg-[#050C24] text-[#E6194B]">
+            <i data-lucide="clock-3" class="w-5 h-5"></i>
           </div>
           <div>
-            <span class="text-[10px] uppercase font-mono tracking-wider text-slate-500 block leading-tight" id="countdown-label">Tiempo al Evento</span>
-            <span class="text-sm sm:text-base font-mono font-bold text-white tracking-wide block" id="countdown-timer">--:--:--</span>
+            <span class="text-[10px] uppercase font-display font-bold tracking-wider text-[#7F9CF5] block leading-tight" id="countdown-label">Tiempo al Evento</span>
+            <span class="text-base sm:text-lg font-mono font-black text-white tracking-wide block" id="countdown-timer">--:--:--</span>
           </div>
         </div>
       </div>
@@ -299,67 +477,68 @@ function renderInicio() {
             </div>
 
             <!-- PODIO EXCLUSIVO DE ESTA ACTIVIDAD (1°, 2°, 3° LUGAR) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-2">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
               
               <!-- 1° Lugar -->
-              <div class="bg-slate-950 border border-amber-900/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+              <div class="bg-[#0A1333] border-2 border-[#E6194B] rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-xl shadow-[#E6194B]/20 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-[#E6194B]/10 rounded-bl-3xl pointer-events-none"></div>
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-amber-950/60 border border-amber-800/80 text-amber-300 flex items-center gap-1.5">
+                    <span class="text-[11px] font-display font-black uppercase px-3 py-1 rounded-md bg-[#E6194B] text-white flex items-center gap-1.5 shadow-sm shadow-[#E6194B]/50">
                       <span>🥇</span>
                       <span>1° Lugar (Ganador)</span>
                     </span>
                   </div>
-                  <h4 class="text-lg font-bold font-heading text-white mt-2">
+                  <h4 class="text-xl font-black font-display text-white mt-2.5 tracking-tight">
                     Alianza ${lastPodium.first}
                   </h4>
-                  <span class="text-xs text-slate-400 block mt-0.5">
+                  <span class="text-xs text-slate-300 block mt-0.5">
                     ${appData.alliances?.[lastPodium.first]?.carrera || 'Alianza oficial'}
                   </span>
                 </div>
-                <div class="mt-4 pt-2.5 border-t border-slate-900 text-[11px] font-mono text-amber-400/90 font-semibold">
+                <div class="mt-4 pt-2.5 border-t border-[#142252] text-xs font-display font-bold text-[#E6194B]">
                   Ganador de la competencia
                 </div>
               </div>
 
               <!-- 2° Lugar -->
-              <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+              <div class="bg-[#0A1333] border-2 border-[#2D46B9] rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-xl shadow-[#2D46B9]/20 relative overflow-hidden group">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-300 flex items-center gap-1.5">
+                    <span class="text-[11px] font-display font-black uppercase px-3 py-1 rounded-md bg-[#2D46B9] text-white flex items-center gap-1.5 shadow-sm">
                       <span>🥈</span>
                       <span>2° Lugar</span>
                     </span>
                   </div>
-                  <h4 class="text-lg font-bold font-heading text-white mt-2">
+                  <h4 class="text-xl font-black font-display text-white mt-2.5 tracking-tight">
                     Alianza ${lastPodium.second}
                   </h4>
-                  <span class="text-xs text-slate-400 block mt-0.5">
+                  <span class="text-xs text-slate-300 block mt-0.5">
                     ${appData.alliances?.[lastPodium.second]?.carrera || 'Alianza oficial'}
                   </span>
                 </div>
-                <div class="mt-4 pt-2.5 border-t border-slate-900 text-[11px] font-mono text-slate-400">
+                <div class="mt-4 pt-2.5 border-t border-[#142252] text-xs font-display font-bold text-[#7F9CF5]">
                   Segundo puesto
                 </div>
               </div>
 
               <!-- 3° Lugar -->
-              <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+              <div class="bg-[#0A1333] border-2 border-[#142252] hover:border-[#7F9CF5]/60 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-xl relative overflow-hidden group transition">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-md bg-slate-900/60 border border-slate-800 text-slate-400 flex items-center gap-1.5">
+                    <span class="text-[11px] font-display font-black uppercase px-3 py-1 rounded-md bg-[#142252] text-slate-200 border border-slate-700 flex items-center gap-1.5">
                       <span>🥉</span>
                       <span>3° Lugar</span>
                     </span>
                   </div>
-                  <h4 class="text-lg font-bold font-heading text-white mt-2">
+                  <h4 class="text-xl font-black font-display text-white mt-2.5 tracking-tight">
                     Alianza ${lastPodium.third}
                   </h4>
-                  <span class="text-xs text-slate-400 block mt-0.5">
+                  <span class="text-xs text-slate-300 block mt-0.5">
                     ${appData.alliances?.[lastPodium.third]?.carrera || 'Alianza oficial'}
                   </span>
                 </div>
-                <div class="mt-4 pt-2.5 border-t border-slate-900 text-[11px] font-mono text-slate-500">
+                <div class="mt-4 pt-2.5 border-t border-[#142252] text-xs font-display font-bold text-slate-400">
                   Tercer puesto
                 </div>
               </div>
@@ -1028,6 +1207,15 @@ let currentAllianceFilter = 'all';
 
 async function loadAllStudentsByAlliance() {
   if (allStudentsByAlliance) return allStudentsByAlliance;
+
+  if (typeof window !== 'undefined' && Array.isArray(window.STUDENTS_DATA) && window.STUDENTS_DATA.length > 0) {
+    allStudentsByAlliance = { Terror: [], Shooter: [], Action: [] };
+    window.STUDENTS_DATA.forEach(st => {
+      if (allStudentsByAlliance[st.alliance]) allStudentsByAlliance[st.alliance].push(st);
+    });
+    return allStudentsByAlliance;
+  }
+
   try {
     const res = await fetch('/api/students/by-alliance');
     if (res.ok) {
@@ -1048,87 +1236,224 @@ function renderMiAlianza() {
   }
 
   return `
-    <div class="max-w-6xl mx-auto space-y-6">
-      <!-- HEADER MINIMAL -->
-      <div class="text-center space-y-1">
-        <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold bg-slate-900/80 px-3.5 py-1 rounded-full border border-slate-800">
-          Padrón Oficial • 281 Estudiantes Registrados
-        </span>
-        <h2 class="text-2xl sm:text-3xl font-bold font-heading text-white tracking-tight pt-2">Mi Alianza & Nómina Oficial</h2>
-        <p class="text-xs text-slate-400 max-w-lg mx-auto">
-          Busca por tu nombre o RUT para conocer tu alianza asignada y su desafío, o explora abajo las listas completas de las 3 alianzas.
-        </p>
-      </div>
-
-      <!-- BUSCADOR PRINCIPAL -->
-      <div class="max-w-xl mx-auto relative">
-        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-          <i data-lucide="search" class="w-4 h-4"></i>
+    <div class="max-w-6xl mx-auto space-y-8">
+      
+      <!-- ======================================================== -->
+      <!-- 1. HEADER SYNTH-TECH / ESPORTS: MI ALIANZA               -->
+      <!-- ======================================================== -->
+      <div class="text-center space-y-2 relative">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0A1333] border border-[#2D46B9] shadow-inner text-[11px] font-display font-bold uppercase tracking-wider text-[#7F9CF5]">
+          <span class="w-2 h-2 rounded-full bg-[#E6194B] animate-pulse"></span>
+          <span>Padrón Oficial • 281 Estudiantes Registrados</span>
         </div>
-        <input 
-          type="text" 
-          id="student-search-input" 
-          oninput="handleStudentSearch(this.value)"
-          placeholder="Escribe tu nombre, apellido o RUT (ej. Sebastián, Aguilera, 21.661...)" 
-          class="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-slate-600 transition shadow-sm font-sans"
-        />
-        <button 
-          id="clear-search-btn"
-          onclick="clearStudentSearch()" 
-          class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-white hidden transition"
-          title="Limpiar búsqueda"
-        >
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+
+        <h2 class="esport-title text-3xl sm:text-5xl font-black italic tracking-tight text-white uppercase pt-1">
+          MI ALIANZA & ESCUADRONES 2026
+        </h2>
+
+        <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-body">
+          Identifica tu escuadrón, conoce a tu mascota oficial y prepárate para disputar el torneo de la Semana de las Carreras.
+        </p>
+
+        <!-- Cinta Skew Decorativa -->
+        <div class="pt-1 flex items-center justify-center gap-2">
+          <span class="text-[#E6194B] font-display font-black text-base select-none">= =</span>
+          <span class="px-4 py-1 bg-[#E6194B] text-white font-display font-black text-xs uppercase tracking-wider shadow-lg shadow-[#E6194B]/40" style="transform: var(--banner-skew);">
+            <span style="display:inline-block; transform: skewX(15deg);">¡CONOCE TUS COLORES Y DEFIENDE TU ALIANZA!</span>
+          </span>
+          <span class="text-[#E6194B] font-display font-black text-base select-none">= =</span>
+        </div>
       </div>
 
-      <!-- CONTENEDOR DE RESULTADOS DE BÚSQUEDA PERSONAL (TARJETA DESTACADA) -->
-      <div id="search-results-box" class="max-w-xl mx-auto space-y-3">
-        <!-- Inyectado dinámicamente cuando el usuario escribe -->
-      </div>
-
-      <!-- SECCIÓN DEL PADRÓN COMPLETO (VISIBLE SIEMPRE) -->
-      <div class="border-t border-slate-900 pt-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+      <!-- ======================================================== -->
+      <!-- 2. TARJETAS DE ACCESO RÁPIDO A ESCUADRONES               -->
+      <!-- ======================================================== -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-1">
+        
+        <!-- CARD 1: ALIANZA TERROR -->
+        <div onclick="setAllianceFilter('Terror')" class="cursor-pointer group relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#E6194B]/70 hover:border-[#E6194B] rounded-2xl p-4 sm:p-5 shadow-xl transition duration-300 hover:scale-[1.02] flex flex-col justify-between overflow-hidden glow-crimson">
+          <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#E6194B]/15 blur-2xl rounded-full pointer-events-none"></div>
+          
           <div>
-            <h3 class="text-base font-bold font-heading text-white flex items-center gap-2">
-              <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
-              <span>Nómina Completa de Alianzas</span>
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="px-3 py-1 rounded-md bg-[#E6194B] text-white font-display font-black text-xs uppercase tracking-wider shadow-md shadow-[#E6194B]/50" style="transform: var(--banner-skew);">
+                <span style="display:inline-block; transform: skewX(15deg);">ALIANZA TERROR</span>
+              </span>
+              <span class="text-xs font-mono font-bold text-slate-300 bg-[#050C24] border border-[#E6194B]/50 px-2.5 py-0.5 rounded-full">
+                126 Alumnos
+              </span>
+            </div>
+
+            <h3 class="text-lg font-black font-display text-white tracking-tight mt-1">
+              Informática & Analista
             </h3>
-            <span class="text-xs text-slate-400">Lista completa de participantes organizada por alianza</span>
+            <p class="text-xs text-slate-300 font-mono mt-1">
+              Desafío: <strong class="text-[#E6194B]">Videojuego con IA</strong>
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-[#142252] flex items-center justify-between text-xs font-display font-bold">
+            <span class="text-slate-400 group-hover:text-white transition">Explorar Escuadrón</span>
+            <span class="text-[#E6194B] flex items-center gap-1 group-hover:translate-x-1 transition">
+              <span>Ver Lista ↓</span>
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 2: ALIANZA SHOOTER -->
+        <div onclick="setAllianceFilter('Shooter')" class="cursor-pointer group relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9]/70 hover:border-[#2D46B9] rounded-2xl p-4 sm:p-5 shadow-xl transition duration-300 hover:scale-[1.02] flex flex-col justify-between overflow-hidden glow-electric">
+          <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#2D46B9]/20 blur-2xl rounded-full pointer-events-none"></div>
+
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="px-3 py-1 rounded-md bg-[#2D46B9] text-white font-display font-black text-xs uppercase tracking-wider shadow-md shadow-[#2D46B9]/50" style="transform: var(--banner-skew);">
+                <span style="display:inline-block; transform: skewX(15deg);">ALIANZA SHOOTER</span>
+              </span>
+              <span class="text-xs font-mono font-bold text-slate-300 bg-[#050C24] border border-[#2D46B9]/50 px-2.5 py-0.5 rounded-full">
+                126 Alumnos
+              </span>
+            </div>
+
+            <h3 class="text-lg font-black font-display text-white tracking-tight mt-1">
+              Informática & Analista
+            </h3>
+            <p class="text-xs text-slate-300 font-mono mt-1">
+              Desafío: <strong class="text-[#7F9CF5]">Asistente con IA</strong>
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-[#142252] flex items-center justify-between text-xs font-display font-bold">
+            <span class="text-slate-400 group-hover:text-white transition">Explorar Escuadrón</span>
+            <span class="text-[#7F9CF5] flex items-center gap-1 group-hover:translate-x-1 transition">
+              <span>Ver Lista ↓</span>
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 3: ALIANZA ACTION -->
+        <div onclick="setAllianceFilter('Action')" class="cursor-pointer group relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#7F9CF5]/60 hover:border-[#7F9CF5] rounded-2xl p-4 sm:p-5 shadow-xl transition duration-300 hover:scale-[1.02] flex flex-col justify-between overflow-hidden glow-rim">
+          <div class="absolute -top-12 -right-12 w-32 h-32 bg-[#7F9CF5]/15 blur-2xl rounded-full pointer-events-none"></div>
+
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <span class="px-3 py-1 rounded-md bg-[#059669] text-white font-display font-black text-xs uppercase tracking-wider shadow-md shadow-[#059669]/50" style="transform: var(--banner-skew);">
+                <span style="display:inline-block; transform: skewX(15deg);">ALIANZA ACTION</span>
+              </span>
+              <span class="text-xs font-mono font-bold text-slate-300 bg-[#050C24] border border-[#7F9CF5]/50 px-2.5 py-0.5 rounded-full">
+                29 Alumnos
+              </span>
+            </div>
+
+            <h3 class="text-lg font-black font-display text-white tracking-tight mt-1">
+              Diseño e Industria Digital
+            </h3>
+            <p class="text-xs text-slate-300 font-mono mt-1">
+              Desafío: <strong class="text-emerald-400">Collage / Identidad Visual</strong>
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-[#142252] flex items-center justify-between text-xs font-display font-bold">
+            <span class="text-slate-400 group-hover:text-white transition">Explorar Escuadrón</span>
+            <span class="text-emerald-400 flex items-center gap-1 group-hover:translate-x-1 transition">
+              <span>Ver Lista ↓</span>
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- 3. BUSCADOR DE JUGADORES ESPORTS                         -->
+      <!-- ======================================================== -->
+      <div class="bg-gradient-to-r from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl p-6 sm:p-7 shadow-2xl relative overflow-hidden glow-electric">
+        <div class="max-w-2xl mx-auto space-y-4">
+          <div class="text-center space-y-1">
+            <span class="text-[10px] font-display font-black uppercase tracking-widest text-[#E6194B]">
+              /// VERIFICACIÓN DE ALUMNO
+            </span>
+            <h3 class="text-xl sm:text-2xl font-black font-display text-white tracking-tight">
+              Consulta tu Alianza Oficial & Carnet de Competidor
+            </h3>
+            <p class="text-xs text-slate-300">
+              Ingresa tu nombre, apellido o RUT para desplegar tu tarjeta oficial de juego.
+            </p>
+          </div>
+
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#E6194B]">
+              <i data-lucide="search" class="w-5 h-5"></i>
+            </div>
+            <input 
+              type="text" 
+              id="student-search-input" 
+              oninput="handleStudentSearch(this.value)"
+              placeholder="Escribe tu nombre, apellido o RUT (ej. Sebastián, Aguilera, 21.661...)" 
+              class="w-full pl-12 pr-12 py-3.5 rounded-2xl bg-[#050C24] border-2 border-[#142252] focus:border-[#E6194B] text-sm text-white placeholder-slate-500 focus:outline-none transition shadow-inner font-sans font-medium"
+            />
+            <button 
+              id="clear-search-btn"
+              onclick="clearStudentSearch()" 
+              class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white hidden transition"
+              title="Limpiar búsqueda"
+            >
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENEDOR DE RESULTADOS DE BÚSQUEDA PERSONAL (TARJETA DESTACADA) -->
+        <div id="search-results-box" class="max-w-3xl mx-auto mt-6 space-y-4">
+          <!-- Inyectado dinámicamente cuando el usuario escribe -->
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- 4. SECCIÓN DEL PADRÓN COMPLETO & FILTROS                -->
+      <!-- ======================================================== -->
+      <div class="pt-4 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#142252] pb-4">
+          <div>
+            <h3 class="text-lg font-black font-display text-white flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5 text-[#E6194B]"></i>
+              <span>Nómina de Participantes por Alianza</span>
+            </h3>
+            <span class="text-xs text-slate-400">Padrón oficial distribuido equitativamente</span>
           </div>
 
           <!-- Filtro de Pestañas / Alianzas -->
-          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 font-mono text-xs">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 font-display text-xs">
             <button 
               onclick="setAllianceFilter('all')" 
               id="filter-btn-all" 
-              class="alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold ${currentAllianceFilter === 'all' ? 'bg-slate-800 text-white border border-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent'} transition"
+              class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${currentAllianceFilter === 'all' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition"
             >
               Todas (281)
             </button>
             <button 
               onclick="setAllianceFilter('Terror')" 
               id="filter-btn-Terror" 
-              class="alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium ${currentAllianceFilter === 'Terror' ? 'bg-red-950 text-red-200 border border-red-800 font-semibold' : 'text-slate-400 hover:text-red-300 hover:bg-red-950/40 border border-transparent'} transition flex items-center gap-1.5"
+              class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${currentAllianceFilter === 'Terror' ? 'bg-[#E6194B] text-white shadow-lg shadow-[#E6194B]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition flex items-center gap-1.5"
             >
-              <span class="w-2 h-2 rounded-full bg-red-500"></span>
+              <span class="w-2 h-2 rounded-full bg-white"></span>
               <span>Terror (126)</span>
             </button>
             <button 
               onclick="setAllianceFilter('Shooter')" 
               id="filter-btn-Shooter" 
-              class="alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium ${currentAllianceFilter === 'Shooter' ? 'bg-blue-950 text-blue-200 border border-blue-800 font-semibold' : 'text-slate-400 hover:text-blue-300 hover:bg-blue-950/40 border border-transparent'} transition flex items-center gap-1.5"
+              class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${currentAllianceFilter === 'Shooter' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition flex items-center gap-1.5"
             >
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="w-2 h-2 rounded-full bg-white"></span>
               <span>Shooter (126)</span>
             </button>
             <button 
               onclick="setAllianceFilter('Action')" 
               id="filter-btn-Action" 
-              class="alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium ${currentAllianceFilter === 'Action' ? 'bg-emerald-950 text-emerald-200 border border-emerald-800 font-semibold' : 'text-slate-400 hover:text-emerald-300 hover:bg-emerald-950/40 border border-transparent'} transition flex items-center gap-1.5"
+              class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${currentAllianceFilter === 'Action' ? 'bg-[#059669] text-white shadow-lg shadow-[#059669]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition flex items-center gap-1.5"
             >
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="w-2 h-2 rounded-full bg-white"></span>
               <span>Action (29)</span>
             </button>
           </div>
@@ -1158,19 +1483,19 @@ function renderAlliancesRoster() {
 
   // Actualizar estilos de los botones de filtro
   document.querySelectorAll('.alliance-filter-btn').forEach(btn => {
-    btn.className = 'alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900 border border-transparent transition';
+    btn.className = 'alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252] transition';
   });
 
   const activeBtn = document.getElementById(`filter-btn-${currentAllianceFilter}`);
   if (activeBtn) {
     if (currentAllianceFilter === 'all') {
-      activeBtn.className = 'alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white border border-slate-700 transition';
+      activeBtn.className = 'alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/30 transition';
     } else if (currentAllianceFilter === 'Terror') {
-      activeBtn.className = 'alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-950 text-red-200 border border-red-800 transition flex items-center gap-1.5';
+      activeBtn.className = 'alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-[#E6194B] text-white shadow-lg shadow-[#E6194B]/40 border border-white/30 transition flex items-center gap-1.5';
     } else if (currentAllianceFilter === 'Shooter') {
-      activeBtn.className = 'alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-950 text-blue-200 border border-blue-800 transition flex items-center gap-1.5';
+      activeBtn.className = 'alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/30 transition flex items-center gap-1.5';
     } else if (currentAllianceFilter === 'Action') {
-      activeBtn.className = 'alliance-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-950 text-emerald-200 border border-emerald-800 transition flex items-center gap-1.5';
+      activeBtn.className = 'alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-[#059669] text-white shadow-lg shadow-[#059669]/40 border border-white/30 transition flex items-center gap-1.5';
     }
   }
 }
@@ -1178,8 +1503,8 @@ function renderAlliancesRoster() {
 function renderAlliancesRosterContent() {
   if (!allStudentsByAlliance) {
     return `
-      <div class="text-center py-12 text-slate-500 text-xs flex items-center justify-center gap-2 font-mono">
-        <span class="w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></span>
+      <div class="text-center py-12 text-slate-400 text-xs flex items-center justify-center gap-2 font-mono">
+        <span class="w-4 h-4 border-2 border-[#E6194B] border-t-transparent rounded-full animate-spin"></span>
         <span>Cargando padrón oficial de las 3 alianzas...</span>
       </div>
     `;
@@ -1188,37 +1513,49 @@ function renderAlliancesRosterContent() {
   const alInfo = {
     Terror: {
       name: 'Alianza Terror',
+      mascotImg: '/img/mascota-terror.png',
       carrera: 'Informática (Ingeniería y Analista)',
       desafio: 'Videojuego con IA (Godot/Unity)',
-      dotColor: 'bg-red-500',
-      badgeColor: 'text-red-400 bg-red-950/40 border-red-900/50',
-      borderColor: 'border-red-950/70 hover:border-red-900/60',
-      hoverText: 'hover:border-red-900/50 group-hover:text-red-400',
+      themeColor: '#E6194B',
+      glow: 'glow-crimson',
+      shadow: 'rgba(230,25,75,0.7)',
+      dotColor: 'bg-[#E6194B]',
+      badgeColor: 'text-[#E6194B] bg-[#E6194B]/10 border-[#E6194B]/40',
+      borderColor: 'border-[#E6194B]/70 hover:border-[#E6194B]',
+      hoverText: 'hover:border-[#E6194B]/70 group-hover:text-[#E6194B]',
       total: allStudentsByAlliance.Terror?.length || 126
     },
     Shooter: {
       name: 'Alianza Shooter',
+      mascotImg: '/img/mascota-shooter.png',
       carrera: 'Informática (Ingeniería y Analista)',
       desafio: 'Asistente con IA (Local/API)',
-      dotColor: 'bg-blue-500',
-      badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-900/50',
-      borderColor: 'border-blue-950/70 hover:border-blue-900/60',
-      hoverText: 'hover:border-blue-900/50 group-hover:text-blue-400',
+      themeColor: '#2D46B9',
+      glow: 'glow-electric',
+      shadow: 'rgba(45,70,185,0.7)',
+      dotColor: 'bg-[#2D46B9]',
+      badgeColor: 'text-[#7F9CF5] bg-[#2D46B9]/15 border-[#2D46B9]/40',
+      borderColor: 'border-[#2D46B9]/70 hover:border-[#2D46B9]',
+      hoverText: 'hover:border-[#2D46B9]/70 group-hover:text-[#7F9CF5]',
       total: allStudentsByAlliance.Shooter?.length || 126
     },
     Action: {
       name: 'Alianza Action',
+      mascotImg: '/img/mascota-action.png',
       carrera: 'Diseño e Industria Digital',
       desafio: 'Collage Digital / Identidad Visual',
-      dotColor: 'bg-emerald-500',
-      badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-900/50',
-      borderColor: 'border-emerald-950/70 hover:border-emerald-900/60',
-      hoverText: 'hover:border-emerald-900/50 group-hover:text-emerald-400',
+      themeColor: '#059669',
+      glow: 'glow-rim',
+      shadow: 'rgba(5,150,105,0.7)',
+      dotColor: 'bg-[#059669]',
+      badgeColor: 'text-emerald-400 bg-[#059669]/15 border-[#059669]/40',
+      borderColor: 'border-[#059669]/70 hover:border-[#059669]',
+      hoverText: 'hover:border-[#059669]/70 group-hover:text-emerald-400',
       total: allStudentsByAlliance.Action?.length || 29
     }
   };
 
-  // Si se seleccionó una sola alianza, mostrar vista expandida de esa alianza
+  // Si se seleccionó una sola alianza, mostrar vista expandida de esa alianza con la mascota PNG
   if (currentAllianceFilter !== 'all') {
     const alKey = currentAllianceFilter;
     const info = alInfo[alKey];
@@ -1226,44 +1563,61 @@ function renderAlliancesRosterContent() {
     const pts = (appData.alliances?.[alKey]?.points?.total || 0).toLocaleString('es-CL');
 
     return `
-      <div class="bg-slate-950 border ${info.borderColor} rounded-2xl p-5 shadow-lg space-y-4">
-        <!-- Encabezado de la Alianza Seleccionada -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-900 pb-4">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="w-2.5 h-2.5 rounded-full ${info.dotColor}"></span>
-              <h4 class="text-xl font-bold font-heading text-white">${info.name}</h4>
-              <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded border ${info.badgeColor}">
-                ${list.length} Estudiantes
-              </span>
+      <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 ${info.borderColor} rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6 relative overflow-hidden ${info.glow}">
+        
+        <!-- Resplandor de fondo -->
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-80 h-48 blur-3xl rounded-full opacity-30 pointer-events-none" style="background-color: ${info.themeColor};"></div>
+
+        <!-- Header de la Alianza con Mascota PNG Grande y Transparente -->
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 border-b border-[#142252] pb-6">
+          <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+            <!-- Mascota Grande Transparente (Sin caja ni borde de icono) -->
+            <div class="h-44 sm:h-52 w-44 sm:w-52 shrink-0 flex items-center justify-center">
+              <img 
+                src="${info.mascotImg}" 
+                alt="${info.name}" 
+                class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_30px_${info.shadow}] hover:scale-105 transition duration-300"
+              />
             </div>
-            <p class="text-xs text-slate-400">
-              ${info.carrera} • Desafío: <strong class="text-slate-300 font-medium">${info.desafio}</strong>
-            </p>
+            <div>
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                <span class="px-4 py-1 rounded-md text-white font-display font-black text-sm uppercase tracking-wider shadow-lg" style="background-color: ${info.themeColor}; transform: var(--banner-skew);">
+                  <span style="display:inline-block; transform: skewX(15deg);">${info.name}</span>
+                </span>
+                <span class="text-xs font-display font-black px-3 py-1 rounded-md border ${info.badgeColor}">
+                  ${list.length} Estudiantes
+                </span>
+              </div>
+              <h4 class="text-xl sm:text-2xl font-black font-display text-white tracking-tight">${info.carrera}</h4>
+              <p class="text-xs sm:text-sm text-slate-300 mt-1 font-mono">
+                Desafío Oficial: <strong class="text-white font-semibold">${info.desafio}</strong>
+              </p>
+            </div>
           </div>
-          <div class="flex items-center gap-4 text-xs font-mono">
-            <div class="bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-800 text-right">
-              <span class="text-[10px] text-slate-500 uppercase block">Posición</span>
-              <span class="text-base font-bold text-white">#${appData.alliances?.[selectedAllianceFilter]?.rank || '-'} Lugar</span>
+
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="bg-[#050C24] px-5 py-3 rounded-2xl border border-[#142252] text-center sm:text-right shadow-inner">
+              <span class="text-[10px] text-slate-400 uppercase font-display block">Posición Oficial</span>
+              <span class="text-xl font-black font-display text-white" style="color: ${info.themeColor};">#${appData.alliances?.[alKey]?.rank || '-'} Lugar</span>
             </div>
           </div>
         </div>
 
         <!-- Grid de Estudiantes en 2 a 3 Columnas -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1 max-h-[650px] overflow-y-auto pr-1.5 custom-scrollbar">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 max-h-[650px] overflow-y-auto pr-2 custom-scrollbar">
           ${list.map((s, idx) => `
             <div 
-              onclick="selectStudentForSearch('${s.name.replace(/'/g, "\'")}')" 
-              class="p-2.5 rounded-xl bg-slate-900/40 border border-slate-900/90 hover:bg-slate-900/90 ${info.hoverText} transition cursor-pointer flex items-center justify-between group"
+              onclick="selectStudentForSearch('${s.name.replace(/'/g, "\\'")}')" 
+              class="p-3 rounded-2xl bg-[#050C24]/80 border border-[#142252] hover:bg-[#0E1E48] ${info.hoverText} transition cursor-pointer flex items-center justify-between group"
             >
               <div class="min-w-0 flex-1 pr-2">
                 <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-mono text-slate-500 font-bold shrink-0">${idx + 1}.</span>
-                  <span class="text-xs font-semibold text-slate-200 truncate group-hover:text-white">${s.name}</span>
+                  <span class="text-[11px] font-mono text-slate-500 font-bold shrink-0">${idx + 1}.</span>
+                  <span class="text-xs sm:text-sm font-semibold text-slate-200 truncate group-hover:text-white">${s.name}</span>
                 </div>
-                <span class="text-[10px] text-slate-400 block truncate pl-4 mt-0.5">${s.carrera}</span>
+                <span class="text-[10px] text-slate-400 block truncate pl-5 mt-0.5">${s.carrera}</span>
               </div>
-              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-600 group-hover:text-white shrink-0 transition"></i>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-500 group-hover:text-white shrink-0 transition"></i>
             </div>
           `).join('')}
         </div>
@@ -1271,54 +1625,68 @@ function renderAlliancesRosterContent() {
     `;
   }
 
-  // Vista "Todas las Alianzas": 3 columnas lado a lado en escritorio
+  // Vista "Todas las Alianzas": 3 columnas lado a lado en escritorio, cada una con su mascota grande y transparente arriba
   const alliancesKeys = ['Terror', 'Shooter', 'Action'];
 
   return `
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       ${alliancesKeys.map(alKey => {
         const info = alInfo[alKey];
         const list = allStudentsByAlliance[alKey] || [];
         const pts = (appData.alliances?.[alKey]?.points?.total || 0).toLocaleString('es-CL');
 
         return `
-          <div class="bg-slate-950 border ${info.borderColor} rounded-2xl p-4 shadow-md flex flex-col transition">
-            <!-- Header de la Alianza -->
-            <div class="border-b border-slate-900 pb-3 mb-3">
-              <div class="flex items-center justify-between mb-1">
-                <div class="flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full ${info.dotColor}"></span>
-                  <h4 class="text-base font-bold font-heading text-white">${info.name}</h4>
-                </div>
+          <div class="relative bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 ${info.borderColor} rounded-3xl p-5 shadow-2xl flex flex-col transition hover:scale-[1.01] duration-300 overflow-hidden ${info.glow}">
+            
+            <!-- Resplandor de fondo superior -->
+            <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 blur-3xl rounded-full opacity-35 pointer-events-none" style="background-color: ${info.themeColor};"></div>
+
+            <!-- MASCOTA GRANDE Y TRANSPARENTE ARRIBA DE LA TABLA -->
+            <div class="relative z-10 -mt-2 mb-3 flex items-center justify-center h-48 sm:h-56 group cursor-pointer" onclick="setAllianceFilter('${alKey}')" title="Ver sólo Alianza ${info.name}">
+              <img 
+                src="${info.mascotImg}" 
+                alt="${info.name}" 
+                class="max-h-full max-w-full object-contain filter drop-shadow-[0_12px_25px_${info.shadow}] group-hover:scale-105 transition duration-300"
+              />
+            </div>
+
+            <!-- Header de la Alianza con Ribbon e Información Oficial -->
+            <div class="border-b border-[#142252] pb-3 mb-3 relative z-10 text-center">
+              <div class="flex items-center justify-center gap-2 mb-1.5">
+                <span class="px-3.5 py-1 rounded-md text-white font-display font-black text-xs uppercase tracking-wider shadow-md" style="background-color: ${info.themeColor}; transform: var(--banner-skew);">
+                  <span style="display:inline-block; transform: skewX(15deg);">${info.name}</span>
+                </span>
                 <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${info.badgeColor}">
                   ${list.length} alumnos
                 </span>
               </div>
-              <p class="text-[11px] text-slate-400 leading-tight">
+              
+              <p class="text-[11px] text-slate-300 font-display font-bold leading-tight mt-1">
                 ${info.carrera}
               </p>
-              <div class="mt-2 text-[10px] text-slate-400 font-mono bg-slate-900/40 p-2 rounded-lg border border-slate-900 flex items-center justify-between">
+              
+              <div class="mt-2.5 text-[10px] text-slate-300 font-mono bg-[#050C24] p-2 rounded-xl border border-[#142252] flex items-center justify-between shadow-inner">
                 <span class="truncate pr-1">Desafío: ${info.desafio}</span>
-                <span class="text-slate-300 font-bold shrink-0">#${appData.alliances?.[alKey]?.rank || '-'} Lugar</span>
+                <span class="text-white font-bold shrink-0" style="color: ${info.themeColor};">#${appData.alliances?.[alKey]?.rank || '-'} Lugar</span>
               </div>
             </div>
 
             <!-- Lista de Estudiantes con Scrollbar Elegante -->
-            <div class="space-y-1.5 max-h-[550px] overflow-y-auto pr-1 custom-scrollbar">
+            <div class="space-y-1.5 max-h-[500px] overflow-y-auto pr-1.5 custom-scrollbar relative z-10">
               ${list.map((s, idx) => `
                 <div 
-                  onclick="selectStudentForSearch('${s.name.replace(/'/g, "\'")}')" 
-                  class="p-2 rounded-lg bg-slate-900/30 border border-slate-900 hover:bg-slate-900/80 ${info.hoverText} transition cursor-pointer flex items-center justify-between text-xs group"
+                  onclick="selectStudentForSearch('${s.name.replace(/'/g, "\\'")}')" 
+                  class="p-2.5 rounded-xl bg-[#050C24]/70 border border-[#142252] hover:bg-[#0E1E48] ${info.hoverText} transition cursor-pointer flex items-center justify-between text-xs group"
                   title="Clic para ver ficha oficial de ${s.name}"
                 >
                   <div class="min-w-0 flex-1 pr-2">
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-2">
                       <span class="text-[10px] font-mono text-slate-500 font-bold shrink-0">${idx + 1}.</span>
                       <span class="text-xs font-medium text-slate-300 truncate group-hover:text-white">${s.name}</span>
                     </div>
-                    <span class="text-[10px] text-slate-400 block truncate pl-4">${s.carrera}</span>
+                    <span class="text-[10px] text-slate-400 block truncate pl-5">${s.carrera}</span>
                   </div>
-                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-600 group-hover:text-white shrink-0 transition"></i>
+                  <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-white shrink-0 transition"></i>
                 </div>
               `).join('')}
             </div>
@@ -1367,93 +1735,153 @@ function handleStudentSearch(val) {
 
   studentSearchDebounce = setTimeout(async () => {
     box.innerHTML = `
-      <div class="text-center py-6 text-slate-500 text-xs flex items-center justify-center gap-2 font-mono">
-        <span class="w-2.5 h-2.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></span>
-        <span>Consultando padrón oficial...</span>
+      <div class="text-center py-6 text-slate-400 text-xs flex items-center justify-center gap-2 font-display font-bold">
+        <span class="w-4 h-4 border-2 border-[#E6194B] border-t-transparent rounded-full animate-spin"></span>
+        <span>Consultando credenciales en el padrón oficial...</span>
       </div>
     `;
 
     try {
-      const res = await fetch(`/api/students/search?q=${encodeURIComponent(query)}`);
-      const list = await res.json();
+      let list = [];
+      try {
+        const res = await fetch(`/api/students/search?q=${encodeURIComponent(query)}`);
+        if (res.ok) {
+          list = await res.json();
+        }
+      } catch (e) {
+        console.warn('API search fallback a datos locales:', e);
+      }
+
+      if ((!list || list.length === 0) && typeof window !== 'undefined' && Array.isArray(window.STUDENTS_DATA)) {
+        const qNorm = (query || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const qClean = (query || '').toLowerCase().replace(/[^0-9k]/g, '');
+        list = window.STUDENTS_DATA.filter(s => {
+          const nNorm = (s.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const rClean = (s.rut || '').toLowerCase().replace(/[^0-9k]/g, '');
+          const cNorm = (s.carrera || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return nNorm.includes(qNorm) || (qClean.length >= 3 && rClean.includes(qClean)) || cNorm.includes(qNorm);
+        }).slice(0, 10);
+      }
 
       if (list.length === 0) {
         box.innerHTML = `
-          <div class="bg-slate-950 border border-slate-900 rounded-xl p-5 text-center text-slate-400 text-xs">
-            No se encontró ningún estudiante con "<strong>${query}</strong>". Verifica que esté bien escrito o consulta con tu delegado en la mesa de control.
+          <div class="bg-[#050C24] border-2 border-[#142252] rounded-2xl p-6 text-center text-slate-300 text-xs font-display">
+            <i data-lucide="alert-circle" class="w-8 h-8 text-[#E6194B] mx-auto mb-2"></i>
+            No se encontró ningún estudiante con "<strong>${query}</strong>". Verifica que el RUT o apellido esté bien escrito o consulta en la mesa de control en cancha.
           </div>
         `;
+        lucide.createIcons();
         return;
       }
 
       box.innerHTML = list.map(s => {
         const isTerror = s.alliance === 'Terror';
         const isShooter = s.alliance === 'Shooter';
+        const isAction = s.alliance === 'Action';
         
-        const dotColor = isTerror ? 'bg-red-500' : (isShooter ? 'bg-blue-500' : 'bg-emerald-500');
-        const borderColor = isTerror ? 'border-red-950/80 hover:border-red-900/60' : (isShooter ? 'border-blue-950/80 hover:border-blue-900/60' : 'border-emerald-950/80 hover:border-emerald-900/60');
-        const tagColor = isTerror ? 'text-red-400 bg-red-950/40 border-red-900/50' : (isShooter ? 'text-blue-400 bg-blue-950/40 border-blue-900/50' : 'text-emerald-400 bg-emerald-950/40 border-emerald-900/50');
-        const badgeColor = isTerror ? 'text-red-400' : (isShooter ? 'text-blue-400' : 'text-emerald-400');
-        
+        const mascotImg = isTerror 
+          ? '/img/mascota-terror.png' 
+          : (isShooter ? '/img/mascota-shooter.png' : '/img/mascota-action.png');
+          
+        const themeColor = isTerror 
+          ? '#E6194B' 
+          : (isShooter ? '#2D46B9' : '#059669');
+
+        const glowClass = isTerror 
+          ? 'glow-crimson' 
+          : (isShooter ? 'glow-electric' : 'glow-rim');
+          
+        const ribbonBg = isTerror 
+          ? 'bg-[#E6194B]' 
+          : (isShooter ? 'bg-[#2D46B9]' : 'bg-[#059669]');
+
         const alData = appData.alliances?.[s.alliance] || {};
-        const pts = alData.points?.total || 0;
+        const pts = (alData.points?.total || 0).toLocaleString('es-CL');
         const rank = alData.rank || '-';
-        const totalAlumnos = alData.totalStudents || 0;
-        const desafio = alData.desafio || 'Desafío creativo oficial';
+        const totalAlumnos = isTerror ? 126 : (isShooter ? 126 : 29);
+        const desafio = alData.desafio || (isTerror ? 'Videojuego con IA' : (isShooter ? 'Asistente con IA' : 'Collage Digital / Identidad Visual'));
 
         return `
-          <div class="bg-slate-950 border ${borderColor} rounded-2xl p-5 shadow-xl transition space-y-4">
-            <!-- Encabezado del Estudiante -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-900 pb-3">
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="w-2 h-2 rounded-full ${dotColor}"></span>
-                  <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${tagColor}">
-                    Alianza ${s.alliance}
-                  </span>
-                  <span class="text-slate-600 text-xs">•</span>
-                  <span class="text-xs text-slate-400">${s.carrera}</span>
+          <!-- CARNET DE COMPETIDOR ESPORTS CON MASCOTA PNG -->
+          <div class="relative bg-gradient-to-r from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 rounded-3xl p-5 sm:p-6 shadow-2xl transition overflow-hidden ${glowClass}" style="border-color: ${themeColor};">
+            
+            <!-- Resplandor de fondo temático -->
+            <div class="absolute -top-12 -left-12 w-48 h-48 blur-3xl rounded-full opacity-30 pointer-events-none" style="background-color: ${themeColor};"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+              
+              <!-- COLUMNA 1: MASCOTA OFICIAL DE LA ALIANZA -->
+              <div class="w-full md:w-44 flex flex-col items-center shrink-0">
+                <div class="relative w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-[#050C24] border-2 border-white/20 p-2 flex items-center justify-center shadow-2xl" style="box-shadow: 0 0 25px ${themeColor}40;">
+                  <img 
+                    src="${mascotImg}" 
+                    alt="Mascota ${s.alliance}" 
+                    class="w-full h-full object-contain filter drop-shadow-[0_8px_16px_${themeColor}80] hover:scale-105 transition duration-300"
+                  />
                 </div>
-                <h3 class="text-lg font-bold font-heading text-white">${s.name}</h3>
+                <span class="mt-2 text-[10px] font-display font-black tracking-widest text-slate-300 uppercase block">
+                  Mascota de Alianza
+                </span>
               </div>
 
-              <!-- Posición Oficial de la Alianza -->
-              <div class="sm:text-right">
-                <span class="text-[10px] font-mono uppercase text-slate-500 block">Posición Oficial</span>
-                <span class="text-xl font-mono font-bold ${badgeColor}">#${rank} Lugar</span>
-                <span class="text-[10px] text-slate-400 font-mono block">${rank === 1 ? '🥇 Líder provisional' : (rank === 2 ? '🥈 Segundo puesto' : '🥉 Tercer puesto')}</span>
+              <!-- COLUMNA 2: FICHA OFICIAL DEL ALUMNO -->
+              <div class="flex-1 w-full space-y-3">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#142252] pb-3">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="px-3 py-0.5 rounded ${ribbonBg} text-white font-display font-black text-xs uppercase tracking-wider" style="transform: var(--banner-skew);">
+                        <span style="display:inline-block; transform: skewX(15deg);">ALIANZA ${s.alliance.toUpperCase()}</span>
+                      </span>
+                      <span class="text-xs text-slate-400 font-mono hidden sm:inline">• ${s.carrera}</span>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-black font-display text-white tracking-tight">
+                      ${s.name}
+                    </h3>
+                    <span class="text-xs text-slate-400 font-mono block sm:hidden mt-0.5">${s.carrera}</span>
+                  </div>
+
+                  <div class="text-left sm:text-right shrink-0 bg-[#050C24] px-3.5 py-1.5 rounded-xl border border-[#142252]">
+                    <span class="text-[10px] font-display font-bold uppercase text-slate-400 block">Posición en Cancha</span>
+                    <span class="text-lg font-black font-display text-white" style="color: ${themeColor};">#${rank} Lugar</span>
+                  </div>
+                </div>
+
+                <!-- Datos Clave en Grid de 3 Columnas -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+                  <div class="bg-[#050C24] border border-[#142252] p-2.5 rounded-xl">
+                    <span class="text-[10px] text-slate-400 uppercase font-display block">Escuadrón</span>
+                    <span class="text-white font-bold mt-0.5 block">${totalAlumnos} integrantes</span>
+                  </div>
+
+                  <div class="bg-[#050C24] border border-[#142252] p-2.5 rounded-xl sm:col-span-2">
+                    <span class="text-[10px] text-slate-400 uppercase font-display block">Desafío Creativo Asignado</span>
+                    <span class="text-slate-200 font-semibold truncate block mt-0.5">${desafio}</span>
+                  </div>
+                </div>
+
+                <!-- Footer del Carnet -->
+                <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <span class="text-[11px] font-display font-bold text-slate-300 flex items-center gap-1.5">
+                    <span class="text-[#E6194B] font-black">=</span>
+                    <span>¡Viste la camiseta o accesorios de tu alianza el 19 de Noviembre!</span>
+                  </span>
+                  <button onclick="setAllianceFilter('${s.alliance}')" class="px-3 py-1.5 rounded-xl bg-[#0E1E48] hover:bg-[#142252] text-white border border-[#2D46B9] font-display font-bold text-xs transition flex items-center justify-center gap-1.5 shrink-0">
+                    <span>Ver compañeros de alianza</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+
               </div>
+
             </div>
 
-            <!-- Ficha Técnica de la Alianza (Desafío, Integrantes y Color) -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
-              <div class="bg-slate-900/40 border border-slate-900 p-2.5 rounded-lg">
-                <span class="text-[10px] text-slate-500 uppercase block">Compañeros</span>
-                <span class="text-white font-semibold mt-0.5 block">${totalAlumnos} integrantes</span>
-              </div>
-
-              <div class="bg-slate-900/40 border border-slate-900 p-2.5 rounded-lg sm:col-span-2">
-                <span class="text-[10px] text-slate-500 uppercase block">Desafío Creativo Asignado</span>
-                <span class="text-slate-300 font-semibold truncate block mt-0.5">${desafio}</span>
-              </div>
-            </div>
-
-            <!-- Botones de Acción Rápida -->
-            <div class="pt-1 flex items-center justify-between text-xs">
-              <span class="text-[11px] text-slate-500 font-mono">
-                Preséntate con el color de tu alianza el día 19.
-              </span>
-              <button onclick="navigate('actividades')" class="text-slate-400 hover:text-white transition flex items-center gap-1 font-medium">
-                <span>Ver actividades del 19</span>
-                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-              </button>
-            </div>
           </div>
         `;
       }).join('');
       lucide.createIcons();
     } catch (err) {
-      box.innerHTML = `<div class="text-xs text-red-400 text-center font-mono py-4">Error al consultar el padrón oficial</div>`;
+      box.innerHTML = `<div class="text-xs text-[#E6194B] text-center font-display font-bold py-4">Error al consultar el padrón oficial</div>`;
     }
   }, 250);
 }

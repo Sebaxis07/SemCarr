@@ -1885,7 +1885,7 @@ function renderDashboardLogisticaView(data) {
 // =========================================================================
 // MÓDULO 16: CAMBIO E INTERCAMBIO DE ALIANZAS (MESA DE CONTROL)
 // =========================================================================
-let trasladosTab = 'individual'; // 'individual' | 'swap'
+let trasladosTab = 'solicitudes'; // 'solicitudes' | 'individual' | 'swap'
 let selectedMoveStudent = null;
 let selectedSwapStudent1 = null;
 let selectedSwapStudent2 = null;
@@ -1894,7 +1894,15 @@ let moveSearchTimeout = null;
 let swapSearchTimeout1 = null;
 let swapSearchTimeout2 = null;
 
+// Variables de Solicitudes Públicas
+let adminAllianceRequestsData = [];
+let adminRequestsFilter = 'all';
+let adminRequestsCounts = { Terror: 126, Shooter: 126, Action: 29 };
+let adminRequestsConfig = { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
+
 function renderTrasladosPanel() {
+  const pendingCount = (adminAllianceRequestsData || []).filter(r => r.status === 'pending').length;
+
   return `
     <div class="space-y-6">
       <!-- HEADER DEL MÓDULO -->
@@ -1907,31 +1915,41 @@ function renderTrasladosPanel() {
         </div>
         <h3 class="text-xl font-bold font-heading text-white tracking-tight">Cambio e Intercambio de Alianzas</h3>
         <p class="text-xs text-slate-400 mt-1">
-          Reasignación oficial de nóminas previa al evento. Permite reubicar a un estudiante individualmente o permutar 1 a 1 entre dos alianzas, con registro obligatorio de motivo en la bitácora de auditoría.
+          Gestión de solicitudes públicas de cambio, traslados individuales directos y permutas 1 a 1 entre alianzas con trazabilidad y auditoría.
         </p>
       </div>
 
-      <!-- TABS MINIMALISTAS: TRASLADO INDIVIDUAL VS PERMUTA 1 A 1 -->
-      <div class="flex items-center gap-2 p-1 bg-slate-900/40 border border-slate-900 rounded-xl w-fit">
+      <!-- TABS: SOLICITUDES PÚBLICAS VS TRASLADO INDIVIDUAL VS PERMUTA 1 A 1 -->
+      <div class="flex flex-wrap items-center gap-2 p-1 bg-slate-900/40 border border-slate-900 rounded-xl w-fit">
+        <button 
+          onclick="switchTrasladosTab('solicitudes')"
+          class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${trasladosTab === 'solicitudes' ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white border border-transparent'}"
+        >
+          <i data-lucide="inbox" class="w-3.5 h-3.5 text-red-400"></i>
+          <span>Solicitudes Públicas</span>
+          <span id="admin-pending-tab-badge" class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold ${pendingCount > 0 ? 'bg-red-600 text-white' : 'hidden'}">
+            ${pendingCount}
+          </span>
+        </button>
         <button 
           onclick="switchTrasladosTab('individual')"
           class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${trasladosTab === 'individual' ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white border border-transparent'}"
         >
           <i data-lucide="user-minus" class="w-3.5 h-3.5"></i>
-          <span>Traslado Individual</span>
+          <span>Traslado Individual (Manual)</span>
         </button>
         <button 
           onclick="switchTrasladosTab('swap')"
           class="px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 ${trasladosTab === 'swap' ? 'bg-slate-900 text-white border border-slate-700 shadow-sm' : 'text-slate-400 hover:text-white border border-transparent'}"
         >
           <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
-          <span>Intercambio 1 a 1 (Permuta)</span>
+          <span>Intercambio 1 a 1 (Permuta Manual)</span>
         </button>
       </div>
 
       <!-- VISTA SEGÚN TAB ACTIVO -->
       <div id="traslados-tab-content">
-        ${trasladosTab === 'individual' ? renderTrasladoIndividualView() : renderPermutaSwapView()}
+        ${trasladosTab === 'solicitudes' ? renderPublicRequestsView() : (trasladosTab === 'individual' ? renderTrasladoIndividualView() : renderPermutaSwapView())}
       </div>
 
       <!-- HISTORIAL RECIENTE DE TRASLADOS Y PERMUTAS -->
@@ -2180,6 +2198,9 @@ function renderPermutaSwapView() {
 }
 
 function initTrasladosModule() {
+  if (trasladosTab === 'solicitudes') {
+    loadAdminAllianceRequests();
+  }
   loadTrasladosHistory();
 }
 
@@ -2187,17 +2208,28 @@ function switchTrasladosTab(tab) {
   trasladosTab = tab;
   const content = document.getElementById('traslados-tab-content');
   if (content) {
-    content.innerHTML = tab === 'individual' ? renderTrasladoIndividualView() : renderPermutaSwapView();
+    if (tab === 'solicitudes') {
+      content.innerHTML = renderPublicRequestsView();
+    } else if (tab === 'individual') {
+      content.innerHTML = renderTrasladoIndividualView();
+    } else {
+      content.innerHTML = renderPermutaSwapView();
+    }
+
     const tabButtons = document.querySelectorAll('[onclick^="switchTrasladosTab"]');
     tabButtons.forEach(btn => {
-      const isInd = btn.getAttribute('onclick').includes('individual');
-      if ((isInd && tab === 'individual') || (!isInd && tab === 'swap')) {
+      const oc = btn.getAttribute('onclick') || '';
+      if (oc.includes(`'${tab}'`)) {
         btn.className = 'px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 bg-slate-900 text-white border border-slate-700 shadow-sm';
       } else {
         btn.className = 'px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-slate-400 hover:text-white border border-transparent';
       }
     });
     lucide.createIcons();
+
+    if (tab === 'solicitudes') {
+      loadAdminAllianceRequests();
+    }
   } else {
     renderCurrentTab();
   }
@@ -2480,6 +2512,493 @@ async function loadTrasladosHistory() {
     lucide.createIcons();
   } catch (e) {
     container.innerHTML = `<div class="p-3 text-center text-xs text-red-400 font-mono">Error al cargar historial de traslados.</div>`;
+  }
+}
+
+// =========================================================================
+// MÓDULO DE SOLICITUDES PÚBLICAS DE CAMBIO (ADMINISTRACIÓN)
+// =========================================================================
+
+function renderPublicRequestsView() {
+  const counts = adminRequestsCounts || { Terror: 126, Shooter: 126, Action: 29 };
+  const diff = counts.Terror - counts.Shooter;
+  const absDiff = Math.abs(diff);
+  const maxDiff = adminRequestsConfig?.maxDiff || 4;
+  const isBalanced = absDiff <= maxDiff;
+
+  return `
+    <div class="space-y-5">
+      
+      <!-- 1. BARRA DE BALANCE DE CUPOS & CONFIGURACIÓN RÁPIDA -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- Tarjetas de Balance (Columna Izquierda 7 cols) -->
+        <div class="lg:col-span-7 bg-slate-900/40 border border-slate-900 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+            <span class="text-xs font-bold font-mono uppercase text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="scale" class="w-4 h-4 text-amber-400"></i>
+              <span>Balance de Cupos Oficiales (Terror vs Shooter)</span>
+            </span>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full ${isBalanced ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-900/60' : 'bg-red-950/60 text-red-400 border border-red-900/60'} font-bold">
+              ${isBalanced ? 'Balance Válido' : 'Desbalance Excedido'}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5 text-center">
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-red-950/60">
+              <span class="text-[10px] text-red-400 font-bold block uppercase font-mono">Alianza Terror</span>
+              <span id="admin-t-count" class="text-lg font-black text-white font-mono mt-0.5 block">${counts.Terror}</span>
+              <span class="text-[9px] text-slate-500 font-mono">alumnos</span>
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-blue-950/60">
+              <span class="text-[10px] text-blue-400 font-bold block uppercase font-mono">Alianza Shooter</span>
+              <span id="admin-s-count" class="text-lg font-black text-white font-mono mt-0.5 block">${counts.Shooter}</span>
+              <span class="text-[9px] text-slate-500 font-mono">alumnos</span>
+            </div>
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 font-bold block uppercase font-mono">Diferencia Neta</span>
+              <span id="admin-diff-count" class="text-lg font-black ${isBalanced ? 'text-amber-400' : 'text-red-400'} font-mono mt-0.5 block">
+                ${absDiff} / ${maxDiff}
+              </span>
+              <span class="text-[9px] text-slate-500 font-mono">máx. permitido</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de Configuración de Apertura (Columna Derecha 5 cols) -->
+        <div class="lg:col-span-5 bg-slate-900/40 border border-slate-900 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+            <span class="text-xs font-bold font-mono uppercase text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="settings-2" class="w-4 h-4 text-slate-400"></i>
+              <span>Parámetros de Recepción</span>
+            </span>
+            <button onclick="adminSaveAllianceSettings()" class="text-[10px] font-mono px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg transition shadow">
+              Guardar
+            </button>
+          </div>
+
+          <div class="space-y-2 text-xs font-mono">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Recepción Pública:</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="admin-cfg-open" class="sr-only peer" ${adminRequestsConfig?.open ? 'checked' : ''} onchange="document.getElementById('admin-cfg-open-label').textContent = this.checked ? 'Abierta' : 'Cerrada'">
+                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                <span class="ml-2 text-[11px] font-bold text-slate-300" id="admin-cfg-open-label">${adminRequestsConfig?.open ? 'Abierta' : 'Cerrada'}</span>
+              </label>
+            </div>
+
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-400">Fecha Límite:</span>
+              <input 
+                type="datetime-local" 
+                id="admin-cfg-deadline" 
+                value="${adminRequestsConfig?.deadline ? new Date(adminRequestsConfig.deadline).toISOString().slice(0, 16) : '2026-11-16T23:59'}"
+                class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-white focus:outline-none font-mono"
+              />
+            </div>
+
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-400">Diferencia Máx:</span>
+              <input 
+                type="number" 
+                id="admin-cfg-maxdiff" 
+                min="1" 
+                max="20" 
+                value="${maxDiff}"
+                class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-white text-center focus:outline-none font-mono font-bold"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 2. PESTAÑAS / FILTROS DE ESTADO -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-900 pb-3">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs">
+          <button 
+            onclick="setAdminRequestsFilter('all')" 
+            id="req-filter-all"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'all' ? 'bg-slate-800 text-white border border-slate-700' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+          >
+            Todas (${adminAllianceRequestsData.length})
+          </button>
+          <button 
+            onclick="setAdminRequestsFilter('pending')" 
+            id="req-filter-pending"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'pending' ? 'bg-amber-950/60 text-amber-300 border border-amber-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+          >
+            Pendientes (${adminAllianceRequestsData.filter(r => r.status === 'pending').length})
+          </button>
+          <button 
+            onclick="setAdminRequestsFilter('waiting_list')" 
+            id="req-filter-waiting_list"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'waiting_list' ? 'bg-blue-950/60 text-blue-300 border border-blue-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+          >
+            Lista de Espera (${adminAllianceRequestsData.filter(r => r.status === 'waiting_list').length})
+          </button>
+          <button 
+            onclick="setAdminRequestsFilter('approved')" 
+            id="req-filter-approved"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'approved' ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+          >
+            Aprobadas (${adminAllianceRequestsData.filter(r => r.status === 'approved').length})
+          </button>
+          <button 
+            onclick="setAdminRequestsFilter('rejected')" 
+            id="req-filter-rejected"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${adminRequestsFilter === 'rejected' ? 'bg-red-950/60 text-red-300 border border-red-900/80' : 'text-slate-400 hover:text-white hover:bg-slate-900/50'}"
+          >
+            Rechazadas (${adminAllianceRequestsData.filter(r => r.status === 'rejected').length})
+          </button>
+        </div>
+
+        <button onclick="loadAdminAllianceRequests()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-mono transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Recargar Solicitudes</span>
+        </button>
+      </div>
+
+      <!-- 3. TABLA DE SOLICITUDES -->
+      <div id="admin-requests-table-container" class="space-y-2">
+        ${renderAdminRequestsTableContent()}
+      </div>
+
+    </div>
+  `;
+}
+
+function setAdminRequestsFilter(filter) {
+  adminRequestsFilter = filter;
+  const container = document.getElementById('admin-requests-table-container');
+  if (container) {
+    container.innerHTML = renderAdminRequestsTableContent();
+    lucide.createIcons();
+  }
+
+  // Actualizar botones de filtro
+  ['all', 'pending', 'waiting_list', 'approved', 'rejected'].forEach(f => {
+    const btn = document.getElementById(`req-filter-${f}`);
+    if (btn) {
+      if (f === filter) {
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-slate-800 text-white border border-slate-700';
+      } else {
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-900/50';
+      }
+    }
+  });
+}
+
+function renderAdminRequestsTableContent() {
+  let list = adminAllianceRequestsData || [];
+  if (adminRequestsFilter !== 'all') {
+    list = list.filter(r => r.status === adminRequestsFilter);
+  }
+
+  if (list.length === 0) {
+    return `
+      <div class="p-8 text-center text-xs text-slate-500 bg-slate-900/20 rounded-2xl border border-slate-900 font-mono">
+        <i data-lucide="inbox" class="w-8 h-8 text-slate-600 mx-auto mb-2"></i>
+        No hay solicitudes en esta categoría.
+      </div>
+    `;
+  }
+
+  return list.map(r => {
+    const isPending = r.status === 'pending';
+    const isWaiting = r.status === 'waiting_list';
+    const isApproved = r.status === 'approved';
+    const isRejected = r.status === 'rejected';
+    const isReverted = r.status === 'reverted';
+
+    let statusBadge = '';
+    if (isPending) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-800/60">Pendiente</span>';
+    else if (isWaiting) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950/80 text-blue-300 border border-blue-800/60">En Espera</span>';
+    else if (isApproved) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">Aprobada</span>';
+    else if (isRejected) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-300 border border-red-900/60">Rechazada</span>';
+    else if (isReverted) statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700">Revertida</span>';
+
+    const dateStr = new Date(r.createdAt).toLocaleString('es-CL', {
+      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+
+    return `
+      <div class="p-3.5 bg-slate-950/80 border border-slate-900 hover:border-slate-800 rounded-2xl transition space-y-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          
+          <!-- Identificación del Estudiante & Movimiento -->
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <span class="font-bold text-white text-xs">${r.studentName}</span>
+              <span class="text-[10px] text-slate-400 font-mono">• ${r.carrera}</span>
+              
+              <!-- Badges informativos -->
+              ${r.isSwap ? `
+                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-950/80 text-purple-300 border border-purple-800/60 flex items-center gap-1">
+                  <i data-lucide="refresh-cw" class="w-2.5 h-2.5"></i>
+                  <span>Permuta Emparejada</span>
+                </span>
+              ` : ''}
+
+              ${r.multiRutDeviceAlert ? `
+                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-red-950/80 text-red-300 border border-red-800/60 animate-pulse flex items-center gap-1" title="Se detectaron solicitudes con múltiples RUTs desde la misma IP">
+                  <i data-lucide="alert-triangle" class="w-2.5 h-2.5 text-red-400"></i>
+                  <span>Alerta: Varios RUTs misma IP</span>
+                </span>
+              ` : ''}
+
+              ${r.isForced ? `
+                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-950/80 text-amber-300 border border-amber-800/60">
+                  Excepción Directiva
+                </span>
+              ` : ''}
+
+              ${r.termsAccepted ? `
+                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 flex items-center gap-1" title="Aceptó el reglamento oficial de traslados">
+                  <i data-lucide="shield-check" class="w-2.5 h-2.5"></i>
+                  <span>Reglamento Aceptado</span>
+                </span>
+              ` : ''}
+            </div>
+
+            <!-- Movimiento de Alianza -->
+            <div class="flex items-center gap-2 text-xs font-mono">
+              <span class="text-slate-400">Cambio:</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${r.currentAlliance === 'Terror' ? 'text-red-400 bg-red-950/40' : 'text-blue-400 bg-blue-950/40'}">
+                ${r.currentAlliance}
+              </span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-500"></i>
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${r.targetAlliance === 'Terror' ? 'text-red-400 bg-red-950/40' : 'text-blue-400 bg-blue-950/40'}">
+                ${r.targetAlliance}
+              </span>
+              <span class="text-slate-600 text-[10px] hidden sm:inline">• ${dateStr}</span>
+            </div>
+
+            ${r.reason ? `
+              <p class="text-[11px] text-slate-400 font-sans mt-1.5 bg-slate-900/40 p-2 rounded-xl border border-slate-900/60">
+                <span class="text-slate-500 font-mono text-[10px] uppercase font-bold block mb-0.5">Motivo del estudiante:</span>
+                "${r.reason}"
+              </p>
+            ` : ''}
+
+            ${r.rejectReason ? `
+              <p class="text-[11px] text-red-300 font-sans mt-1 bg-red-950/30 p-2 rounded-xl border border-red-900/40">
+                <span class="text-red-400 font-mono text-[10px] uppercase font-bold block mb-0.5">Motivo de rechazo:</span>
+                "${r.rejectReason}"
+              </p>
+            ` : ''}
+          </div>
+
+          <!-- Estado y Botones de Acción -->
+          <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            ${statusBadge}
+
+            ${isPending ? `
+              <button 
+                onclick="adminApproveAllianceRequest('${r.id}')"
+                class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold transition flex items-center gap-1 shadow"
+                title="Aprobar solicitud y reasignar estudiante"
+              >
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Aprobar</span>
+              </button>
+              <button 
+                onclick="adminOpenRejectModal('${r.id}', '${r.studentName.replace(/'/g, "\\'")}')"
+                class="px-2.5 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900/60 border border-red-800/60 text-red-300 font-mono text-xs font-bold transition flex items-center gap-1"
+                title="Rechazar solicitud con motivo"
+              >
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                <span>Rechazar</span>
+              </button>
+            ` : ''}
+
+            ${isWaiting ? `
+              <button 
+                onclick="adminForceApproveAllianceRequest('${r.id}')"
+                class="px-2.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold transition flex items-center gap-1 shadow"
+                title="Aprobación Excepcional fuera de cupo"
+              >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Aprobación Excepcional</span>
+              </button>
+              <button 
+                onclick="adminOpenRejectModal('${r.id}', '${r.studentName.replace(/'/g, "\\'")}')"
+                class="px-2.5 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900/60 border border-red-800/60 text-red-300 font-mono text-xs font-bold transition flex items-center gap-1"
+              >
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                <span>Rechazar</span>
+              </button>
+            ` : ''}
+
+            ${isApproved ? `
+              <button 
+                onclick="adminRevertAllianceRequest('${r.id}')"
+                class="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-mono text-xs transition flex items-center gap-1"
+                title="Revertir cambio si el estudiante avisa error o suplantación"
+              >
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Revertir</span>
+              </button>
+            ` : ''}
+
+          </div>
+
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadAdminAllianceRequests() {
+  try {
+    const res = await fetch('/api/admin/alliance-requests', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (!res.ok) throw new Error('Error al cargar solicitudes');
+    const data = await res.json();
+    adminAllianceRequestsData = data.requests || [];
+    adminRequestsConfig = data.config || {};
+    adminRequestsCounts = data.counts || { Terror: 126, Shooter: 126, Action: 29 };
+
+    // Actualizar badge de la pestaña
+    const pendingCount = adminAllianceRequestsData.filter(r => r.status === 'pending').length;
+    const badge = document.getElementById('admin-pending-tab-badge');
+    if (badge) {
+      badge.textContent = pendingCount;
+      if (pendingCount > 0) badge.classList.remove('hidden');
+      else badge.classList.add('hidden');
+    }
+
+    const container = document.getElementById('admin-requests-table-container');
+    if (container) {
+      container.innerHTML = renderAdminRequestsTableContent();
+      lucide.createIcons();
+    }
+  } catch (err) {
+    console.error('Error cargando solicitudes de alianza:', err);
+  }
+}
+
+async function adminApproveAllianceRequest(reqId) {
+  if (!confirm('¿Confirma que desea APROBAR esta solicitud de cambio de alianza? Se actualizará la nómina oficial.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/alliance-requests/${reqId}/approve`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Error al aprobar solicitud');
+      return;
+    }
+    loadAdminAllianceRequests();
+    loadStats();
+    loadTrasladosHistory();
+  } catch (err) {
+    alert('Error de conexión al aprobar');
+  }
+}
+
+function adminOpenRejectModal(reqId, studentName) {
+  openReasonModal(`Rechazar Solicitud de ${studentName}`, async (reason) => {
+    try {
+      const res = await fetch(`/api/admin/alliance-requests/${reqId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({ reason })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Error al rechazar solicitud');
+        return;
+      }
+      loadAdminAllianceRequests();
+    } catch (err) {
+      alert('Error de conexión al rechazar');
+    }
+  });
+}
+
+async function adminForceApproveAllianceRequest(reqId) {
+  if (!confirm('Esta solicitud está en Lista de Espera por límite de cupos.\\n¿Desea aplicar una APROBACIÓN EXCEPCIONAL fuera de balance?')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/alliance-requests/${reqId}/force-approve`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Error al aprobar excepcionalmente');
+      return;
+    }
+    loadAdminAllianceRequests();
+    loadStats();
+    loadTrasladosHistory();
+  } catch (err) {
+    alert('Error de conexión al forzar aprobación');
+  }
+}
+
+async function adminRevertAllianceRequest(reqId) {
+  if (!confirm('¿Confirma que desea REVERTIR este cambio de alianza? El estudiante será devuelto a su alianza oficial anterior.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/admin/alliance-requests/${reqId}/revert`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Error al revertir cambio');
+      return;
+    }
+    loadAdminAllianceRequests();
+    loadStats();
+    loadTrasladosHistory();
+  } catch (err) {
+    alert('Error de conexión al revertir');
+  }
+}
+
+async function adminSaveAllianceSettings() {
+  const open = document.getElementById('admin-cfg-open')?.checked;
+  const deadline = document.getElementById('admin-cfg-deadline')?.value;
+  const maxDiff = document.getElementById('admin-cfg-maxdiff')?.value;
+
+  try {
+    const res = await fetch('/api/admin/alliance-requests/settings', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        open,
+        deadline: deadline ? new Date(deadline).toISOString() : null,
+        maxDiff: parseInt(maxDiff, 10) || 4
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Error al guardar configuración');
+      return;
+    }
+    adminRequestsConfig = data.config;
+    alert('Parámetros de recepción de solicitudes actualizados correctamente.');
+    loadAdminAllianceRequests();
+  } catch (err) {
+    alert('Error de conexión al guardar parámetros');
   }
 }
 
