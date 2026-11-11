@@ -645,6 +645,8 @@ app.post('/api/admin/activity/gymkanas', requireStaffOrPoints, (req, res) => {
 
   act.pointsAwarded = awarded;
   act.averages = averages;
+  act.status = 'Terminada';
+  if (!act.horaTermino) act.horaTermino = new Date().toISOString();
 
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),
@@ -665,6 +667,11 @@ app.post('/api/admin/activity/status', requireStaffOrPoints, (req, res) => {
   if (!act) return res.status(404).json({ error: 'Actividad no encontrada' });
 
   act.status = status;
+  if (status === 'Terminada' && !act.horaTermino) {
+    act.horaTermino = new Date().toISOString();
+  } else if (status === 'En curso' && !act.horaInicio) {
+    act.horaInicio = new Date().toISOString();
+  }
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),
     action: `Cambio de estado: ${act.name} -> ${status}`,
@@ -1284,20 +1291,22 @@ app.post('/api/admin/sorpresas', requireStaffOrPoints, (req, res) => {
   res.json({ success: true, sorpresa: newSorp });
 });
 
-// 9. Sanciones (200 a 600 puntos)
+// 9. Sanciones (200 a 600 puntos según Sección 8 de las Bases)
 app.post('/api/admin/sanciones', requireAdminOrCoord, (req, res) => {
   const { alliance, pointsDeducted, reason, authorizedBy } = req.body;
   const data = loadData();
   const pts = Number(pointsDeducted);
-  if (pts < 200 || pts > 600) {
-    return res.status(400).json({ error: 'La sanción debe estar entre 200 y 600 puntos según bases oficiales' });
+  if (isNaN(pts) || pts < rules.SANCTIONS.minPoints || pts > rules.SANCTIONS.maxPoints) {
+    return res.status(400).json({ 
+      error: `La sanción debe estar entre ${rules.SANCTIONS.minPoints} y ${rules.SANCTIONS.maxPoints} puntos según bases oficiales` 
+    });
   }
 
   const newSanc = {
     id: Date.now(),
     alliance,
     pointsDeducted: pts,
-    reason,
+    reason: reason || 'Sanción disciplinaria',
     timestamp: new Date().toISOString(),
     authorizedBy: authorizedBy || 'Coordinadora / Juez'
   };
@@ -1314,21 +1323,47 @@ app.post('/api/admin/sanciones', requireAdminOrCoord, (req, res) => {
   res.json({ success: true, sancion: newSanc });
 });
 
-// 10. Reclamos (15 min window)
+// 10. Reclamos con ventana estricta de 15 minutos (Sección 8 de las Bases)
 app.post('/api/admin/reclamos', requireAdminOrCoordOrMesa, (req, res) => {
-  const { alliance, activityId, detail } = req.body;
+  const { alliance, activityId, detail, timestamp, motivoFueraDePlazo, loggedBy } = req.body;
   const data = loadData();
+  const act = (data.activities || []).find(a => a.id === activityId);
+  const now = timestamp ? new Date(timestamp).toISOString() : new Date().toISOString();
+
+  // Evaluar ventana de 15 minutos desde la hora de término de la actividad
+  const windowCheck = rules.evaluateClaimWindow(act?.horaTermino, now);
+
   const newReclamo = {
     id: Date.now(),
     alliance,
     activityId,
+    activityName: act?.name || activityId,
     detail,
-    timestamp: new Date().toISOString(),
+    timestamp: now,
+    horaTerminoActividad: act?.horaTermino || null,
+    fueraDePlazo: !windowCheck.isWithinWindow,
+    plazo: windowCheck.status, // 'dentro de plazo' o 'fuera de plazo'
+    motivoFueraDePlazo: !windowCheck.isWithinWindow ? (motivoFueraDePlazo || 'Ingresado por administración') : null,
     status: 'Pendiente', // Pendiente, En Revisión, Aceptado, Rechazado
     resolution: ''
   };
 
   data.reclamos.push(newReclamo);
+
+  data.auditLogs.unshift({
+    timestamp: now,
+    action: `Ingreso de reclamo: Alianza ${alliance} (${windowCheck.status})`,
+    user: getAuditAuthor(req, loggedBy),
+    details: {
+      reclamoId: newReclamo.id,
+      activityId,
+      fueraDePlazo: newReclamo.fueraDePlazo,
+      plazo: newReclamo.plazo,
+      motivoFueraDePlazo: newReclamo.motivoFueraDePlazo,
+      detail
+    }
+  });
+
   saveData(data);
   res.json({ success: true, reclamo: newReclamo });
 });

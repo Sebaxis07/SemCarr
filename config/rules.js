@@ -661,6 +661,25 @@ function calculateCreativeScores(creativeChallenges) {
   };
 }
 
+// Evaluación de ventana de reclamos (15 minutos tras término de actividad, Sección 8)
+function evaluateClaimWindow(activityEndedAt, claimTimestamp = new Date()) {
+  if (!activityEndedAt) {
+    return { isWithinWindow: true, diffMinutes: 0, status: 'dentro de plazo' };
+  }
+  const endMs = new Date(activityEndedAt).getTime();
+  const claimMs = new Date(claimTimestamp).getTime();
+  const diffMs = claimMs - endMs;
+  const diffMinutes = diffMs / (60 * 1000);
+
+  // A los 15 minutos exactos (o menos): dentro de plazo. Más de 15 minutos: fuera de plazo.
+  const isWithinWindow = diffMs <= 15 * 60 * 1000;
+  return {
+    isWithinWindow,
+    diffMinutes,
+    status: isWithinWindow ? 'dentro de plazo' : 'fuera de plazo'
+  };
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -678,5 +697,6 @@ module.exports = {
   resolveGeneralRanking,
   calculateTriangularStandings,
   calculateDocenteScore,
-  calculateCreativeScores
+  calculateCreativeScores,
+  evaluateClaimWindow
 };
