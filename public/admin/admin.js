@@ -596,7 +596,7 @@ function renderCoreAdminSectionContent(secId) {
               </select>
             </div>
             <div>
-              <label class="text-[11px] text-slate-500 block mb-1">Puntos a Descontar (200 - 600)</label>
+              <label class="text-[11px] text-slate-500 block mb-1">Puntos a descontar: 200 a 600</label>
               <input type="number" id="sancion-pts" min="200" max="600" step="50" value="200" class="w-full bg-[#050C24] border border-[#142252] text-white rounded-lg p-2 text-xs font-mono">
             </div>
             <div>
@@ -6267,7 +6267,7 @@ function renderPuntosGymkanasTab() {
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between text-[10px] font-mono text-slate-500 pb-1">
                     <span>Estudiantes registrados:</span>
-                    <span>Puntaje (0 - 8)</span>
+                    <span>Puntaje: 0 a 8</span>
                   </div>
 
                   <div class="p-2.5 bg-[#050C24]/90 border border-[#142252]/90 rounded-xl min-h-[160px] max-h-64 overflow-y-auto space-y-1.5">
@@ -6627,7 +6627,7 @@ function renderPuntosTarreoTab() {
           ${allZero ? `
             <div class="p-4 bg-amber-950/40 border border-amber-800/80 rounded-2xl flex items-center gap-3 text-xs text-amber-200 font-mono">
               <i data-lucide="info" class="w-5 h-5 text-amber-400 shrink-0"></i>
-              <span><strong>Regla Oficial de Cazatesoros:</strong> Si ninguna alianza encuentra tesoros (0 - 0 - 0), se asignan <strong>950 pts</strong> de manera automática y equitativa a cada alianza.</span>
+              <span><strong>Regla oficial de Cazatesoros:</strong> Si ninguna alianza encuentra tesoros (empate en 0), se asignan <strong>950 pts</strong> de manera automática y equitativa a cada alianza.</span>
             </div>
           ` : `
             <div class="p-4 bg-purple-950/40 border border-purple-800/80 rounded-2xl flex items-center gap-3 text-xs text-purple-200 font-mono">

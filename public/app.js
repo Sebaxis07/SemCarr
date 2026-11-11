@@ -2504,7 +2504,7 @@ function openActivityDetail(id) {
           Igual que en baby fútbol: <strong>Victoria 3 pts</strong>, <strong>Empate 1 pt</strong>, <strong>Derrota 0 pts</strong>.
         </div>
         <div class="text-slate-400">
-          <strong>Criterio de Desempate:</strong> Más rondas ganadas $\rightarrow$ luego más jugadores en pie.
+          <strong>Criterio de desempate:</strong> Más rondas ganadas y luego más jugadores en pie.
         </div>
       </div>
     </div>
