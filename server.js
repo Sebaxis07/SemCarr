@@ -590,47 +590,10 @@ app.post('/api/admin/activity/places', requireStaffOrPoints, (req, res) => {
   act.results = results; // e.g. { Terror: 1, Shooter: 2, Action: 3 } or ties
   act.notes = notes || act.notes;
   act.status = 'Terminada';
+  if (!act.horaTermino) act.horaTermino = new Date().toISOString();
 
-  // Calculate points according to 100%, 60%, 30% of maxPoints
-  // Handle ties: if two tie for 1st, (p1 + p2)/2
-  const p1 = act.pointsDistribution[0];
-  const p2 = act.pointsDistribution[1];
-  const p3 = act.pointsDistribution[2];
-
-  const placeMap = { 1: [], 2: [], 3: [] };
-  ['Terror', 'Shooter', 'Action'].forEach(al => {
-    const pl = Number(results[al]);
-    if (placeMap[pl]) placeMap[pl].push(al);
-  });
-
-  const awarded = { Terror: 0, Shooter: 0, Action: 0 };
-  if (placeMap[1].length === 3) {
-    // 3-way tie for 1st
-    const split = Math.round((p1 + p2 + p3) / 3);
-    awarded.Terror = split;
-    awarded.Shooter = split;
-    awarded.Action = split;
-  } else if (placeMap[1].length === 2) {
-    // 2-way tie for 1st
-    const split = Math.round((p1 + p2) / 2);
-    placeMap[1].forEach(al => awarded[al] = split);
-    if (placeMap[3].length === 1) {
-      awarded[placeMap[3][0]] = p3;
-    }
-  } else if (placeMap[1].length === 1) {
-    awarded[placeMap[1][0]] = p1;
-    if (placeMap[2].length === 2) {
-      // 2-way tie for 2nd
-      const split = Math.round((p2 + p3) / 2);
-      placeMap[2].forEach(al => awarded[al] = split);
-    } else if (placeMap[2].length === 1) {
-      awarded[placeMap[2][0]] = p2;
-      if (placeMap[3].length >= 1) {
-        awarded[placeMap[3][0]] = p3;
-      }
-    }
-  }
-
+  // Distribuir puntos con precisión decimal y manejo de empates según Bases
+  const awarded = rules.distributePointsForTies(act.pointsDistribution, results);
   act.pointsAwarded = awarded;
 
   data.auditLogs.unshift({
@@ -653,93 +616,25 @@ app.post('/api/admin/activity/matches', requireStaffOrPoints, (req, res) => {
 
   act.matches = matches;
   act.status = 'Terminada';
+  if (!act.horaTermino) act.horaTermino = new Date().toISOString();
 
-  // Compute table: 3 pts win, 1 pt tie, 0 loss
-  const table = {
-    Terror: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0 },
-    Shooter: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0 },
-    Action: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0 }
-  };
-
-  matches.forEach(m => {
-    if (m.score1 !== null && m.score2 !== null) {
-      const s1 = Number(m.score1);
-      const s2 = Number(m.score2);
-      const t1 = m.team1;
-      const t2 = m.team2;
-
-      table[t1].pj++;
-      table[t2].pj++;
-      table[t1].gf += s1;
-      table[t1].gc += s2;
-      table[t2].gf += s2;
-      table[t2].gc += s1;
-
-      if (s1 > s2) {
-        table[t1].pts += 3;
-        table[t1].pg++;
-        table[t2].pp++;
-      } else if (s2 > s1) {
-        table[t2].pts += 3;
-        table[t2].pg++;
-        table[t1].pp++;
-      } else {
-        table[t1].pts += 1;
-        table[t2].pts += 1;
-        table[t1].pe++;
-        table[t2].pe++;
-      }
-    }
-  });
-
-  ['Terror', 'Shooter', 'Action'].forEach(al => {
-    table[al].dg = table[al].gf - table[al].gc;
-  });
+  // Calcular tabla, desempates según deporte y puntos oficiales
+  const { table, sorted, places, awarded } = rules.calculateTriangularStandings(activityId, matches, act.pointsDistribution);
 
   act.table = table;
+  act.results = places;
+  act.pointsAwarded = awarded;
 
-  // Rank sorting
-  const sorted = ['Terror', 'Shooter', 'Action'].sort((a, b) => {
-    if (table[b].pts !== table[a].pts) return table[b].pts - table[a].pts;
-    if (table[b].dg !== table[a].dg) return table[b].dg - table[a].dg;
-    return table[b].gf - table[a].gf;
+  data.auditLogs.unshift({
+    timestamp: new Date().toISOString(),
+    action: `Registro partidos: ${act.name}`,
+    user: getAuditAuthor(req, loggedBy),
+    details: { matches, table, results: places, pointsAwarded: awarded }
   });
 
-  // Calculate awarded points based on ranks (4000, 2400, 1200)
-  // Check exact ties in table
-  const awarded = { Terror: 0, Shooter: 0, Action: 0 };
-  const p1 = act.pointsDistribution[0];
-  const p2 = act.pointsDistribution[1];
-  const p3 = act.pointsDistribution[2];
-
-  const t0 = table[sorted[0]];
-  const t1 = table[sorted[1]];
-  const t2 = table[sorted[2]];
-
-  const tie01 = (t0.pts === t1.pts && t0.dg === t1.dg && t0.gf === t1.gf);
-  const tie12 = (t1.pts === t2.pts && t1.dg === t2.dg && t1.gf === t2.gf);
-  const tie02 = (t0.pts === t2.pts && t0.dg === t2.dg && t0.gf === t2.gf);
-
-  if (tie01 && tie12) {
-    const split = Math.round((p1 + p2 + p3) / 3);
-    awarded.Terror = split; awarded.Shooter = split; awarded.Action = split;
-  } else if (tie01) {
-    const split = Math.round((p1 + p2) / 2);
-    awarded[sorted[0]] = split;
-    awarded[sorted[1]] = split;
-    awarded[sorted[2]] = p3;
-  } else if (tie12) {
-    const split = Math.round((p2 + p3) / 2);
-    awarded[sorted[0]] = p1;
-    awarded[sorted[1]] = split;
-    awarded[sorted[2]] = split;
-  } else {
-    awarded[sorted[0]] = p1;
-    awarded[sorted[1]] = p2;
-    awarded[sorted[2]] = p3;
-  }
-
-  act.pointsAwarded = awarded;
+  saveData(data);
+  res.json({ success: true, activity: act });
+});
 
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),

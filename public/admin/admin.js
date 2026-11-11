@@ -5460,11 +5460,12 @@ async function savePlacesResults() {
 // 2. SUBTAB: TORNEO TRIANGULAR (BABY FÚTBOL & QUEMADAS)
 // -------------------------------------------------------------------------
 
-function calculateTriangularStandings(matches) {
+function calculateTriangularStandings(matches, sportId = 'babyfutbol') {
+  const isQuemadas = sportId === 'quemadas';
   const table = {
-    Terror: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0 },
-    Shooter: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0 },
-    Action: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0 }
+    Terror: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, rondasGanadas: 0, rondasPerdidas: 0, jugadoresEnPie: 0 },
+    Shooter: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, rondasGanadas: 0, rondasPerdidas: 0, jugadoresEnPie: 0 },
+    Action: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, rondasGanadas: 0, rondasPerdidas: 0, jugadoresEnPie: 0 }
   };
 
   (matches || []).forEach(m => {
@@ -5476,10 +5477,23 @@ function calculateTriangularStandings(matches) {
 
       table[t1].pj++;
       table[t2].pj++;
-      table[t1].gf += s1;
-      table[t1].gc += s2;
-      table[t2].gf += s2;
-      table[t2].gc += s1;
+
+      if (isQuemadas) {
+        table[t1].rondasGanadas += s1;
+        table[t1].rondasPerdidas += s2;
+        table[t2].rondasGanadas += s2;
+        table[t2].rondasPerdidas += s1;
+
+        const jp1 = Number(m.standing1 ?? m.jugadoresEnPie1 ?? 0);
+        const jp2 = Number(m.standing2 ?? m.jugadoresEnPie2 ?? 0);
+        table[t1].jugadoresEnPie += jp1;
+        table[t2].jugadoresEnPie += jp2;
+      } else {
+        table[t1].gf += s1;
+        table[t1].gc += s2;
+        table[t2].gf += s2;
+        table[t2].gc += s1;
+      }
 
       if (s1 > s2) {
         table[t1].pts += 3;
@@ -5498,14 +5512,26 @@ function calculateTriangularStandings(matches) {
     }
   });
 
-  ['Terror', 'Shooter', 'Action'].forEach(al => {
-    table[al].dg = table[al].gf - table[al].gc;
-  });
+  if (!isQuemadas) {
+    ['Terror', 'Shooter', 'Action'].forEach(al => {
+      table[al].dg = table[al].gf - table[al].gc;
+    });
+  }
 
   const sorted = ['Terror', 'Shooter', 'Action'].sort((a, b) => {
-    if (table[b].pts !== table[a].pts) return table[b].pts - table[a].pts;
-    if (table[b].dg !== table[a].dg) return table[b].dg - table[a].dg;
-    return table[b].gf - table[a].gf;
+    const tA = table[a];
+    const tB = table[b];
+    if (tB.pts !== tA.pts) return tB.pts - tA.pts;
+
+    if (isQuemadas) {
+      if (tB.rondasGanadas !== tA.rondasGanadas) return tB.rondasGanadas - tA.rondasGanadas;
+      if (tB.jugadoresEnPie !== tA.jugadoresEnPie) return tB.jugadoresEnPie - tA.jugadoresEnPie;
+      return 0;
+    } else {
+      if (tB.dg !== tA.dg) return tB.dg - tA.dg;
+      if (tB.gf !== tA.gf) return tB.gf - tA.gf;
+      return 0;
+    }
   });
 
   const p1 = 4000;
@@ -5516,21 +5542,30 @@ function calculateTriangularStandings(matches) {
   const t1 = table[sorted[1]];
   const t2 = table[sorted[2]];
 
-  const tie01 = (t0.pts === t1.pts && t0.dg === t1.dg && t0.gf === t1.gf);
-  const tie12 = (t1.pts === t2.pts && t1.dg === t2.dg && t1.gf === t2.gf);
+  const isTied = (x, y) => {
+    if (x.pts !== y.pts) return false;
+    if (isQuemadas) {
+      return x.rondasGanadas === y.rondasGanadas && x.jugadoresEnPie === y.jugadoresEnPie;
+    } else {
+      return x.dg === y.dg && x.gf === y.gf;
+    }
+  };
+
+  const tie01 = isTied(t0, t1);
+  const tie12 = isTied(t1, t2);
 
   const awarded = { Terror: 0, Shooter: 0, Action: 0 };
 
   if (tie01 && tie12) {
-    const split = Math.round((p1 + p2 + p3) / 3);
+    const split = Number(((p1 + p2 + p3) / 3).toFixed(2));
     awarded.Terror = split; awarded.Shooter = split; awarded.Action = split;
   } else if (tie01) {
-    const split = Math.round((p1 + p2) / 2);
+    const split = Number(((p1 + p2) / 2).toFixed(2));
     awarded[sorted[0]] = split;
     awarded[sorted[1]] = split;
     awarded[sorted[2]] = p3;
   } else if (tie12) {
-    const split = Math.round((p2 + p3) / 2);
+    const split = Number(((p2 + p3) / 2).toFixed(2));
     awarded[sorted[0]] = p1;
     awarded[sorted[1]] = split;
     awarded[sorted[2]] = split;
@@ -5546,7 +5581,7 @@ function calculateTriangularStandings(matches) {
 function renderPuntosTriangularTab() {
   const sportId = puntosState.selectedSport || 'babyfutbol';
   const matches = puntosState.localMatches[sportId] || [];
-  const standings = calculateTriangularStandings(matches);
+  const standings = calculateTriangularStandings(matches, sportId);
 
   const sportNames = {
     babyfutbol: { name: 'Baby Fútbol', unit: 'Goles', icon: 'futbol', max: 4000 },
@@ -5702,9 +5737,15 @@ function renderPuntosTriangularTab() {
                 <th class="py-2.5 px-3 text-center">PG</th>
                 <th class="py-2.5 px-3 text-center">PE</th>
                 <th class="py-2.5 px-3 text-center">PP</th>
-                <th class="py-2.5 px-3 text-center">GF</th>
-                <th class="py-2.5 px-3 text-center">GC</th>
-                <th class="py-2.5 px-3 text-center">DIF</th>
+                ${sportId === 'quemadas' ? `
+                  <th class="py-2.5 px-3 text-center" title="Rondas Ganadas">RG</th>
+                  <th class="py-2.5 px-3 text-center" title="Rondas Perdidas">RP</th>
+                  <th class="py-2.5 px-3 text-center" title="Jugadores en Pie">JP</th>
+                ` : `
+                  <th class="py-2.5 px-3 text-center">GF</th>
+                  <th class="py-2.5 px-3 text-center">GC</th>
+                  <th class="py-2.5 px-3 text-center">DIF</th>
+                `}
                 <th class="py-2.5 px-3 text-center font-bold text-white">PTS Torneo</th>
                 <th class="py-2.5 px-3 text-right font-bold text-emerald-400">Puntos Semana Carrera</th>
               </tr>
@@ -5729,11 +5770,17 @@ function renderPuntosTriangularTab() {
                     <td class="py-3 px-3 text-center text-emerald-400">${row.pg}</td>
                     <td class="py-3 px-3 text-center text-amber-400">${row.pe}</td>
                     <td class="py-3 px-3 text-center text-red-400">${row.pp}</td>
-                    <td class="py-3 px-3 text-center text-slate-300">${row.gf}</td>
-                    <td class="py-3 px-3 text-center text-slate-300">${row.gc}</td>
-                    <td class="py-3 px-3 text-center font-bold ${row.dg > 0 ? 'text-emerald-400' : (row.dg < 0 ? 'text-red-400' : 'text-slate-400')}">
-                      ${row.dg > 0 ? '+' + row.dg : row.dg}
-                    </td>
+                    ${sportId === 'quemadas' ? `
+                      <td class="py-3 px-3 text-center text-slate-300 font-bold">${row.rondasGanadas}</td>
+                      <td class="py-3 px-3 text-center text-slate-400">${row.rondasPerdidas}</td>
+                      <td class="py-3 px-3 text-center font-bold text-emerald-400">${row.jugadoresEnPie}</td>
+                    ` : `
+                      <td class="py-3 px-3 text-center text-slate-300">${row.gf}</td>
+                      <td class="py-3 px-3 text-center text-slate-300">${row.gc}</td>
+                      <td class="py-3 px-3 text-center font-bold ${row.dg > 0 ? 'text-emerald-400' : (row.dg < 0 ? 'text-red-400' : 'text-slate-400')}">
+                        ${row.dg > 0 ? '+' + row.dg : row.dg}
+                      </td>
+                    `}
                     <td class="py-3 px-3 text-center font-bold text-white text-sm bg-[#0A1333]/60">${row.pts}</td>
                     <td class="py-3 px-3 text-right font-bold text-emerald-400 text-sm">
                       +${ptsWeek.toLocaleString('es-CL')} pts

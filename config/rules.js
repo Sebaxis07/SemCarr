@@ -387,6 +387,150 @@ function resolveGeneralRanking(totals, data) {
   return { sorted, ranks, tieBreaks, tieBreakDecisions, firstPlaces, sportsPoints, retroPlaces };
 }
 
+// Cálculo oficial de partidos triangulares (Baby Fútbol y Quemadas)
+function calculateTriangularStandings(activityId, matches, distribution = [4000, 2400, 1200]) {
+  const isQuemadas = activityId === 'quemadas';
+  const table = {
+    Terror: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, rondasGanadas: 0, rondasPerdidas: 0, jugadoresEnPie: 0 },
+    Shooter: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, rondasGanadas: 0, rondasPerdidas: 0, jugadoresEnPie: 0 },
+    Action: { pts: 0, pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, rondasGanadas: 0, rondasPerdidas: 0, jugadoresEnPie: 0 }
+  };
+
+  (matches || []).forEach(m => {
+    if (m.score1 !== null && m.score2 !== null && m.score1 !== '' && m.score2 !== '') {
+      const s1 = Number(m.score1);
+      const s2 = Number(m.score2);
+      const t1 = m.team1;
+      const t2 = m.team2;
+
+      table[t1].pj++;
+      table[t2].pj++;
+
+      if (isQuemadas) {
+        table[t1].rondasGanadas += s1;
+        table[t1].rondasPerdidas += s2;
+        table[t2].rondasGanadas += s2;
+        table[t2].rondasPerdidas += s1;
+
+        const jp1 = Number(m.standing1 ?? m.jugadoresEnPie1 ?? 0);
+        const jp2 = Number(m.standing2 ?? m.jugadoresEnPie2 ?? 0);
+        table[t1].jugadoresEnPie += jp1;
+        table[t2].jugadoresEnPie += jp2;
+      } else {
+        table[t1].gf += s1;
+        table[t1].gc += s2;
+        table[t2].gf += s2;
+        table[t2].gc += s1;
+      }
+
+      if (s1 > s2) {
+        table[t1].pts += 3;
+        table[t1].pg++;
+        table[t2].pp++;
+      } else if (s2 > s1) {
+        table[t2].pts += 3;
+        table[t2].pg++;
+        table[t1].pp++;
+      } else {
+        table[t1].pts += 1;
+        table[t2].pts += 1;
+        table[t1].pe++;
+        table[t2].pe++;
+      }
+    }
+  });
+
+  if (!isQuemadas) {
+    ['Terror', 'Shooter', 'Action'].forEach(al => {
+      table[al].dg = table[al].gf - table[al].gc;
+    });
+  }
+
+  // Ordenamiento con criterios oficiales
+  const sorted = ['Terror', 'Shooter', 'Action'].sort((a, b) => {
+    const tA = table[a];
+    const tB = table[b];
+    if (tB.pts !== tA.pts) return tB.pts - tA.pts;
+
+    if (isQuemadas) {
+      // Quemadas: 1. Rondas ganadas, 2. Jugadores en pie
+      if (tB.rondasGanadas !== tA.rondasGanadas) return tB.rondasGanadas - tA.rondasGanadas;
+      if (tB.jugadoresEnPie !== tA.jugadoresEnPie) return tB.jugadoresEnPie - tA.jugadoresEnPie;
+      return 0;
+    } else {
+      // Baby Fútbol: 1. Diferencia de goles, 2. Goles a favor
+      if (tB.dg !== tA.dg) return tB.dg - tA.dg;
+      if (tB.gf !== tA.gf) return tB.gf - tA.gf;
+      return 0;
+    }
+  });
+
+  // Determinar empates en la tabla
+  const isTied = (x, y) => {
+    if (x.pts !== y.pts) return false;
+    if (isQuemadas) {
+      return x.rondasGanadas === y.rondasGanadas && x.jugadoresEnPie === y.jugadoresEnPie;
+    } else {
+      return x.dg === y.dg && x.gf === y.gf;
+    }
+  };
+
+  const t0 = table[sorted[0]];
+  const t1 = table[sorted[1]];
+  const t2 = table[sorted[2]];
+
+  const tie01 = isTied(t0, t1);
+  const tie12 = isTied(t1, t2);
+
+  const places = {};
+  if (tie01 && tie12) {
+    places[sorted[0]] = 1;
+    places[sorted[1]] = 1;
+    places[sorted[2]] = 1;
+  } else if (tie01) {
+    places[sorted[0]] = 1;
+    places[sorted[1]] = 1;
+    places[sorted[2]] = 3;
+  } else if (tie12) {
+    places[sorted[0]] = 1;
+    places[sorted[1]] = 2;
+    places[sorted[2]] = 2;
+  } else {
+    places[sorted[0]] = 1;
+    places[sorted[1]] = 2;
+    places[sorted[2]] = 3;
+  }
+
+  // Distribución equitativa sin redondeo prematuro (Decisión 2)
+  const p1 = Number(distribution[0] || 4000);
+  const p2 = Number(distribution[1] || 2400);
+  const p3 = Number(distribution[2] || 1200);
+
+  const awarded = {};
+  if (tie01 && tie12) {
+    const split = Number(((p1 + p2 + p3) / 3).toFixed(2));
+    awarded[sorted[0]] = split;
+    awarded[sorted[1]] = split;
+    awarded[sorted[2]] = split;
+  } else if (tie01) {
+    const split = Number(((p1 + p2) / 2).toFixed(2));
+    awarded[sorted[0]] = split;
+    awarded[sorted[1]] = split;
+    awarded[sorted[2]] = p3;
+  } else if (tie12) {
+    const split = Number(((p2 + p3) / 2).toFixed(2));
+    awarded[sorted[0]] = p1;
+    awarded[sorted[1]] = split;
+    awarded[sorted[2]] = split;
+  } else {
+    awarded[sorted[0]] = p1;
+    awarded[sorted[1]] = p2;
+    awarded[sorted[2]] = p3;
+  }
+
+  return { table, sorted, places, awarded };
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -401,5 +545,6 @@ module.exports = {
   countFirstPlaces,
   getSportsPoints,
   getRetroPlace,
-  resolveGeneralRanking
+  resolveGeneralRanking,
+  calculateTriangularStandings
 };
