@@ -680,6 +680,57 @@ function evaluateClaimWindow(activityEndedAt, claimTimestamp = new Date()) {
   };
 }
 
+// Cálculo trazable de Gymkanas por puesto (4 puestos, máx 8 por persona)
+function calculateGymkanaParticipantTotal(posts) {
+  if (!Array.isArray(posts)) return 0;
+  let total = 0;
+  for (let i = 0; i < Math.min(4, posts.length); i++) {
+    const p = posts[i];
+    if (p && (p.attempted === true || p.attempted === 'true' || p.intento === true)) {
+      total += 1; // 1 punto por intentar
+      if (p.solved === true || p.solved === 'true' || p.resolvio === true) {
+        total += 1; // 1 punto extra por resolver
+      }
+    }
+  }
+  return Math.min(8, total);
+}
+
+// Puntos de la alianza en Gymkanas: 3.000 * (promedio / 8)
+function calculateGymkanaAlliancePoints(participants) {
+  if (!Array.isArray(participants) || participants.length === 0) {
+    return { average: 0, pointsAwarded: 0, rawPoints: 0 };
+  }
+  const totals = participants.map(p => {
+    if (typeof p === 'number') return Math.min(8, Math.max(0, p));
+    return calculateGymkanaParticipantTotal(p.posts || []);
+  });
+  const sum = totals.reduce((a, b) => a + b, 0);
+  const average = Number((sum / totals.length).toFixed(2));
+  const rawPoints = 3000 * (average / 8);
+  const pointsAwarded = Math.min(3000, Number(rawPoints.toFixed(2)));
+  return { average, pointsAwarded, rawPoints };
+}
+
+// Función de migración de puntajes planos (0-8) a estructura de 4 puestos trazables
+function migrateGymkanaScoreToPosts(score) {
+  const s = Math.min(8, Math.max(0, Number(score || 0)));
+  let remaining = s;
+  const posts = [];
+  for (let p = 1; p <= 4; p++) {
+    if (remaining >= 2) {
+      posts.push({ post: p, attempted: true, solved: true });
+      remaining -= 2;
+    } else if (remaining === 1) {
+      posts.push({ post: p, attempted: true, solved: false });
+      remaining -= 1;
+    } else {
+      posts.push({ post: p, attempted: false, solved: false });
+    }
+  }
+  return posts;
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -698,5 +749,8 @@ module.exports = {
   calculateTriangularStandings,
   calculateDocenteScore,
   calculateCreativeScores,
-  evaluateClaimWindow
+  evaluateClaimWindow,
+  calculateGymkanaParticipantTotal,
+  calculateGymkanaAlliancePoints,
+  migrateGymkanaScoreToPosts
 };

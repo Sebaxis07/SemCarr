@@ -140,6 +140,218 @@
         "Terror": 0,
         "Shooter": 0,
         "Action": 0
+      },
+      "legacyParticipantCards": {
+        "Terror": [
+          7
+        ],
+        "Shooter": [
+          5,
+          6,
+          4
+        ],
+        "Action": [
+          7,
+          8,
+          8
+        ]
+      },
+      "participantsDetail": {
+        "Terror": [
+          {
+            "id": "Terror_gym_1",
+            "name": "Participante 1",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 4,
+                "attempted": true,
+                "solved": false
+              }
+            ],
+            "total": 7
+          }
+        ],
+        "Shooter": [
+          {
+            "id": "Shooter_gym_1",
+            "name": "Participante 1",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": true,
+                "solved": false
+              },
+              {
+                "post": 4,
+                "attempted": false,
+                "solved": false
+              }
+            ],
+            "total": 5
+          },
+          {
+            "id": "Shooter_gym_2",
+            "name": "Participante 2",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 4,
+                "attempted": false,
+                "solved": false
+              }
+            ],
+            "total": 6
+          },
+          {
+            "id": "Shooter_gym_3",
+            "name": "Participante 3",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": false,
+                "solved": false
+              },
+              {
+                "post": 4,
+                "attempted": false,
+                "solved": false
+              }
+            ],
+            "total": 4
+          }
+        ],
+        "Action": [
+          {
+            "id": "Action_gym_1",
+            "name": "Participante 1",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 4,
+                "attempted": true,
+                "solved": false
+              }
+            ],
+            "total": 7
+          },
+          {
+            "id": "Action_gym_2",
+            "name": "Participante 2",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 4,
+                "attempted": true,
+                "solved": true
+              }
+            ],
+            "total": 8
+          },
+          {
+            "id": "Action_gym_3",
+            "name": "Participante 3",
+            "posts": [
+              {
+                "post": 1,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 2,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 3,
+                "attempted": true,
+                "solved": true
+              },
+              {
+                "post": 4,
+                "attempted": true,
+                "solved": true
+              }
+            ],
+            "total": 8
+          }
+        ]
       }
     },
     {

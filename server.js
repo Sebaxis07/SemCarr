@@ -614,45 +614,80 @@ app.post('/api/admin/activity/matches', requireStaffOrPoints, (req, res) => {
   res.json({ success: true, activity: act });
 });
 
-// 3. Update Gymkanas (Formula: 3000 * (promedio / 8))
+// 3. Update Gymkanas con trazabilidad por persona y por puesto (4 puestos de destreza)
 app.post('/api/admin/activity/gymkanas', requireStaffOrPoints, (req, res) => {
-  const { participantScores, loggedBy } = req.body;
-  // participantScores: { Terror: [4, 6, 8, ...], Shooter: [...], Action: [...] }
+  const { participantsDetail, participantScores, loggedBy } = req.body;
   const data = loadData();
   const act = data.activities.find(a => a.id === 'gymkanas');
   if (!act) return res.status(404).json({ error: 'Gymkanas no encontrada' });
 
-  act.participantCards = participantScores;
-  act.status = 'Terminada';
-
+  const rawInput = participantsDetail || participantScores || {};
+  const normalizedDetail = { Terror: [], Shooter: [], Action: [] };
   const awarded = { Terror: 0, Shooter: 0, Action: 0 };
   const averages = { Terror: 0, Shooter: 0, Action: 0 };
 
   ['Terror', 'Shooter', 'Action'].forEach(al => {
-    const list = participantScores[al] || [];
-    if (list.length > 0) {
-      const sum = list.reduce((a, b) => a + Number(b), 0);
-      const avg = sum / list.length;
-      averages[al] = Number(avg.toFixed(2));
-      // Formula: 3000 * (promedio / 8)
-      awarded[al] = Math.round(3000 * (avg / 8));
-      if (awarded[al] > 3000) awarded[al] = 3000;
-    } else {
-      averages[al] = 0;
-      awarded[al] = 0;
-    }
+    const list = rawInput[al] || [];
+    const formattedList = list.map((item, idx) => {
+      let posts = [];
+      let studentName = `Participante ${idx + 1}`;
+      let studentId = item.studentId || null;
+
+      if (typeof item === 'number') {
+        // Compatibilidad: migrar número plano a 4 puestos
+        posts = rules.migrateGymkanaScoreToPosts(item);
+      } else if (item && Array.isArray(item.posts)) {
+        posts = item.posts;
+        if (item.name) studentName = item.name;
+      } else if (item && typeof item.score === 'number') {
+        posts = rules.migrateGymkanaScoreToPosts(item.score);
+        if (item.name) studentName = item.name;
+      }
+
+      // El total de la persona se calcula siempre a partir del detalle, nunca a mano
+      const calculatedTotal = rules.calculateGymkanaParticipantTotal(posts);
+
+      return {
+        id: studentId || `${al}_gym_${idx + 1}`,
+        studentId,
+        name: studentName,
+        posts,
+        total: calculatedTotal
+      };
+    });
+
+    normalizedDetail[al] = formattedList;
+    const calc = rules.calculateGymkanaAlliancePoints(formattedList);
+    averages[al] = calc.average;
+    awarded[al] = calc.pointsAwarded;
   });
 
-  act.pointsAwarded = awarded;
+  const prevAwarded = act.pointsAwarded;
+  act.participantsDetail = normalizedDetail;
+  act.participantCards = {
+    Terror: normalizedDetail.Terror.map(p => p.total),
+    Shooter: normalizedDetail.Shooter.map(p => p.total),
+    Action: normalizedDetail.Action.map(p => p.total)
+  };
   act.averages = averages;
+  act.pointsAwarded = awarded;
   act.status = 'Terminada';
   if (!act.horaTermino) act.horaTermino = new Date().toISOString();
 
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),
-    action: 'Registro Gymkanas',
+    action: 'Registro trazable de Gymkanas por puesto',
     user: getAuditAuthor(req, loggedBy),
-    details: { averages, pointsAwarded: awarded }
+    details: { 
+      averages, 
+      valorAnterior: prevAwarded, 
+      valorNuevo: awarded,
+      conteoParticipantes: {
+        Terror: normalizedDetail.Terror.length,
+        Shooter: normalizedDetail.Shooter.length,
+        Action: normalizedDetail.Action.length
+      }
+    }
   });
 
   saveData(data);
