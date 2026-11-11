@@ -789,6 +789,41 @@ function validateMatchLineup(activityId, team1Count, team2Count, options = {}) {
   };
 }
 
+// Cálculo de premios de nota académica (1.ª: 1.0, 2.ª: 0.5, 3.ª: 0.3)
+function calculateGradePrizes(ranks, participantsByAlliance) {
+  const prizeMap = {
+    1: GRADE_PRIZES.firstPlace,  // 1.0
+    2: GRADE_PRIZES.secondPlace, // 0.5
+    3: GRADE_PRIZES.thirdPlace   // 0.3
+  };
+
+  const results = {};
+  ['Terror', 'Shooter', 'Action'].forEach(al => {
+    const rank = ranks[al] || 3;
+    const gradeBonus = prizeMap[rank] || 0.3;
+    const participatingList = participantsByAlliance?.[al] || [];
+
+    results[al] = {
+      alliance: al,
+      rank,
+      gradeBonus,
+      gradeBonusLabel: `+${gradeBonus.toFixed(1)} en nota`,
+      beneficiariesCount: participatingList.length,
+      beneficiaries: participatingList.map(p => ({
+        id: p.id || p.studentId,
+        name: p.name,
+        carrera: p.carrera,
+        alliance: al,
+        gradeBonus,
+        activitiesCount: p.activitiesCount || (p.activities ? p.activities.length : 1),
+        activities: p.activities || []
+      }))
+    };
+  });
+
+  return results;
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -811,5 +846,6 @@ module.exports = {
   calculateGymkanaParticipantTotal,
   calculateGymkanaAlliancePoints,
   migrateGymkanaScoreToPosts,
-  validateMatchLineup
+  validateMatchLineup,
+  calculateGradePrizes
 };

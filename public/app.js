@@ -2277,6 +2277,63 @@ function renderPremios() {
         `).join('')}
       </div>
 
+      <!-- SECCIÓN OFICIAL DE PREMIOS DE NOTA AL CIERRE -->
+      ${appData.eventClosed && appData.gradePrizes ? `
+        <div class="bg-[#050C24] border-2 border-emerald-500/60 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#142252] pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🎓</span>
+              <div>
+                <h3 class="font-bold font-display text-white text-base">Asignación Oficial de Premios de Nota</h3>
+                <span class="text-xs text-emerald-400 font-mono">Evento cerrado y ratificado por: ${appData.eventClosedBy || 'Administración'}</span>
+              </div>
+            </div>
+            <span class="text-[11px] font-mono px-3 py-1 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300">
+              Veredicto Final
+            </span>
+          </div>
+
+          <div class="space-y-4">
+            ${['Terror', 'Shooter', 'Action'].map(alKey => {
+              const prize = appData.gradePrizes[alKey] || {};
+              const list = prize.beneficiaries || [];
+              const colorMap = { Terror: 'text-red-400 border-red-900/60', Shooter: 'text-blue-400 border-blue-900/60', Action: 'text-emerald-400 border-emerald-900/60' };
+
+              return `
+                <div class="p-4 rounded-xl bg-[#0A1333]/40 border ${colorMap[alKey]} space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span class="font-display font-bold text-white text-base">Alianza ${alKey}</span>
+                      <span class="text-xs text-slate-400 font-mono block">Posición oficial: #${prize.rank}° Lugar • Bono: <strong>+${prize.gradeBonus} en nota</strong></span>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-300 px-2.5 py-1 rounded bg-[#050C24] border border-[#142252]">
+                      ${prize.beneficiariesCount || 0} estudiantes con derecho a nota
+                    </span>
+                  </div>
+
+                  <div class="pt-2 border-t border-[#142252]/80">
+                    <span class="text-[11px] font-mono text-slate-400 block mb-2">Lista de participantes con asignación:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
+                      ${list.length > 0 ? list.map((b, i) => `
+                        <div class="p-2 rounded-lg bg-[#050C24] border border-[#142252] text-xs font-mono flex items-center justify-between">
+                          <span class="text-slate-200 truncate pr-1">${i + 1}. ${b.name}</span>
+                          <span class="text-emerald-400 font-bold shrink-0">+${b.gradeBonus}</span>
+                        </div>
+                      `).join('') : '<span class="text-xs text-slate-500 font-mono">Sin participantes registrados en cancha</span>'}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : `
+        <div class="p-4 rounded-xl bg-[#0A1333]/30 border border-[#142252] text-xs text-slate-400 font-mono flex items-center gap-3">
+          <i data-lucide="info" class="w-5 h-5 text-indigo-400 shrink-0"></i>
+          <span>La asignación nominal de puntos de nota (+1,0, +0,5 y +0,3) se habilitará al cierre oficial del evento por decisión de Jefatura, para todos los estudiantes con participación efectiva registrada en al menos una actividad.</span>
+        </div>
+      `}
+
       <!-- DESGLOSE ACUMULADO POR ALIANZA (TABLA MINIMALISTA) -->
       <div class="bg-slate-950 border border-slate-900 rounded-xl p-5 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-900 pb-3">

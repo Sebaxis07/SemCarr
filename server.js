@@ -222,7 +222,11 @@ app.get('/api/stats', (req, res) => {
       sorpresas: data.sorpresas || [],
       activeSorpresa: data.activeSorpresa || null,
       sanciones: data.sanciones || {},
-      reclamos: data.reclamos || []
+      reclamos: data.reclamos || [],
+      eventClosed: Boolean(data.eventClosed),
+      eventClosedAt: data.eventClosedAt || null,
+      eventClosedBy: data.eventClosedBy || null,
+      gradePrizes: data.eventClosed ? data.finalGradePrizes : null
     });
   } catch (err) {
     console.error('Error in /api/stats:', err);
@@ -1922,6 +1926,137 @@ app.post('/api/admin/participants/reopen', requireStaffOrPoints, (req, res) => {
 
   saveData(data);
   res.json({ success: true, actPart });
+});
+
+// Obtener participantes únicos con participación efectiva por alianza
+function getUniqueParticipantsByAlliance(data, students) {
+  const map = { Terror: new Map(), Shooter: new Map(), Action: new Map() };
+
+  // 1. Actividades registradas en activityParticipants
+  Object.entries(data.activityParticipants || {}).forEach(([actId, actObj]) => {
+    ['Terror', 'Shooter', 'Action'].forEach(al => {
+      (actObj.lists?.[al] || []).forEach(p => {
+        const id = p.studentId || p.id;
+        if (!id) return;
+        if (!map[al].has(id)) {
+          const s = (students || []).find(stu => stu.id === id);
+          map[al].set(id, {
+            id,
+            name: p.name || s?.name || 'Estudiante',
+            carrera: p.carrera || s?.carrera || 'No informada',
+            alliance: al,
+            activities: [actId]
+          });
+        } else {
+          const entry = map[al].get(id);
+          if (!entry.activities.includes(actId)) entry.activities.push(actId);
+        }
+      });
+    });
+  });
+
+  // 2. Gymkanas
+  const gym = (data.activities || []).find(a => a.id === 'gymkanas');
+  if (gym?.participantsDetail) {
+    ['Terror', 'Shooter', 'Action'].forEach(al => {
+      (gym.participantsDetail[al] || []).forEach(p => {
+        const id = p.studentId || p.id;
+        if (!id) return;
+        if (!map[al].has(id)) {
+          const s = (students || []).find(stu => stu.id === id);
+          map[al].set(id, {
+            id,
+            name: p.name || s?.name || 'Estudiante',
+            carrera: s?.carrera || 'No informada',
+            alliance: al,
+            activities: ['gymkanas']
+          });
+        } else {
+          const entry = map[al].get(id);
+          if (!entry.activities.includes('gymkanas')) entry.activities.push('gymkanas');
+        }
+      });
+    });
+  }
+
+  return {
+    Terror: Array.from(map.Terror.values()),
+    Shooter: Array.from(map.Shooter.values()),
+    Action: Array.from(map.Action.values())
+  };
+}
+
+// Cierre oficial de evento y asignación de premios de nota académica (1.ª: 1.0, 2.ª: 0.5, 3.ª: 0.3)
+app.post('/api/admin/event/close', security.requireAuth, security.requireRole(['admin']), (req, res) => {
+  const { ratifiedBy, notes } = req.body;
+  const data = loadData();
+  const students = loadStudents();
+
+  const { totals, ranks, sorted } = recalculateGlobalPoints(data);
+  const participantsByAlliance = getUniqueParticipantsByAlliance(data, students);
+  const gradePrizes = rules.calculateGradePrizes(ranks, participantsByAlliance);
+
+  data.eventClosed = true;
+  data.eventClosedAt = new Date().toISOString();
+  data.eventClosedBy = ratifiedBy || 'Administrador / Jefatura';
+  data.eventNotes = notes || 'Cierre oficial y ratificación de premios de nota académica';
+  data.finalGradePrizes = gradePrizes;
+  data.finalRanks = ranks;
+  data.finalTotals = totals;
+
+  data.auditLogs.unshift({
+    timestamp: new Date().toISOString(),
+    action: `Cierre Oficial del Evento y Ratificación de Notas Académicas`,
+    user: getAuditAuthor(req, ratifiedBy),
+    details: {
+      ratifiedBy,
+      podio: sorted,
+      premios: {
+        Terror: { rank: ranks.Terror, bono: gradePrizes.Terror.gradeBonus, beneficiarios: gradePrizes.Terror.beneficiariesCount },
+        Shooter: { rank: ranks.Shooter, bono: gradePrizes.Shooter.gradeBonus, beneficiarios: gradePrizes.Shooter.beneficiariesCount },
+        Action: { rank: ranks.Action, bono: gradePrizes.Action.gradeBonus, beneficiarios: gradePrizes.Action.beneficiariesCount }
+      }
+    }
+  });
+
+  saveData(data);
+  res.json({ success: true, eventClosed: true, gradePrizes, finalRanks: ranks });
+});
+
+// Reabrir evento oficial
+app.post('/api/admin/event/reopen', security.requireAuth, security.requireRole(['admin']), (req, res) => {
+  const { reason, loggedBy } = req.body;
+  if (!reason || !reason.trim()) {
+    return res.status(400).json({ error: 'Se requiere un motivo justificado para reabrir el evento.' });
+  }
+
+  const data = loadData();
+  data.eventClosed = false;
+  data.auditLogs.unshift({
+    timestamp: new Date().toISOString(),
+    action: `Reapertura de Evento Oficial`,
+    user: getAuditAuthor(req, loggedBy),
+    details: { motivo: reason.trim() }
+  });
+
+  saveData(data);
+  res.json({ success: true, eventClosed: false });
+});
+
+// Consulta de premios de nota académica
+app.get('/api/admin/event/grade-prizes', (req, res) => {
+  const data = loadData();
+  const students = loadStudents();
+  const { ranks } = recalculateGlobalPoints(data);
+  const participantsByAlliance = getUniqueParticipantsByAlliance(data, students);
+  const gradePrizes = rules.calculateGradePrizes(ranks, participantsByAlliance);
+
+  res.json({
+    eventClosed: Boolean(data.eventClosed),
+    eventClosedAt: data.eventClosedAt || null,
+    eventClosedBy: data.eventClosedBy || null,
+    gradePrizes
+  });
 });
 
 // Ficha de historial de participación de un estudiante
