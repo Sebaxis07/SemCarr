@@ -824,6 +824,290 @@ function calculateGradePrizes(ranks, participantsByAlliance) {
   return results;
 }
 
+// -------------------------------------------------------------------------
+// Cálculos de detalle y formato oficial por actividad (Sección 5 de las Bases)
+// -------------------------------------------------------------------------
+
+// Trivia: aciertos de 3 representantes por alianza + pregunta extra en empate
+function calculateTriviaScores(detail) {
+  const distribution = ACTIVITY_POINTS.trivia.distribution; // [2000, 1200, 600]
+  const alliances = ['Terror', 'Shooter', 'Action'];
+  const totals = {};
+  const extras = {};
+  const repsByAlliance = {};
+
+  alliances.forEach(al => {
+    const d = detail?.[al];
+    let sum = 0;
+    let extra = 0;
+    let reps = [];
+
+    if (Array.isArray(d)) {
+      reps = d.map(Number);
+      sum = reps.reduce((a, b) => a + b, 0);
+    } else if (d && typeof d === 'object') {
+      reps = Array.isArray(d.reps) ? d.reps.map(Number) : [Number(d.rep1 || 0), Number(d.rep2 || 0), Number(d.rep3 || 0)];
+      sum = reps.reduce((a, b) => a + b, 0);
+      extra = Number(d.preguntaExtra || d.extra || 0);
+    }
+
+    repsByAlliance[al] = reps;
+    totals[al] = sum;
+    extras[al] = extra;
+  });
+
+  const sorted = [...alliances].sort((a, b) => {
+    if (totals[b] !== totals[a]) return totals[b] - totals[a];
+    return (extras[b] || 0) - (extras[a] || 0);
+  });
+
+  const isTied = (x, y) => totals[x] === totals[y] && extras[x] === extras[y];
+  const places = {};
+  const tie01 = isTied(sorted[0], sorted[1]);
+  const tie12 = isTied(sorted[1], sorted[2]);
+
+  if (tie01 && tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 1;
+  } else if (tie01) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 3;
+  } else if (tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 2;
+  } else {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 3;
+  }
+
+  const awarded = distributePointsForTies(distribution, places);
+  return { totals, extras, reps: repsByAlliance, sorted, places, awarded };
+}
+
+// Retro: 4 duelos por enfrentamiento, 1 pt por duelo ganado (máx 8), desempate por rondas y duelo extra
+function calculateRetroScores(detail) {
+  const distribution = ACTIVITY_POINTS.retro.distribution; // [3000, 1800, 900]
+  const alliances = ['Terror', 'Shooter', 'Action'];
+  const victorias = { Terror: 0, Shooter: 0, Action: 0 };
+  const rondas = { Terror: 0, Shooter: 0, Action: 0 };
+  const extra = { Terror: 0, Shooter: 0, Action: 0 };
+
+  if (detail?.matches && Array.isArray(detail.matches)) {
+    detail.matches.forEach(m => {
+      (m.duels || []).forEach(d => {
+        if (d.winner && victorias[d.winner] !== undefined) {
+          victorias[d.winner] += 1;
+        }
+        if (d.r1 !== undefined && m.team1) rondas[m.team1] += Number(d.r1 || 0);
+        if (d.r2 !== undefined && m.team2) rondas[m.team2] += Number(d.r2 || 0);
+      });
+      if (m.dueloExtraWinner && extra[m.dueloExtraWinner] !== undefined) {
+        extra[m.dueloExtraWinner] += 1;
+      }
+    });
+  } else {
+    alliances.forEach(al => {
+      const d = detail?.[al] || {};
+      victorias[al] = Math.min(8, Number(d.victorias || d.wins || 0));
+      rondas[al] = Number(d.rondas || d.rondasGanadas || 0);
+      extra[al] = Number(d.dueloExtra || d.extra || 0);
+    });
+  }
+
+  alliances.forEach(al => victorias[al] = Math.min(8, victorias[al]));
+
+  const sorted = [...alliances].sort((a, b) => {
+    if (victorias[b] !== victorias[a]) return victorias[b] - victorias[a];
+    if (rondas[b] !== rondas[a]) return rondas[b] - rondas[a];
+    return extra[b] - extra[a];
+  });
+
+  const isTied = (x, y) => victorias[x] === victorias[y] && rondas[x] === rondas[y] && extra[x] === extra[y];
+  const places = {};
+  const tie01 = isTied(sorted[0], sorted[1]);
+  const tie12 = isTied(sorted[1], sorted[2]);
+
+  if (tie01 && tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 1;
+  } else if (tie01) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 3;
+  } else if (tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 2;
+  } else {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 3;
+  }
+
+  const awarded = distributePointsForTies(distribution, places);
+  return { victorias, rondas, extra, sorted, places, awarded };
+}
+
+// Taca-Taca y Ping Pong: puntos a favor y en contra, 1 pt victoria (máx 8), desempate por diferencia de puntos y partido extra
+function calculateRacketScores(activityId, detail) {
+  const distribution = ACTIVITY_POINTS[activityId]?.distribution || [1000, 600, 300];
+  const alliances = ['Terror', 'Shooter', 'Action'];
+  const wins = { Terror: 0, Shooter: 0, Action: 0 };
+  const diff = { Terror: 0, Shooter: 0, Action: 0 };
+  const extra = { Terror: 0, Shooter: 0, Action: 0 };
+
+  if (detail?.matches && Array.isArray(detail.matches)) {
+    detail.matches.forEach(m => {
+      const p1 = Number(m.score1 || 0);
+      const p2 = Number(m.score2 || 0);
+      const t1 = m.team1;
+      const t2 = m.team2;
+      if (t1 && t2) {
+        diff[t1] += (p1 - p2);
+        diff[t2] += (p2 - p1);
+        if (p1 > p2) wins[t1] += 1;
+        else if (p2 > p1) wins[t2] += 1;
+      }
+      if (m.partidoExtraWinner && extra[m.partidoExtraWinner] !== undefined) {
+        extra[m.partidoExtraWinner] += 1;
+      }
+    });
+  } else {
+    alliances.forEach(al => {
+      const d = detail?.[al] || {};
+      wins[al] = Math.min(8, Number(d.victorias || d.wins || 0));
+      diff[al] = Number(d.diferenciaPuntos || d.diff || 0);
+      extra[al] = Number(d.partidoExtra || d.extra || 0);
+    });
+  }
+
+  alliances.forEach(al => wins[al] = Math.min(8, wins[al]));
+
+  const sorted = [...alliances].sort((a, b) => {
+    if (wins[b] !== wins[a]) return wins[b] - wins[a];
+    if (diff[b] !== diff[a]) return diff[b] - diff[a];
+    return extra[b] - extra[a];
+  });
+
+  const isTied = (x, y) => wins[x] === wins[y] && diff[x] === diff[y] && extra[x] === extra[y];
+  const places = {};
+  const tie01 = isTied(sorted[0], sorted[1]);
+  const tie12 = isTied(sorted[1], sorted[2]);
+
+  if (tie01 && tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 1;
+  } else if (tie01) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 3;
+  } else if (tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 2;
+  } else {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 3;
+  }
+
+  const awarded = distributePointsForTies(distribution, places);
+  return { wins, diff, extra, sorted, places, awarded };
+}
+
+// Canto: personas de la fila que quedan al terminar (0 a 10) + canción extra en empate
+function calculateCantoScores(detail) {
+  const distribution = ACTIVITY_POINTS.canto.distribution; // [1500, 900, 450]
+  const alliances = ['Terror', 'Shooter', 'Action'];
+  const remaining = {};
+  const extra = {};
+
+  alliances.forEach(al => {
+    const d = detail?.[al];
+    if (typeof d === 'number') {
+      remaining[al] = Math.min(10, Math.max(0, d));
+      extra[al] = 0;
+    } else {
+      remaining[al] = Math.min(10, Math.max(0, Number(d?.restantes ?? d?.quedan ?? 0)));
+      extra[al] = Number(d?.cancionExtra ?? d?.extra ?? 0);
+    }
+  });
+
+  const sorted = [...alliances].sort((a, b) => {
+    if (remaining[b] !== remaining[a]) return remaining[b] - remaining[a];
+    return extra[b] - extra[a];
+  });
+
+  const isTied = (x, y) => remaining[x] === remaining[y] && extra[x] === extra[y];
+  const places = {};
+  const tie01 = isTied(sorted[0], sorted[1]);
+  const tie12 = isTied(sorted[1], sorted[2]);
+
+  if (tie01 && tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 1;
+  } else if (tie01) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 3;
+  } else if (tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 2;
+  } else {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 3;
+  }
+
+  const awarded = distributePointsForTies(distribution, places);
+  return { remaining, extra, sorted, places, awarded };
+}
+
+// Barra y Ruido: 3 mediciones por alianza, promedio y nota de jurado para desempate
+function calculateBarraScores(detail) {
+  const distribution = ACTIVITY_POINTS.barra.distribution; // [1500, 900, 450]
+  const alliances = ['Terror', 'Shooter', 'Action'];
+  const mediciones = {};
+  const promedios = {};
+  const jurado = {};
+
+  alliances.forEach(al => {
+    const d = detail?.[al];
+    let arr = [];
+    let jNota = 0;
+
+    if (Array.isArray(d)) {
+      arr = d.map(Number);
+    } else if (d && typeof d === 'object') {
+      arr = Array.isArray(d.mediciones) ? d.mediciones.map(Number) : [Number(d.m1 || 0), Number(d.m2 || 0), Number(d.m3 || 0)];
+      jNota = Number(d.notaJurado || d.jurado || 0);
+    }
+
+    mediciones[al] = arr;
+    const sum = arr.reduce((a, b) => a + b, 0);
+    promedios[al] = arr.length > 0 ? Number((sum / arr.length).toFixed(2)) : 0;
+    jurado[al] = jNota;
+  });
+
+  const sorted = [...alliances].sort((a, b) => {
+    if (promedios[b] !== promedios[a]) return promedios[b] - promedios[a];
+    return jurado[b] - jurado[a];
+  });
+
+  const isTied = (x, y) => promedios[x] === promedios[y] && jurado[x] === jurado[y];
+  const places = {};
+  const tie01 = isTied(sorted[0], sorted[1]);
+  const tie12 = isTied(sorted[1], sorted[2]);
+
+  if (tie01 && tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 1;
+  } else if (tie01) {
+    places[sorted[0]] = 1; places[sorted[1]] = 1; places[sorted[2]] = 3;
+  } else if (tie12) {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 2;
+  } else {
+    places[sorted[0]] = 1; places[sorted[1]] = 2; places[sorted[2]] = 3;
+  }
+
+  const awarded = distributePointsForTies(distribution, places);
+  return { mediciones, promedios, jurado, sorted, places, awarded };
+}
+
+// Despachador de cálculo detallado por actividad
+function calculateActivityDetailedScores(activityId, detail) {
+  switch (activityId) {
+    case 'trivia':
+      return calculateTriviaScores(detail);
+    case 'retro':
+      return calculateRetroScores(detail);
+    case 'tacataca':
+    case 'pingpong':
+      return calculateRacketScores(activityId, detail);
+    case 'canto':
+      return calculateCantoScores(detail);
+    case 'barra':
+      return calculateBarraScores(detail);
+    default:
+      throw new Error(`Actividad no reconocida para planilla detallada: ${activityId}`);
+  }
+}
+
 module.exports = {
   PROVISIONAL_SETTINGS,
   ACTIVITY_POINTS,
@@ -847,5 +1131,11 @@ module.exports = {
   calculateGymkanaAlliancePoints,
   migrateGymkanaScoreToPosts,
   validateMatchLineup,
-  calculateGradePrizes
+  calculateGradePrizes,
+  calculateTriviaScores,
+  calculateRetroScores,
+  calculateRacketScores,
+  calculateCantoScores,
+  calculateBarraScores,
+  calculateActivityDetailedScores
 };

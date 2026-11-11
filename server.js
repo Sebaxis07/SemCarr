@@ -553,29 +553,83 @@ app.get('/api/admin/security/audit', security.requireAuth, security.requireRole(
 
 // 1. Update Place Activity (Torneo retro, Pingpong, Trivia, Canto, Barra)
 app.post('/api/admin/activity/places', requireStaffOrPoints, (req, res) => {
-  const { activityId, results, loggedBy, notes } = req.body;
+  const { activityId, results, detail, loggedBy, notes } = req.body;
   const data = loadData();
   const act = data.activities.find(a => a.id === activityId);
   if (!act) return res.status(404).json({ error: 'Actividad no encontrada' });
 
-  act.results = results; // e.g. { Terror: 1, Shooter: 2, Action: 3 } or ties
+  let awarded;
+  let places = results;
+
+  if (detail) {
+    try {
+      const computed = rules.calculateActivityDetailedScores(activityId, detail);
+      places = computed.places;
+      awarded = computed.awarded;
+      act.detailedScores = detail;
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  } else {
+    // Distribuir puntos con precisión decimal y manejo de empates según Bases
+    awarded = rules.distributePointsForTies(act.pointsDistribution, results);
+  }
+
+  const prevAwarded = act.pointsAwarded;
+  act.results = places;
   act.notes = notes || act.notes;
   act.status = 'Terminada';
   if (!act.horaTermino) act.horaTermino = new Date().toISOString();
-
-  // Distribuir puntos con precisión decimal y manejo de empates según Bases
-  const awarded = rules.distributePointsForTies(act.pointsDistribution, results);
   act.pointsAwarded = awarded;
 
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),
     action: `Registro de resultados: ${act.name}`,
     user: getAuditAuthor(req, loggedBy),
-    details: { results, pointsAwarded: awarded }
+    details: { valorAnterior: prevAwarded, valorNuevo: awarded, results: places }
   });
 
   saveData(data);
   res.json({ success: true, activity: act });
+});
+
+// Registro detallado de actividad con cálculo automático de posiciones
+app.post('/api/admin/activity/detail', requireStaffOrPoints, (req, res) => {
+  const { activityId, detail, loggedBy, notes } = req.body;
+  const data = loadData();
+  const act = data.activities.find(a => a.id === activityId);
+  if (!act) return res.status(404).json({ error: 'Actividad no encontrada' });
+
+  let computed;
+  try {
+    computed = rules.calculateActivityDetailedScores(activityId, detail);
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  const prevAwarded = act.pointsAwarded;
+  act.detailedScores = detail;
+  act.results = computed.places;
+  act.pointsAwarded = computed.awarded;
+  act.notes = notes || act.notes;
+  act.status = 'Terminada';
+  if (!act.horaTermino) act.horaTermino = new Date().toISOString();
+
+  data.auditLogs.unshift({
+    timestamp: new Date().toISOString(),
+    action: `Registro detallado de planilla: ${act.name}`,
+    user: getAuditAuthor(req, loggedBy),
+    details: {
+      activityId,
+      valorAnterior: prevAwarded,
+      valorNuevo: computed.awarded,
+      lugares: computed.places,
+      detalle: detail
+    }
+  });
+
+  saveData(data);
+  res.json({ success: true, activity: act, computed });
 });
 
 // 2. Update Match Tables (Baby Fútbol / Quemadas)
