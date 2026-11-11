@@ -1,16 +1,7 @@
 
-function fillCreds(u, p) {
-  const uInput = document.getElementById('login-username');
-  const pInput = document.getElementById('login-password');
-  if (uInput) uInput.value = u;
-  if (pInput) pInput.value = p;
-  const alertEl = document.getElementById('login-alert');
-  if (alertEl) alertEl.classList.add('hidden');
-}
-
 // =========================================================================
-// CONSOLA ADMINISTRATIVA Y MESA DE CONTROL - SEMANA DE LA CARRERA 2026
-// INACAP SEDE ANTOFAGASTA - IMPLEMENTACIÓN OWASP ASVS & RBAC
+// CONSOLA ADMINISTRATIVA Y MESA DE CONTROL: SEMANA DE LA CARRERA 2026
+// INACAP SEDE ANTOFAGASTA: IMPLEMENTACIÓN OWASP ASVS & RBAC
 // =========================================================================
 
 let adminToken = sessionStorage.getItem('inacap_admin_token') || null;
