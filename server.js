@@ -219,10 +219,13 @@ function loadStudents() {
   try {
     const file = getWritablePath('students.json');
     if (fs.existsSync(file)) {
-      return JSON.parse(fs.readFileSync(file, 'utf-8'));
+      const raw = fs.readFileSync(file, 'utf-8');
+      if (raw && raw.trim().length > 0) {
+        return JSON.parse(raw);
+      }
     }
   } catch (e) {
-    console.error('Error in loadStudents():', e);
+    // Si hay lectura concurrente durante escritura se recurre a defaultStudents
   }
   return defaultStudents ? JSON.parse(JSON.stringify(defaultStudents)) : [];
 }
