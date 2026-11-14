@@ -13,6 +13,15 @@ const rules = require('./config/rules');
 
 app.use(cors());
 app.use(express.json());
+
+// Proteger carpeta Alumn para evitar descarga publica del CSV con datos sensibles
+app.use((req, res, next) => {
+  if (req.path.toLowerCase().startsWith('/alumn')) {
+    return res.status(404).end();
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 app.use('/alianzas', express.static(path.join(__dirname, 'alianzas')));
@@ -91,7 +100,122 @@ function saveData(data) {
   }
 }
 
+let lastCsvMtime = 0;
+let masterStudentsMap = null;
+
+function getMasterStudentsMap() {
+  if (masterStudentsMap) return masterStudentsMap;
+  masterStudentsMap = new Map();
+  try {
+    const candidates = [
+      path.join(__dirname, 'students_master.json'),
+      path.join(process.cwd(), 'students_master.json')
+    ];
+    let masterList = null;
+    for (const c of candidates) {
+      if (fs.existsSync(c)) {
+        masterList = JSON.parse(fs.readFileSync(c, 'utf8'));
+        break;
+      }
+    }
+    if (masterList && Array.isArray(masterList)) {
+      masterList.forEach(s => {
+        if (s.rut) {
+          const clean = s.rut.replace(/[^0-9kK]/g, '').toUpperCase();
+          masterStudentsMap.set(clean, s);
+        }
+      });
+    }
+  } catch (err) {
+    console.error('Error loading students_master.json:', err);
+  }
+  return masterStudentsMap;
+}
+
+function syncStudentsFromCSV() {
+  try {
+    const dir = path.join(__dirname, 'public', 'Alumn');
+    if (!fs.existsSync(dir)) return;
+    const files = fs.readdirSync(dir)
+      .filter(f => f.toLowerCase().endsWith('.csv'))
+      .map(f => {
+        const p = path.join(dir, f);
+        return { name: f, path: p, mtime: fs.statSync(p).mtimeMs };
+      })
+      .sort((a, b) => b.mtime - a.mtime);
+
+    if (files.length === 0) return;
+    const latest = files[0];
+    if (latest.mtime === lastCsvMtime) return;
+
+    const raw = fs.readFileSync(latest.path, 'utf8');
+    const lines = raw.replace(/^\uFEFF/, '').trim().split(/\r?\n/);
+    if (lines.length < 2) return;
+
+    const delimiter = lines[0].includes(';') ? ';' : ',';
+    const header = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
+
+    const rutIdx = header.findIndex(h => h.includes('rut'));
+    const nameIdx = header.findIndex(h => h.includes('nombre'));
+    const emailIdx = header.findIndex(h => h.includes('correo') || h.includes('email'));
+    const allianceIdx = header.findIndex(h => h.includes('alianza'));
+    const fechaIdx = header.findIndex(h => h.includes('fecha'));
+
+    const masterMap = getMasterStudentsMap();
+    const synced = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const cols = line.split(delimiter).map(c => c.trim());
+      const rut = rutIdx !== -1 ? cols[rutIdx] : (cols[0] || '');
+      const rawName = nameIdx !== -1 ? cols[nameIdx] : (cols[1] || '');
+      const email = emailIdx !== -1 ? cols[emailIdx] : (cols[2] || '');
+      const rawAlliance = allianceIdx !== -1 ? cols[allianceIdx] : (cols[3] || '');
+      const fecha = fechaIdx !== -1 ? cols[fechaIdx] : (cols[4] || '');
+
+      let alliance = 'Terror';
+      const alLower = (rawAlliance || '').toLowerCase();
+      if (alLower.includes('shoot')) alliance = 'Shooter';
+      else if (alLower.includes('action')) alliance = 'Action';
+      else if (alLower.includes('terror')) alliance = 'Terror';
+
+      const cleanRut = (rut || '').replace(/[^0-9kK]/g, '').toUpperCase();
+      const matched = cleanRut ? masterMap.get(cleanRut) : null;
+
+      const id = matched ? matched.id : `insc-${i}`;
+      let carrera = matched ? matched.carrera : '';
+      if (!carrera) {
+        if (alliance === 'Action') carrera = 'Diseño e Industria Digital';
+        else if (alliance === 'Shooter') carrera = 'Telecomunicaciones y Conectividad';
+        else carrera = 'Ingeniería en Informática';
+      }
+
+      synced.push({
+        id,
+        num: i,
+        alliance,
+        name: rawName || (matched ? matched.name : `Estudiante ${i}`),
+        rawName: (rawName || (matched ? matched.name : '')).toUpperCase(),
+        rut: rut || (matched ? matched.rut : ''),
+        email: email || (matched ? matched.email : ''),
+        carrera,
+        fechaInscripcion: fecha
+      });
+    }
+
+    if (synced.length > 0) {
+      saveStudents(synced);
+      defaultStudents = synced;
+      lastCsvMtime = latest.mtime;
+    }
+  } catch (err) {
+    console.error('Error sincronizando estudiantes desde CSV:', err);
+  }
+}
+
 function loadStudents() {
+  syncStudentsFromCSV();
   try {
     const file = getWritablePath('students.json');
     if (fs.existsSync(file)) {

@@ -112,7 +112,8 @@ export function handleStudentSearch(val) {
         const alData = appData.alliances?.[s.alliance] || {};
         const pts = (alData.points?.total || 0).toLocaleString('es-CL');
         const rank = alData.rank || '-';
-        const totalAlumnos = isTerror ? 126 : (isShooter ? 126 : 29);
+        const roster = getAllStudentsByAlliance() || {};
+        const totalAlumnos = roster[s.alliance]?.length || 0;
         const desafio = alData.desafio || (isTerror ? 'Videojuego con IA' : (isShooter ? 'Asistente con IA' : 'Collage Digital / Identidad Visual'));
 
         return `

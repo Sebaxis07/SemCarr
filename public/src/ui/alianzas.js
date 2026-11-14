@@ -10,6 +10,16 @@ export function renderMiAlianza() {
     });
   }
 
+  const rosterData = getAllStudentsByAlliance() || {};
+  const terrorCount = rosterData.Terror?.length || 0;
+  const shooterCount = rosterData.Shooter?.length || 0;
+  const actionCount = rosterData.Action?.length || 0;
+  const totalCount = terrorCount + shooterCount + actionCount;
+  const totalLabel = totalCount > 0 ? `${totalCount} Estudiantes Registrados` : 'Estudiantes Registrados';
+  const terrorLabel = terrorCount > 0 ? `${terrorCount} Alumnos` : 'En Registro';
+  const shooterLabel = shooterCount > 0 ? `${shooterCount} Alumnos` : 'En Registro';
+  const actionLabel = actionCount > 0 ? `${actionCount} Alumnos` : 'En Registro';
+
   return `
     <div class="max-w-6xl mx-auto space-y-8">
       
@@ -19,7 +29,7 @@ export function renderMiAlianza() {
       <div class="text-center space-y-2 relative">
         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0A1333] border border-[#2D46B9] shadow-inner text-[11px] font-display font-bold uppercase tracking-wider text-[#7F9CF5]">
           <span class="w-2 h-2 rounded-full bg-[#E6194B] animate-pulse"></span>
-          <span>Padrón Oficial • 281 Estudiantes Registrados</span>
+          <span>Padrón Oficial • ${totalLabel}</span>
         </div>
 
         <h2 class="esport-title text-3xl sm:text-5xl font-black italic tracking-tight text-white uppercase pt-1">
@@ -55,7 +65,7 @@ export function renderMiAlianza() {
                 <span style="display:inline-block; transform: skewX(15deg);">ALIANZA TERROR</span>
               </span>
               <span class="text-xs font-mono font-bold text-slate-300 bg-[#050C24] border border-[#E6194B]/50 px-2.5 py-0.5 rounded-full">
-                126 Alumnos
+                ${terrorLabel}
               </span>
             </div>
 
@@ -86,7 +96,7 @@ export function renderMiAlianza() {
                 <span style="display:inline-block; transform: skewX(15deg);">ALIANZA SHOOTER</span>
               </span>
               <span class="text-xs font-mono font-bold text-slate-300 bg-[#050C24] border border-[#2D46B9]/50 px-2.5 py-0.5 rounded-full">
-                126 Alumnos
+                ${shooterLabel}
               </span>
             </div>
 
@@ -117,7 +127,7 @@ export function renderMiAlianza() {
                 <span style="display:inline-block; transform: skewX(15deg);">ALIANZA ACTION</span>
               </span>
               <span class="text-xs font-mono font-bold text-slate-300 bg-[#050C24] border border-[#7F9CF5]/50 px-2.5 py-0.5 rounded-full">
-                29 Alumnos
+                ${actionLabel}
               </span>
             </div>
 
@@ -205,7 +215,7 @@ export function renderMiAlianza() {
               id="filter-btn-all" 
               class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${getCurrentAllianceFilter() === 'all' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition"
             >
-              Todas (281)
+              Todas (${totalCount})
             </button>
             <button 
               onclick="setAllianceFilter('Terror')" 
@@ -213,7 +223,7 @@ export function renderMiAlianza() {
               class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${getCurrentAllianceFilter() === 'Terror' ? 'bg-[#E6194B] text-white shadow-lg shadow-[#E6194B]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition flex items-center gap-1.5"
             >
               <span class="w-2 h-2 rounded-full bg-white"></span>
-              <span>Terror (126)</span>
+              <span>Terror (${terrorCount})</span>
             </button>
             <button 
               onclick="setAllianceFilter('Shooter')" 
@@ -221,7 +231,7 @@ export function renderMiAlianza() {
               class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${getCurrentAllianceFilter() === 'Shooter' ? 'bg-[#2D46B9] text-white shadow-lg shadow-[#2D46B9]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition flex items-center gap-1.5"
             >
               <span class="w-2 h-2 rounded-full bg-white"></span>
-              <span>Shooter (126)</span>
+              <span>Shooter (${shooterCount})</span>
             </button>
             <button 
               onclick="setAllianceFilter('Action')" 
@@ -229,7 +239,7 @@ export function renderMiAlianza() {
               class="alliance-filter-btn px-4 py-2 rounded-xl text-xs font-bold ${getCurrentAllianceFilter() === 'Action' ? 'bg-[#059669] text-white shadow-lg shadow-[#059669]/40 border border-white/30' : 'text-slate-300 hover:text-white bg-[#0A1333] border border-[#142252]'} transition flex items-center gap-1.5"
             >
               <span class="w-2 h-2 rounded-full bg-white"></span>
-              <span>Action (29)</span>
+              <span>Action (${actionCount})</span>
             </button>
           </div>
         </div>
@@ -298,7 +308,7 @@ export function renderAlliancesRosterContent() {
       badgeColor: 'text-[#E6194B] bg-[#E6194B]/10 border-[#E6194B]/40',
       borderColor: 'border-[#E6194B]/70 hover:border-[#E6194B]',
       hoverText: 'hover:border-[#E6194B]/70 group-hover:text-[#E6194B]',
-      total: getAllStudentsByAlliance().Terror?.length || 126
+      total: (getAllStudentsByAlliance() && getAllStudentsByAlliance().Terror?.length) || 0
     },
     Shooter: {
       name: 'Alianza Shooter',
@@ -312,7 +322,7 @@ export function renderAlliancesRosterContent() {
       badgeColor: 'text-[#7F9CF5] bg-[#2D46B9]/15 border-[#2D46B9]/40',
       borderColor: 'border-[#2D46B9]/70 hover:border-[#2D46B9]',
       hoverText: 'hover:border-[#2D46B9]/70 group-hover:text-[#7F9CF5]',
-      total: getAllStudentsByAlliance().Shooter?.length || 126
+      total: (getAllStudentsByAlliance() && getAllStudentsByAlliance().Shooter?.length) || 0
     },
     Action: {
       name: 'Alianza Action',
@@ -326,7 +336,7 @@ export function renderAlliancesRosterContent() {
       badgeColor: 'text-emerald-400 bg-[#059669]/15 border-[#059669]/40',
       borderColor: 'border-[#059669]/70 hover:border-[#059669]',
       hoverText: 'hover:border-[#059669]/70 group-hover:text-emerald-400',
-      total: getAllStudentsByAlliance().Action?.length || 29
+      total: (getAllStudentsByAlliance() && getAllStudentsByAlliance().Action?.length) || 0
     }
   };
 
