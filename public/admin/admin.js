@@ -3192,7 +3192,7 @@ function renderParticipantesPanel() {
             </div>
 
             <!-- BUSCADOR CON AUTOCOMPLETADO TERROR -->
-            <div class="relative mb-2.5">
+            <div class="relative mb-1.5">
               <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-600">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </div>
@@ -3205,6 +3205,17 @@ function renderParticipantesPanel() {
               />
               <div id="autocomplete-terror" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
+
+            <!-- BOTÓN ANOTAR EN EL MOMENTO TERROR -->
+            <button 
+              type="button" 
+              onclick="openWalkInParticipantModal('Terror')" 
+              class="w-full mb-2.5 py-1 px-2 text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-red-950/40 border border-[#142252] hover:border-red-600/50 rounded flex items-center justify-center gap-1 transition"
+              title="Anotar estudiante en el momento para Terror"
+            >
+              <i data-lucide="user-plus" class="w-3 h-3 text-red-400"></i>
+              <span>+ Anotar en el Momento</span>
+            </button>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS TERROR -->
             <div id="list-terror" class="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 custom-scrollbar">
@@ -3227,7 +3238,7 @@ function renderParticipantesPanel() {
             </div>
 
             <!-- BUSCADOR CON AUTOCOMPLETADO SHOOTER -->
-            <div class="relative mb-2.5">
+            <div class="relative mb-1.5">
               <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-600">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </div>
@@ -3240,6 +3251,17 @@ function renderParticipantesPanel() {
               />
               <div id="autocomplete-shooter" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
+
+            <!-- BOTÓN ANOTAR EN EL MOMENTO SHOOTER -->
+            <button 
+              type="button" 
+              onclick="openWalkInParticipantModal('Shooter')" 
+              class="w-full mb-2.5 py-1 px-2 text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-blue-950/40 border border-[#142252] hover:border-blue-600/50 rounded flex items-center justify-center gap-1 transition"
+              title="Anotar estudiante en el momento para Shooter"
+            >
+              <i data-lucide="user-plus" class="w-3 h-3 text-blue-400"></i>
+              <span>+ Anotar en el Momento</span>
+            </button>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS SHOOTER -->
             <div id="list-shooter" class="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 custom-scrollbar">
@@ -3262,7 +3284,7 @@ function renderParticipantesPanel() {
             </div>
 
             <!-- BUSCADOR CON AUTOCOMPLETADO ACTION -->
-            <div class="relative mb-2.5">
+            <div class="relative mb-1.5">
               <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-600">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </div>
@@ -3275,6 +3297,17 @@ function renderParticipantesPanel() {
               />
               <div id="autocomplete-action" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
+
+            <!-- BOTÓN ANOTAR EN EL MOMENTO ACTION -->
+            <button 
+              type="button" 
+              onclick="openWalkInParticipantModal('Action')" 
+              class="w-full mb-2.5 py-1 px-2 text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-emerald-950/40 border border-[#142252] hover:border-emerald-600/50 rounded flex items-center justify-center gap-1 transition"
+              title="Anotar estudiante en el momento para Action"
+            >
+              <i data-lucide="user-plus" class="w-3 h-3 text-emerald-400"></i>
+              <span>+ Anotar en el Momento</span>
+            </button>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS ACTION -->
             <div id="list-action" class="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 custom-scrollbar">
@@ -3626,6 +3659,11 @@ function renderActivityParticipantsView() {
   lucide.createIcons();
 }
 
+function escapeHtmlAttr(str) {
+  if (!str) return '';
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // Autocompletado desde el padrón oficial (281 estudiantes)
 async function handleParticipantAutocomplete(alliance, val) {
   const box = document.getElementById(`autocomplete-${alliance.toLowerCase()}`);
@@ -3657,12 +3695,25 @@ async function handleParticipantAutocomplete(alliance, val) {
       const msg = query.length > 0 
         ? `No hay estudiantes de ${alliance} que coincidan o ya están anotados.`
         : `No hay estudiantes disponibles para anotar en ${alliance}.`;
-      box.innerHTML = `<div class="p-3 text-[11px] text-slate-500 font-mono text-center">${msg}</div>`;
+      box.innerHTML = `
+        <div class="p-3 text-[11px] text-slate-400 font-mono text-center">
+          <div>${msg}</div>
+          <button 
+            type="button"
+            onclick="openWalkInParticipantModal('${alliance}', '${escapeHtmlAttr(query)}')" 
+            class="mt-2 w-full py-1.5 px-2.5 rounded bg-[#142252] hover:bg-emerald-600 text-white font-sans text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow"
+          >
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>Anotar "${escapeHtmlAttr(query) || 'nuevo'}" en ${alliance} ahora</span>
+          </button>
+        </div>
+      `;
       box.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
-    box.innerHTML = students.map(s => {
+    const itemsHtml = students.map(s => {
       if (currentActId === 'gymkanas') {
         return `
           <div class="p-2.5 hover:bg-[#142252]/90 text-xs border-b border-[#142252] last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition group">
@@ -3697,7 +3748,19 @@ async function handleParticipantAutocomplete(alliance, val) {
       `;
     }).join('');
 
+    const walkInFooter = `
+      <div 
+        onclick="openWalkInParticipantModal('${alliance}', '${escapeHtmlAttr(query)}')" 
+        class="p-2 bg-[#050C24] hover:bg-[#142252] text-xs border-t border-[#142252] flex items-center justify-center gap-1.5 text-[#7F9CF5] cursor-pointer transition font-mono"
+      >
+        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+        <span>¿No está en la lista? Anotar en el momento</span>
+      </div>
+    `;
+
+    box.innerHTML = itemsHtml + walkInFooter;
     box.classList.remove('hidden');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   } catch (err) {
     console.error(err);
   }
@@ -3787,6 +3850,176 @@ async function doAddParticipant(studentId, targetAlliance, reason, score = null)
     loadStats(); // refresca los cálculos si fue gymkanas
   } catch (err) {
     alert('Error al agregar participante');
+  }
+}
+
+// Modal para inscribir estudiante en el momento (walk in en cancha)
+function openWalkInParticipantModal(alliance, defaultName = '', defaultScore = null) {
+  const modal = document.getElementById('calc-modal');
+  const content = document.getElementById('calc-modal-content');
+  if (!modal || !content) return;
+
+  const currentActId = currentSelectedActivityId || '';
+  const currentAct = (appData.activities || []).find(a => a.id === currentActId);
+  const actName = currentAct ? currentAct.name : 'Actividad';
+  const isGymkana = currentActId === 'gymkanas';
+
+  const allianceColors = {
+    Terror: 'text-red-500 border-red-500/50 bg-red-950/30',
+    Shooter: 'text-blue-500 border-blue-500/50 bg-blue-950/30',
+    Action: 'text-emerald-500 border-emerald-500/50 bg-emerald-950/30'
+  };
+
+  const defaultCarrera = alliance === 'Action' 
+    ? 'Diseño e Industria Digital' 
+    : (alliance === 'Shooter' ? 'Telecomunicaciones y Conectividad' : 'Ingeniería en Informática');
+
+  content.innerHTML = `
+    <div class="space-y-4">
+      <div class="border-b border-[#142252] pb-3 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold">Inscripción en Cancha</span>
+          <h3 class="text-xl font-black font-display text-white mt-0.5">Anotar Participante en el Momento</h3>
+          <span class="text-xs text-slate-400">Actividad: <strong class="text-white">${actName}</strong></span>
+        </div>
+        <button type="button" onclick="closeCalcModal()" class="text-slate-500 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300/90 leading-relaxed">
+        <strong>Importante:</strong> Si el alumno no estaba preinscrito y compite para <strong class="text-white">${alliance}</strong>, quedará registrado y asignado de forma fija a la Alianza <strong class="text-white">${alliance}</strong> para todo el resto del evento.
+      </div>
+
+      <form id="walkin-participant-form" onsubmit="event.preventDefault(); submitWalkInParticipant('${alliance}');" class="space-y-3">
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Alianza Asignada</label>
+          <div class="px-3 py-2 rounded-lg border font-mono font-bold text-xs ${allianceColors[alliance] || 'border-[#142252] text-white'} flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${alliance === 'Terror' ? 'bg-red-500' : (alliance === 'Shooter' ? 'bg-blue-500' : 'bg-emerald-500')}"></span>
+            <span>Alianza ${alliance}</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Nombre Completo del Estudiante *</label>
+          <input 
+            type="text" 
+            id="walkin-name" 
+            required 
+            value="${escapeHtmlAttr(defaultName)}" 
+            placeholder="Ej: Juan Pérez Morales" 
+            class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">RUT (Opcional)</label>
+            <input 
+              type="text" 
+              id="walkin-rut" 
+              placeholder="RUT del estudiante (opcional)" 
+              class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Carrera (Opcional)</label>
+            <input 
+              type="text" 
+              id="walkin-carrera" 
+              value="${defaultCarrera}"
+              placeholder="Carrera" 
+              class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+        </div>
+
+        ${isGymkana ? `
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Puntos Obtenidos en Gymkana (0 a 8 pts)</label>
+            <select id="walkin-gymkana-score" class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white focus:outline-none focus:border-amber-500 transition">
+              ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(p => `
+                <option value="${p}" ${p === (defaultScore !== null && defaultScore !== undefined ? Number(defaultScore) : 0) ? 'selected' : ''}>${p} puntos</option>
+              `).join('')}
+            </select>
+          </div>
+        ` : ''}
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#142252]">
+          <button 
+            type="button" 
+            onclick="closeCalcModal()" 
+            class="px-3 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white border border-transparent hover:border-[#142252] transition"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50"
+          >
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Guardar e Inscribir</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => {
+    const nameInput = document.getElementById('walkin-name');
+    if (nameInput) nameInput.focus();
+  }, 50);
+}
+
+// Enviar inscripción en el momento
+async function submitWalkInParticipant(alliance) {
+  const nameEl = document.getElementById('walkin-name');
+  const rutEl = document.getElementById('walkin-rut');
+  const carreraEl = document.getElementById('walkin-carrera');
+  const gymkanaScoreEl = document.getElementById('walkin-gymkana-score');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const rut = rutEl ? rutEl.value.trim() : '';
+  const carrera = carreraEl ? carreraEl.value.trim() : '';
+  const score = gymkanaScoreEl ? Number(gymkanaScoreEl.value) : undefined;
+
+  if (!name) {
+    alert('Debes ingresar el nombre del estudiante');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/participants/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        activityId: currentSelectedActivityId,
+        alliance,
+        isWalkIn: true,
+        newStudent: { name, rut, carrera },
+        score: score !== undefined ? Number(score) : undefined,
+        loggedBy: (currentUser?.name || 'Staff'),
+        reason: 'Inscripción en el momento (walk in en cancha)'
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      alert(`⚠️ ${result.error || 'Error al inscribir participante'}`);
+      return;
+    }
+
+    closeCalcModal();
+    loadActivityParticipants(currentSelectedActivityId);
+    loadStats();
+  } catch (err) {
+    console.error('Error submitWalkInParticipant:', err);
+    alert('Error de conexión al inscribir');
   }
 }
 
@@ -4193,6 +4426,15 @@ function renderAsistenciaPanel() {
 
         <div class="flex items-center gap-2.5">
           <button 
+            type="button"
+            onclick="openWalkInAttendanceModal()" 
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold flex items-center gap-2 transition shadow-md shadow-emerald-950/40"
+            title="Anotar llegada de un estudiante en cancha"
+          >
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>+ Registrar en Cancha</span>
+          </button>
+          <button 
             onclick="exportConsolidatedAttendanceCSV()" 
             class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#0A1333] hover:bg-[#142252] text-slate-200 border border-[#142252] flex items-center gap-2 transition"
             title="Descargar nómina consolidada en formato Excel / CSV"
@@ -4379,11 +4621,12 @@ function renderAsistenciaPanel() {
                 <th class="py-3 px-3.5">Carrera</th>
                 <th class="py-3 px-3.5">Actividades en Cancha</th>
                 <th class="py-3 px-3.5 w-24 text-right">Total</th>
+                <th class="py-3 px-3.5 w-28 text-center">Asistencia</th>
               </tr>
             </thead>
             <tbody id="attendance-table-body" class="divide-y divide-slate-900">
               <tr>
-                <td colspan="6" class="py-12 text-center text-slate-500 font-mono">
+                <td colspan="7" class="py-12 text-center text-slate-500 font-mono">
                   <div class="flex items-center justify-center gap-2">
                     <i data-lucide="loader" class="w-4 h-4 animate-spin text-emerald-400"></i>
                     <span>Cargando nómina oficial...</span>
@@ -4544,7 +4787,7 @@ function renderAttendanceTable() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-xs">
+        <td colspan="7" class="py-12 text-center text-slate-500 font-mono text-xs">
           No se encontraron estudiantes con los filtros seleccionados.
         </td>
       </tr>
@@ -4561,7 +4804,7 @@ function renderAttendanceTable() {
   tbody.innerHTML = filtered.map((s, idx) => {
     const badgeStyle = allianceBadgeStyles[s.alliance] || 'bg-[#0A1333] text-slate-400 border-[#142252]';
     const acts = s.activities || [];
-    const hasAttended = acts.length > 0;
+    const hasAttended = Boolean(s.attended || acts.length > 0);
 
     return `
       <tr class="hover:bg-[#0A1333]/50 transition group">
@@ -4586,7 +4829,7 @@ function renderAttendanceTable() {
           ${s.carrera || 'General'}
         </td>
         <td class="py-3 px-3.5">
-          ${hasAttended ? `
+          ${acts.length > 0 ? `
             <div class="flex flex-wrap items-center gap-1.5">
               ${acts.map(a => `
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono bg-[#0A1333] text-slate-300 border border-[#142252] hover:border-[#142252] transition" title="Registrado: ${new Date(a.addedAt).toLocaleTimeString('es-CL')}">
@@ -4596,11 +4839,36 @@ function renderAttendanceTable() {
               `).join('')}
             </div>
           ` : `
-            <span class="text-slate-600 italic text-[11px]">Sin participación registrada</span>
+            <span class="text-slate-600 italic text-[11px]">Sin actividad específica</span>
           `}
         </td>
         <td class="py-3 px-3.5 text-right font-mono font-bold ${hasAttended ? 'text-emerald-400' : 'text-slate-600'}">
           ${acts.length} ${acts.length === 1 ? 'actividad' : 'actividades'}
+        </td>
+        <td class="py-3 px-3.5 text-center whitespace-nowrap">
+          ${hasAttended ? `
+            <button 
+              type="button"
+              onclick="toggleAttendanceStatus('${s.id}', false)"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/50 hover:bg-red-950/60 hover:text-red-400 hover:border-red-500/60 transition shadow-sm group/btn"
+              title="Clic para desmarcar asistencia"
+            >
+              <i data-lucide="check" class="w-3 h-3 text-emerald-400 group-hover/btn:hidden"></i>
+              <i data-lucide="x" class="w-3 h-3 text-red-400 hidden group-hover/btn:inline"></i>
+              <span class="group-hover/btn:hidden">Presente</span>
+              <span class="hidden group-hover/btn:inline">Desmarcar</span>
+            </button>
+          ` : `
+            <button 
+              type="button"
+              onclick="toggleAttendanceStatus('${s.id}', true)"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-emerald-950/60 border border-[#142252] hover:border-emerald-500/50 transition"
+              title="Marcar asistencia al evento"
+            >
+              <i data-lucide="user-check" class="w-3 h-3 text-emerald-400"></i>
+              <span>Marcar</span>
+            </button>
+          `}
         </td>
       </tr>
     `;
@@ -4610,6 +4878,177 @@ function renderAttendanceTable() {
 function exportConsolidatedAttendanceCSV() {
   if (!adminToken) return;
   window.open(`/api/admin/attendance/export?token=${encodeURIComponent(adminToken)}`, '_blank');
+}
+
+// Modal para registrar asistencia de un estudiante en cancha (walk-in en asistencia)
+function openWalkInAttendanceModal() {
+  const modal = document.getElementById('calc-modal');
+  const content = document.getElementById('calc-modal-content');
+  if (!modal || !content) return;
+
+  content.innerHTML = `
+    <div class="space-y-4">
+      <div class="border-b border-[#142252] pb-3 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-bold">Control de Cancha</span>
+          <h3 class="text-xl font-black font-display text-white mt-0.5">Registrar Asistente en Cancha</h3>
+          <span class="text-xs text-slate-400">Anota la llegada de un estudiante que no estaba preinscrito</span>
+        </div>
+        <button type="button" onclick="closeCalcModal()" class="text-slate-500 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-blue-950/20 border border-blue-500/30 rounded-xl p-3 text-xs text-blue-300 leading-relaxed">
+        <strong>Nota:</strong> Si el estudiante se registra en una alianza, quedará asignado a dicha alianza durante toda la Semana de la Carrera.
+      </div>
+
+      <form id="walkin-attendance-form" onsubmit="event.preventDefault(); submitWalkInAttendance();" class="space-y-3">
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Nombre Completo *</label>
+          <input 
+            type="text" 
+            id="asist-walkin-name" 
+            required 
+            placeholder="Ej: Constanza Morales Rivera" 
+            class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">RUT (Opcional)</label>
+            <input 
+              type="text" 
+              id="asist-walkin-rut" 
+              placeholder="RUT del estudiante (opcional)" 
+              class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Alianza Asignada *</label>
+            <select id="asist-walkin-alliance" class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="Terror">Alianza Terror</option>
+              <option value="Shooter">Alianza Shooter</option>
+              <option value="Action">Alianza Action</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Carrera (Opcional)</label>
+          <input 
+            type="text" 
+            id="asist-walkin-carrera" 
+            placeholder="Ej: Ingeniería en Informática" 
+            class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#142252]">
+          <button 
+            type="button" 
+            onclick="closeCalcModal()" 
+            class="px-3 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white border border-transparent hover:border-[#142252] transition"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50"
+          >
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Registrar Asistencia</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => {
+    const input = document.getElementById('asist-walkin-name');
+    if (input) input.focus();
+  }, 50);
+}
+
+// Enviar registro de asistencia en el momento
+async function submitWalkInAttendance() {
+  const nameEl = document.getElementById('asist-walkin-name');
+  const rutEl = document.getElementById('asist-walkin-rut');
+  const allianceEl = document.getElementById('asist-walkin-alliance');
+  const carreraEl = document.getElementById('asist-walkin-carrera');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const rut = rutEl ? rutEl.value.trim() : '';
+  const alliance = allianceEl ? allianceEl.value : 'Terror';
+  const carrera = carreraEl ? carreraEl.value.trim() : '';
+
+  if (!name) {
+    alert('Debes ingresar el nombre del estudiante');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/attendance/register-walkin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        name,
+        rut,
+        carrera,
+        alliance,
+        loggedBy: (currentUser?.name || 'Staff')
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      alert(`⚠️ ${result.error || 'Error al registrar asistencia'}`);
+      return;
+    }
+
+    closeCalcModal();
+    loadAttendanceData();
+    loadStats();
+  } catch (err) {
+    console.error('Error submitWalkInAttendance:', err);
+    alert('Error de conexión');
+  }
+}
+
+// Alternar asistencia de un alumno (marcar / desmarcar presente)
+async function toggleAttendanceStatus(studentId, targetStatus) {
+  try {
+    const res = await fetch('/api/admin/attendance/toggle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        studentId,
+        attended: targetStatus,
+        loggedBy: (currentUser?.name || 'Staff')
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      alert(`⚠️ ${result.error || 'Error al actualizar asistencia'}`);
+      return;
+    }
+
+    loadAttendanceData();
+    loadStats();
+  } catch (err) {
+    console.error('Error toggleAttendanceStatus:', err);
+    alert('Error de conexión');
+  }
 }
 
 // ==========================================

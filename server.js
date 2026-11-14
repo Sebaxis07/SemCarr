@@ -1946,10 +1946,49 @@ app.get('/api/admin/participants/:activityId', requireStaffOrPoints, (req, res) 
 
 // Agregar participante con validaciones
 app.post('/api/admin/participants/add', requireStaffOrPoints, (req, res) => {
-  const { activityId, studentId, alliance, score, loggedBy, reason } = req.body;
+  const { activityId, studentId, alliance, score, loggedBy, reason, isWalkIn, newStudent } = req.body;
   const data = loadData();
   const students = loadStudents();
-  const student = students.find(s => s.id === studentId);
+  let student = null;
+
+  if (isWalkIn && newStudent && newStudent.name && newStudent.name.trim()) {
+    const cleanRut = (newStudent.rut || '').replace(/[^0-9kK]/g, '').toUpperCase();
+    const masterMap = getMasterStudentsMap();
+    const matchedMaster = cleanRut ? masterMap.get(cleanRut) : null;
+
+    student = cleanRut ? students.find(s => s.rut && s.rut.replace(/[^0-9kK]/g, '').toUpperCase() === cleanRut) : null;
+
+    if (student) {
+      student.alliance = alliance;
+      student.name = newStudent.name.trim();
+      if (newStudent.carrera) student.carrera = newStudent.carrera.trim();
+    } else {
+      const sId = matchedMaster ? matchedMaster.id : `walkin-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      let carrera = newStudent.carrera || (matchedMaster ? matchedMaster.carrera : '');
+      if (!carrera) {
+        if (alliance === 'Action') carrera = 'Diseño e Industria Digital';
+        else if (alliance === 'Shooter') carrera = 'Telecomunicaciones y Conectividad';
+        else carrera = 'Ingeniería en Informática';
+      }
+      student = {
+        id: sId,
+        num: students.length + 1,
+        alliance,
+        name: newStudent.name.trim(),
+        rawName: newStudent.name.trim().toUpperCase(),
+        rut: newStudent.rut ? newStudent.rut.trim() : (matchedMaster ? matchedMaster.rut : ''),
+        email: matchedMaster ? matchedMaster.email : '',
+        carrera,
+        fechaInscripcion: new Date().toLocaleString('es-CL'),
+        isWalkIn: true
+      };
+      students.push(student);
+    }
+    saveStudents(students);
+    defaultStudents = students;
+  } else {
+    student = students.find(s => s.id === studentId);
+  }
 
   if (!student) {
     return res.status(404).json({ error: 'Estudiante no encontrado en el padrón oficial' });
@@ -1970,7 +2009,7 @@ app.post('/api/admin/participants/add', requireStaffOrPoints, (req, res) => {
   const allianceList = actPart.lists[alliance];
 
   // Validación 2: Duplicado en la misma actividad
-  const alreadyIn = allianceList.some(p => p.studentId === studentId);
+  const alreadyIn = allianceList.some(p => p.studentId === student.id);
   if (alreadyIn) {
     return res.status(400).json({
       error: `El estudiante ${student.name} ya se encuentra registrado en esta actividad para la Alianza ${alliance}.`
@@ -2007,6 +2046,18 @@ app.post('/api/admin/participants/add', requireStaffOrPoints, (req, res) => {
 
   allianceList.push(newParticipant);
 
+  // Registrar asistencia automática al evento
+  if (!data.directAttendance) data.directAttendance = [];
+  if (!data.directAttendance.some(a => (typeof a === 'string' ? a : a.studentId) === student.id)) {
+    data.directAttendance.push({
+      studentId: student.id,
+      markedAt: new Date().toISOString(),
+      markedBy: getAuditAuthor(req, loggedBy),
+      alliance: student.alliance,
+      activityId
+    });
+  }
+
   // Si es Gymkana y tiene score, actualizar automáticamente los cálculos de Gymkana
   if (activityId === 'gymkanas') {
     const act = data.activities.find(a => a.id === 'gymkanas');
@@ -2027,13 +2078,13 @@ app.post('/api/admin/participants/add', requireStaffOrPoints, (req, res) => {
 
   actPart.audit.unshift({
     timestamp: new Date().toISOString(),
-    action: `Participante agregado: ${student.name} (${alliance})`,
+    action: `Participante agregado (${isWalkIn ? 'inscripción en cancha' : 'padrón'}): ${student.name} (${alliance})`,
     user: getAuditAuthor(req, loggedBy),
-    reason: reason || 'Registro inicial'
+    reason: reason || (isWalkIn ? 'Inscripción en el momento' : 'Registro inicial')
   });
 
   saveData(data);
-  res.json({ success: true, participant: newParticipant, actPart });
+  res.json({ success: true, participant: newParticipant, actPart, student });
 });
 
 // Eliminar participante (requiere motivo si lista cerrada)
@@ -2393,6 +2444,13 @@ app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
     });
   });
 
+  const directAttendanceIds = new Set((data.directAttendance || []).map(a => typeof a === 'string' ? a : a.studentId));
+  studentMap.forEach(entry => {
+    if (directAttendanceIds.has(entry.id)) {
+      entry.attended = true;
+    }
+  });
+
   const allStudents = Array.from(studentMap.values());
   const attendees = allStudents.filter(s => s.attended);
 
@@ -2423,6 +2481,96 @@ app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
     allStudents,
     activities: (data.activities || []).map(a => ({ id: a.id, name: a.name }))
   });
+});
+
+// Toggle de asistencia directa en cancha
+app.post('/api/admin/attendance/toggle', requireStaffOrPoints, (req, res) => {
+  const { studentId, attended, loggedBy } = req.body;
+  const data = loadData();
+  const students = loadStudents();
+  const student = students.find(s => s.id === studentId);
+  if (!student) return res.status(404).json({ error: 'Estudiante no encontrado' });
+
+  if (!data.directAttendance) data.directAttendance = [];
+  const idx = data.directAttendance.findIndex(a => (typeof a === 'string' ? a : a.studentId) === studentId);
+
+  const shouldBeAttended = attended !== undefined ? attended : (idx === -1);
+
+  if (shouldBeAttended && idx === -1) {
+    data.directAttendance.push({
+      studentId: student.id,
+      markedAt: new Date().toISOString(),
+      markedBy: getAuditAuthor(req, loggedBy),
+      alliance: student.alliance
+    });
+  } else if (!shouldBeAttended && idx !== -1) {
+    data.directAttendance.splice(idx, 1);
+  }
+
+  saveData(data);
+  res.json({ success: true, studentId, attended: shouldBeAttended });
+});
+
+// Registrar asistente en puerta (walk-in desde asistencia)
+app.post('/api/admin/attendance/register-walkin', requireStaffOrPoints, (req, res) => {
+  const { name, rut, carrera, alliance, loggedBy } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'El nombre del estudiante es obligatorio' });
+  }
+  if (!['Terror', 'Shooter', 'Action'].includes(alliance)) {
+    return res.status(400).json({ error: 'Alianza inválida' });
+  }
+
+  const data = loadData();
+  const students = loadStudents();
+  const cleanRut = (rut || '').replace(/[^0-9kK]/g, '').toUpperCase();
+  const masterMap = getMasterStudentsMap();
+  const matchedMaster = cleanRut ? masterMap.get(cleanRut) : null;
+
+  let student = cleanRut ? students.find(s => s.rut && s.rut.replace(/[^0-9kK]/g, '').toUpperCase() === cleanRut) : null;
+
+  if (student) {
+    student.alliance = alliance;
+    student.name = name.trim();
+    if (carrera) student.carrera = carrera.trim();
+  } else {
+    const studentId = matchedMaster ? matchedMaster.id : `walkin-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    let studentCarrera = carrera || (matchedMaster ? matchedMaster.carrera : '');
+    if (!studentCarrera) {
+      if (alliance === 'Action') studentCarrera = 'Diseño e Industria Digital';
+      else if (alliance === 'Shooter') studentCarrera = 'Telecomunicaciones y Conectividad';
+      else studentCarrera = 'Ingeniería en Informática';
+    }
+    student = {
+      id: studentId,
+      num: students.length + 1,
+      alliance,
+      name: name.trim(),
+      rawName: name.trim().toUpperCase(),
+      rut: rut ? rut.trim() : (matchedMaster ? matchedMaster.rut : ''),
+      email: matchedMaster ? matchedMaster.email : '',
+      carrera: studentCarrera,
+      fechaInscripcion: new Date().toLocaleString('es-CL'),
+      isWalkIn: true
+    };
+    students.push(student);
+  }
+
+  saveStudents(students);
+  defaultStudents = students;
+
+  if (!data.directAttendance) data.directAttendance = [];
+  if (!data.directAttendance.some(a => (typeof a === 'string' ? a : a.studentId) === student.id)) {
+    data.directAttendance.push({
+      studentId: student.id,
+      markedAt: new Date().toISOString(),
+      markedBy: getAuditAuthor(req, loggedBy),
+      alliance: student.alliance
+    });
+  }
+
+  saveData(data);
+  res.json({ success: true, student });
 });
 
 // Exportar Asistencia Consolidada a CSV
