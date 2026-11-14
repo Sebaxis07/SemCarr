@@ -865,6 +865,11 @@ app.post('/api/admin/docentes/evaluar', requireAdminOrCoordOrDocente, (req, res)
   const rubric = data.creativeChallenges?.rubrics?.[alliance];
   if (!rubric) return res.status(404).json({ error: 'Alianza no encontrada' });
 
+  if (!data.creativeChallenges.status) data.creativeChallenges.status = {};
+  if (typeof data.creativeChallenges.status[alliance] !== 'object' || data.creativeChallenges.status[alliance] === null) {
+    data.creativeChallenges.status[alliance] = { delivered: false, evaluated: false, deliveryTime: null };
+  }
+
   if (delivered !== undefined) {
     data.creativeChallenges.status[alliance].delivered = Boolean(delivered);
     if (delivered && !data.creativeChallenges.status[alliance].deliveryTime) {
@@ -907,14 +912,25 @@ app.post('/api/admin/docentes/evaluar', requireAdminOrCoordOrDocente, (req, res)
       rubric.discrepancyResolved = true;
     }
     data.creativeChallenges.status[alliance].evaluated = true;
+  } else if ((docenteNum === 1 && (alliance === 'Terror' || alliance === 'Shooter')) ||
+             (docenteNum === 2 && alliance === 'Action')) {
+    // Asignación oficial: Profesor Eduardo (Terror y Shooter), Profesora Natalia (Action)
+    rubric.notaPromedio = totalScore;
+    rubric.estado = 'definitiva';
+    rubric.notaDefinitiva = true;
+    rubric.discrepancyAlert = false;
+    rubric.discrepancyResolved = true;
+    data.creativeChallenges.status[alliance].evaluated = true;
   }
 
+  const teacherName = docenteNum === 1 ? 'Profesor Eduardo' : 'Profesora Natalia';
   data.auditLogs.unshift({
     timestamp: new Date().toISOString(),
-    action: `Evaluación docente ${docenteNum} para ${alliance}`,
-    user: getAuditAuthor(req, loggedBy || `Docente ${docenteNum}`),
+    action: `Evaluación de ${teacherName} para ${alliance}: ${totalScore} pts`,
+    user: getAuditAuthor(req, loggedBy || teacherName),
     details: { 
       docenteNum, 
+      docenteNombre: teacherName,
       valorAnterior: prevNota, 
       valorNuevo: totalScore, 
       estado: rubric.estado, 
@@ -960,6 +976,38 @@ app.post('/api/admin/docentes/acordar-nota', requireAdminOrCoordOrDocente, (req,
 
   saveData(data);
   res.json({ success: true, rubric });
+});
+
+// Registro directo de entrega de desafío creativo (4.000 pts al llevarlo)
+app.post('/api/admin/docentes/entrega', [security.requireAuth, security.requireRole(['admin', 'coordinacion', 'mesa', 'docente', 'staff'])], (req, res) => {
+  const { alliance, delivered, loggedBy } = req.body;
+  const data = loadData();
+  if (!['Terror', 'Shooter', 'Action'].includes(alliance)) {
+    return res.status(400).json({ error: 'Alianza inválida' });
+  }
+
+  if (!data.creativeChallenges) data.creativeChallenges = {};
+  if (!data.creativeChallenges.status) data.creativeChallenges.status = {};
+  if (typeof data.creativeChallenges.status[alliance] !== 'object' || data.creativeChallenges.status[alliance] === null) {
+    data.creativeChallenges.status[alliance] = { delivered: false, evaluated: false, deliveryTime: null };
+  }
+
+  const isDelivered = Boolean(delivered);
+  const prevDelivered = Boolean(data.creativeChallenges.status[alliance].delivered);
+  data.creativeChallenges.status[alliance].delivered = isDelivered;
+  if (isDelivered && !data.creativeChallenges.status[alliance].deliveryTime) {
+    data.creativeChallenges.status[alliance].deliveryTime = new Date().toISOString();
+  }
+
+  data.auditLogs.unshift({
+    timestamp: new Date().toISOString(),
+    action: `Registro de entrega de desafío para ${alliance}: ${isDelivered ? 'Entregado (4.000 pts)' : 'No entregado (0 pts)'}`,
+    user: getAuditAuthor(req, loggedBy),
+    details: { alliance, delivered: isDelivered, previous: prevDelivered }
+  });
+
+  saveData(data);
+  res.json({ success: true, status: data.creativeChallenges.status[alliance] });
 });
 
 // 6. Copa Tarreo: Cazatesoros (with 950 pts tie if all zero)

@@ -27,17 +27,17 @@
       "id": "retro",
       "name": "Torneo retro (Mortal Kombat)",
       "group": "Juegos",
-      "maxPoints": 3000,
+      "maxPoints": 4000,
       "pointsDistribution": [
-        3000,
-        1800,
-        900
+        4000,
+        2400,
+        1200
       ],
       "location": "Pared de la cancha (Controles Arcade USB)",
-      "time": "10:00 - 11:00 (60 min - Primera actividad del día)",
+      "time": "09:30 - 10:30 (1 hora)",
       "status": "Pendiente",
       "type": "places",
-      "description": "Torneo en controles arcade USB con Mortal Kombat. 4 jugadores titulares + 1 suplente por alianza (12 titulares en total). Se juegan 3 enfrentamientos entre alianzas: Terror vs Shooter, Terror vs Action y Shooter vs Action (orden sorteado). Cada enfrentamiento consta de 4 duelos 1v1 al mejor de 3 rondas (gana quien gane 2 rondas). Cada jugador combate 2 veces (una contra cada alianza rival, nunca contra su propia alianza). Cada duelo ganado suma 1 victoria para la alianza (máx 8 victorias). Gana la alianza con más victorias acumuladas. En caso de empate en victorias, desempata la mayor cantidad de rondas ganadas; si persiste el empate, se disputa un duelo extra de desempate con jugadores elegidos por sorteo. Puntaje: 1º 3.000 pts, 2º 1.800 pts, 3º 900 pts.",
+      "description": "Torneo en controles arcade USB con Mortal Kombat. 4 jugadores titulares + 1 suplente por alianza (12 titulares en total). Enfrentamientos todos contra todos entre alianzas: 4 duelos 1v1 al mejor de 3 rondas por cruce. Cada duelo ganado suma 1 victoria (máx 8). Gana la alianza con más victorias. Desempate: rondas ganadas, luego duelo extra sorteado.",
       "results": {
         "Terror": null,
         "Shooter": null,
@@ -54,17 +54,17 @@
       "id": "tacataca",
       "name": "Taca-taca",
       "group": "Juegos",
-      "maxPoints": 1000,
+      "maxPoints": 1500,
       "pointsDistribution": [
-        1000,
-        600,
-        300
+        1500,
+        900,
+        450
       ],
-      "location": "Pared de la cancha (Mesas Taca-taca)",
-      "time": "10:30 - 11:30 (40 a 60 min)",
+      "location": "Pared de la cancha (Mesa Taca-taca)",
+      "time": "09:30 - 10:30 (1 hora, simultáneo)",
       "status": "Pendiente",
       "type": "places",
-      "description": "4 mesas DAE en juego abierto a 5 goles por partido. Duplas de una misma alianza contra duplas de otra alianza. Quien pierde cede la mesa. Máximo 2 partidos por persona.",
+      "description": "1 mesa de taca-taca en simultáneo con ping pong y torneo retro. 1 dupla por alianza + 1 suplente. Partidos a 5 goles, todos contra todos entre alianzas (3 partidos). Cada victoria suma 1 punto. Desempate: diferencia de goles, luego partido extra.",
       "results": {
         "Terror": null,
         "Shooter": null,
@@ -81,17 +81,17 @@
       "id": "pingpong",
       "name": "Ping pong",
       "group": "Juegos",
-      "maxPoints": 1000,
+      "maxPoints": 1500,
       "pointsDistribution": [
-        1000,
-        600,
-        300
+        1500,
+        900,
+        450
       ],
-      "location": "Pared de la cancha (Mesas Ping pong)",
-      "time": "10:30 - 11:30 (40 a 60 min)",
+      "location": "Pared de la cancha (Mesa Ping pong)",
+      "time": "09:30 - 10:30 (1 hora, simultáneo)",
       "status": "Pendiente",
       "type": "places",
-      "description": "2 mesas DAE en juego abierto a 7 puntos por partido. Duplas de una misma alianza contra duplas de otra alianza. Quien pierde cede la mesa. Máximo 2 partidos por persona.",
+      "description": "1 mesa de ping pong en simultáneo con taca-taca y torneo retro. 1 jugador por alianza + 1 suplente. Partidos a 7 puntos, todos contra todos entre alianzas (3 partidos). Cada victoria suma 1 punto. Desempate: diferencia de puntos, luego partido extra.",
       "results": {
         "Terror": null,
         "Shooter": null,
@@ -108,251 +108,24 @@
       "id": "gymkanas",
       "name": "Gymkanas",
       "group": "Gymkanas",
-      "maxPoints": 3000,
+      "maxPoints": 4000,
       "pointsDistribution": null,
-      "location": "Pared de la cancha",
-      "time": "09:30 - 11:30 (60 a 90 min, abiertas)",
+      "location": "Toda la cancha (Zonas Informática y Diseño)",
+      "time": "10:30 - 11:00 (30 min)",
       "status": "Pendiente",
-      "type": "gymkana",
-      "description": "4 puestos abiertos de destreza. Cada participante gana 1 punto por intentar el puesto y 1 por resolverlo (máx 8 por persona). Puntos de la alianza = 3.000 * (promedio / 8).",
-      "participantCards": {
-        "Terror": [
-          7
-        ],
-        "Shooter": [
-          5,
-          6,
-          4
-        ],
-        "Action": [
-          7,
-          8,
-          8
-        ]
+      "type": "gymkanas",
+      "description": "Dos gymkanas en simultáneo (Informática y Diseño). 3 puestos de preguntas de alternativas (A, B, C y D). Cada persona gana 1 punto por intentar y 1 punto extra por resolver (máx 6 pts por persona). Puntos alianza = 4.000 × (promedio ÷ 6).",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
       },
       "pointsAwarded": {
         "Terror": 0,
         "Shooter": 0,
         "Action": 0
       },
-      "notes": "",
-      "averages": {
-        "Terror": 0,
-        "Shooter": 0,
-        "Action": 0
-      },
-      "legacyParticipantCards": {
-        "Terror": [
-          7
-        ],
-        "Shooter": [
-          5,
-          6,
-          4
-        ],
-        "Action": [
-          7,
-          8,
-          8
-        ]
-      },
-      "participantsDetail": {
-        "Terror": [
-          {
-            "id": "Terror_gym_1",
-            "name": "Participante 1",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 4,
-                "attempted": true,
-                "solved": false
-              }
-            ],
-            "total": 7
-          }
-        ],
-        "Shooter": [
-          {
-            "id": "Shooter_gym_1",
-            "name": "Participante 1",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": true,
-                "solved": false
-              },
-              {
-                "post": 4,
-                "attempted": false,
-                "solved": false
-              }
-            ],
-            "total": 5
-          },
-          {
-            "id": "Shooter_gym_2",
-            "name": "Participante 2",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 4,
-                "attempted": false,
-                "solved": false
-              }
-            ],
-            "total": 6
-          },
-          {
-            "id": "Shooter_gym_3",
-            "name": "Participante 3",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": false,
-                "solved": false
-              },
-              {
-                "post": 4,
-                "attempted": false,
-                "solved": false
-              }
-            ],
-            "total": 4
-          }
-        ],
-        "Action": [
-          {
-            "id": "Action_gym_1",
-            "name": "Participante 1",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 4,
-                "attempted": true,
-                "solved": false
-              }
-            ],
-            "total": 7
-          },
-          {
-            "id": "Action_gym_2",
-            "name": "Participante 2",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 4,
-                "attempted": true,
-                "solved": true
-              }
-            ],
-            "total": 8
-          },
-          {
-            "id": "Action_gym_3",
-            "name": "Participante 3",
-            "posts": [
-              {
-                "post": 1,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 2,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 3,
-                "attempted": true,
-                "solved": true
-              },
-              {
-                "post": 4,
-                "attempted": true,
-                "solved": true
-              }
-            ],
-            "total": 8
-          }
-        ]
-      }
+      "notes": ""
     },
     {
       "id": "babyfutbol",
@@ -365,61 +138,14 @@
         1200
       ],
       "location": "Centro de la cancha",
-      "time": "11:15 - 11:50 (35 min)",
+      "time": "11:00 - 12:00 (1 hora)",
       "status": "Pendiente",
-      "type": "match_table",
-      "description": "Partidos 5 contra 5 con arquero. 3 partidos de 8 min (Terror vs Shooter, Shooter vs Action, Action vs Terror). Victoria 3 pts, Empate 1, Derrota 0.",
-      "matches": [
-        {
-          "team1": "Terror",
-          "team2": "Shooter",
-          "score1": 3,
-          "score2": 1
-        },
-        {
-          "team1": "Shooter",
-          "team2": "Action",
-          "score1": 2,
-          "score2": 2
-        },
-        {
-          "team1": "Action",
-          "team2": "Terror",
-          "score1": 0,
-          "score2": 1
-        }
-      ],
-      "table": {
-        "Terror": {
-          "pts": 6,
-          "pj": 2,
-          "pg": 2,
-          "pe": 0,
-          "pp": 0,
-          "gf": 4,
-          "gc": 1,
-          "dg": 3
-        },
-        "Shooter": {
-          "pts": 1,
-          "pj": 2,
-          "pg": 0,
-          "pe": 1,
-          "pp": 1,
-          "gf": 3,
-          "gc": 5,
-          "dg": -2
-        },
-        "Action": {
-          "pts": 1,
-          "pj": 2,
-          "pg": 0,
-          "pe": 1,
-          "pp": 1,
-          "gf": 2,
-          "gc": 3,
-          "dg": -1
-        }
+      "type": "places",
+      "description": "5 contra 5 con arquero. Cada alianza juega con equipo fijo en sus dos partidos. Partidos de 8 minutos. Tabla: Victoria 3 pts, empate 1, derrota 0. Desempate: dif. de goles, goles a favor, penales (3 lanzadores).",
+      "results": {
+        "Terror": null,
+        "Shooter": null,
+        "Action": null
       },
       "pointsAwarded": {
         "Terror": 0,
@@ -439,87 +165,10 @@
         1200
       ],
       "location": "Centro de la cancha",
-      "time": "11:55 - 12:40 (45 min)",
-      "status": "Pendiente",
-      "type": "match_table",
-      "description": "8 contra 8 con balones blandos. En cada ronda juegan integrantes distintos para que roten. 3 partidos todos contra todos (Terror vs Shooter, Shooter vs Action, Action vs Terror). Cada partido tiene 3 rondas y lo gana la alianza con más rondas. Una ronda parte sin límite de tiempo y termina cuando eliminan a todos los jugadores de una alianza. Si la ronda se alarga demasiado, quien anima o la organización puede fijar un tiempo límite en el momento y avisarlo en voz alta; al terminar ese tiempo, gana quien tenga más jugadores en pie (o empata si hay igual cantidad). Balones blandos, sin pegar a la cabeza. Si se atrapa la pelota, queda eliminado quien la lanzó. Un árbitro por partido. Tabla: Victoria 3, Empate 1, Derrota 0. Desempate: más rondas ganadas, luego más jugadores en pie.",
-      "matches": [
-        {
-          "team1": "Terror",
-          "team2": "Shooter",
-          "score1": null,
-          "score2": null
-        },
-        {
-          "team1": "Shooter",
-          "team2": "Action",
-          "score1": null,
-          "score2": null
-        },
-        {
-          "team1": "Action",
-          "team2": "Terror",
-          "score1": null,
-          "score2": null
-        }
-      ],
-      "table": {
-        "Terror": {
-          "pts": 0,
-          "pj": 0,
-          "pg": 0,
-          "pe": 0,
-          "pp": 0,
-          "gf": 0,
-          "gc": 0,
-          "dg": 0,
-          "rank": null
-        },
-        "Shooter": {
-          "pts": 0,
-          "pj": 0,
-          "pg": 0,
-          "pe": 0,
-          "pp": 0,
-          "gf": 0,
-          "gc": 0,
-          "dg": 0,
-          "rank": null
-        },
-        "Action": {
-          "pts": 0,
-          "pj": 0,
-          "pg": 0,
-          "pe": 0,
-          "pp": 0,
-          "gf": 0,
-          "gc": 0,
-          "dg": 0,
-          "rank": null
-        }
-      },
-      "pointsAwarded": {
-        "Terror": 0,
-        "Shooter": 0,
-        "Action": 0
-      },
-      "notes": ""
-    },
-    {
-      "id": "trivia",
-      "name": "Trivia de carrera",
-      "group": "Mente y ambiente",
-      "maxPoints": 2000,
-      "pointsDistribution": [
-        2000,
-        1200,
-        600
-      ],
-      "location": "Esquina tranquila de la cancha",
-      "time": "10:15 - 10:30 (15 min)",
+      "time": "12:00 - 12:45 (45 min)",
       "status": "Pendiente",
       "type": "places",
-      "description": "Preguntas técnicas y de historia institucional. Por aciertos o lugares obtenidos.",
+      "description": "8 contra 8 con equipo fijo sin rotación. Partidos a 3 rondas. Balones blandos sin pegar a la cabeza. Quien atrapa la pelota elimina al lanzador. Victoria 3 pts, empate 1, derrota 0. Desempate: rondas ganadas, luego jugadores en pie.",
       "results": {
         "Terror": null,
         "Shooter": null,
@@ -535,18 +184,18 @@
     {
       "id": "canto",
       "name": "Si te la sabes, canta",
-      "group": "Mente y ambiente",
-      "maxPoints": 1500,
+      "group": "Música",
+      "maxPoints": 2000,
       "pointsDistribution": [
-        1500,
-        900,
-        450
+        2000,
+        1200,
+        600
       ],
       "location": "Centro de la cancha",
-      "time": "12:40 - 12:55 (12 min)",
+      "time": "12:45 - 13:15 (30 min)",
       "status": "Pendiente",
       "type": "places",
-      "description": "Canciones conocidas por alianzas. Desafío de canto con jurado/aplausómetro.",
+      "description": "Fila de 5 voluntarios por alianza. Fragmentos musicales de 10 a 15s. Quien sale y canta las 2 frases siguientes sale de la fila. Gana la alianza que vacíe primero su fila (tope 15 min cronómetro). Desempate: canción extra.",
       "results": {
         "Terror": null,
         "Shooter": null,
@@ -560,20 +209,20 @@
       "notes": ""
     },
     {
-      "id": "barra",
-      "name": "Barra y ruido",
-      "group": "Mente y ambiente",
-      "maxPoints": 1500,
+      "id": "desafios",
+      "name": "Presentación de los desafíos",
+      "group": "Creativo",
+      "maxPoints": 4000,
       "pointsDistribution": [
-        1500,
-        900,
-        450
+        4000,
+        4000,
+        4000
       ],
-      "location": "Centro de la cancha",
-      "time": "3 mediciones durante el día (5 min c/u)",
+      "location": "Cancha",
+      "time": "13:15 - 14:15 (1 hora)",
       "status": "Pendiente",
-      "type": "places",
-      "description": "3 mediciones con decibelímetro a la misma distancia durante el día (10 segundos por alianza). Se promedian las 3.",
+      "type": "desafios",
+      "description": "Presentación pública ante docentes de las 3 obras únicas (Videojuego Terror, Asistente Shooter, Collage Action). La entrega reglamentaria asegura 4.000 pts para la alianza. La evaluación docente otorga la Mención de Honor a la mejor obra técnica (0 pts adicionales).",
       "results": {
         "Terror": null,
         "Shooter": null,
@@ -589,9 +238,21 @@
   ],
   "creativeChallenges": {
     "status": {
-      "Terror": "Pendiente",
-      "Shooter": "Pendiente",
-      "Action": "Pendiente"
+      "Terror": {
+        "delivered": true,
+        "evaluated": true,
+        "deliveryTime": "2026-11-13T23:51:03.834Z"
+      },
+      "Shooter": {
+        "delivered": false,
+        "evaluated": false,
+        "deliveryTime": null
+      },
+      "Action": {
+        "delivered": false,
+        "evaluated": false,
+        "deliveryTime": null
+      }
     },
     "rubrics": {
       "Terror": {
@@ -632,8 +293,27 @@
             "desc": "Estabilidad de ejecución sin caídas, interfaz legible, acabado cuidado, con pantalla de inicio y cierre claros."
           }
         ],
-        "docente1": {},
-        "docente2": {}
+        "docente1": {
+          "c1": "Excelente",
+          "c2": "Excelente",
+          "c3": "Regular",
+          "c4": "Excelente",
+          "c5": "Excelente"
+        },
+        "docente2": {
+          "c1": "Excelente",
+          "c2": "Regular",
+          "c3": "Regular",
+          "c4": "Básico",
+          "c5": "Básico"
+        },
+        "docente1Nota": 90,
+        "docente2Nota": 52,
+        "notaPromedio": 71,
+        "discrepancyAlert": true,
+        "estado": "revisión conjunta pendiente",
+        "notaDefinitiva": false,
+        "discrepancyResolved": false
       },
       "Shooter": {
         "criterios": [
@@ -913,6 +593,112 @@
     }
   ],
   "auditLogs": [
+    {
+      "timestamp": "2026-11-13T23:51:31.771Z",
+      "action": "Evaluación docente 2 para Terror",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "docenteNum": 2,
+        "valorNuevo": 52,
+        "estado": "revisión conjunta pendiente",
+        "discrepancyAlert": true
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:18.667Z",
+      "action": "Evaluación docente 1 para Terror",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "docenteNum": 1,
+        "valorNuevo": 90
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:07.206Z",
+      "action": "Registro de entrega de desafío para Terror: Entregado (4.000 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": true,
+        "previous": false
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:06.892Z",
+      "action": "Registro de entrega de desafío para Terror: No entregado (0 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": false,
+        "previous": true
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:06.316Z",
+      "action": "Registro de entrega de desafío para Terror: Entregado (4.000 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": true,
+        "previous": false
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:06.052Z",
+      "action": "Registro de entrega de desafío para Terror: No entregado (0 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": false,
+        "previous": true
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:05.222Z",
+      "action": "Registro de entrega de desafío para Terror: Entregado (4.000 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": true,
+        "previous": false
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:04.468Z",
+      "action": "Registro de entrega de desafío para Terror: No entregado (0 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": false,
+        "previous": true
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:51:03.834Z",
+      "action": "Registro de entrega de desafío para Terror: Entregado (4.000 pts)",
+      "user": "Docente Evaluador 1 (Rúbricas) [docente]",
+      "details": {
+        "alliance": "Terror",
+        "delivered": true,
+        "previous": false
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:42:33.655Z",
+      "action": "Inicio de sesión exitoso: \"docente1\"",
+      "user": "docente1",
+      "details": {
+        "ip": "::1"
+      }
+    },
+    {
+      "timestamp": "2026-11-13T23:25:36.355Z",
+      "action": "Inicio de sesión exitoso: \"admin\"",
+      "user": "admin",
+      "details": {
+        "ip": "::1"
+      }
+    },
     {
       "timestamp": "2026-11-11T15:50:30.643Z",
       "action": "Inicio de sesión exitoso: \"admin\"",
@@ -1727,17 +1513,29 @@
       "currentAlliance": "Terror",
       "targetAlliance": "Shooter",
       "reason": "mi amigo esta alla",
-      "status": "approved",
+      "status": "reverted",
       "createdAt": "2026-11-11T11:57:48.340Z",
       "ip": "::1",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
       "isSwap": false,
       "swapPartnerId": null,
       "approvedAt": "2026-11-11T11:58:08.448Z",
-      "approvedBy": "Superadministrador (Jefatura/Soporte) [admin]"
+      "approvedBy": "Superadministrador (Jefatura/Soporte) [admin]",
+      "revertedAt": "2026-11-11T23:33:33.416Z",
+      "revertedBy": "Superadministrador (Jefatura/Soporte) [admin]"
     }
   ],
   "allianceAuditLog": [
+    {
+      "timestamp": "2026-11-11T23:33:33.416Z",
+      "action": "REVERTIR_CAMBIO_ALIANZA",
+      "author": "Superadministrador (Jefatura/Soporte) [admin]",
+      "details": {
+        "requestId": "req_1794398268340_21wr1",
+        "studentName": "Sebastián Ignacio Vásquez Núñez",
+        "restoredAlliance": "Terror"
+      }
+    },
     {
       "timestamp": "2026-11-11T11:58:08.448Z",
       "action": "APROBAR_CAMBIO_ALIANZA",
