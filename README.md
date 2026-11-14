@@ -62,7 +62,16 @@ Nota: Las sesiones expiran automaticamente por inactividad. En entornos de produ
 │   └── rules.js              # Reglas de negocio oficiales, distribucion de puntos y desempates
 ├── public/                   # Frontend publico y estaticos
 │   ├── index.html            # Pagina publica del evento y visor del ranking general
-│   ├── app.js                # Logica del cliente publico (consumo de API y renderizado)
+│   ├── app.js                # Punto de entrada delegado hacia public/src/main.js
+│   ├── src/                  # Codigo fuente modular del cliente
+│   │   ├── main.js           # Punto de entrada e inicializacion de modulos
+│   │   ├── config/           # Constantes y parametros de configuracion
+│   │   ├── estado/           # Estado centralizado reactivo
+│   │   ├── servicios/        # Comunicacion con rutas fetch de la API
+│   │   ├── utils/            # Utilidades puras (audio, pantalla, podio, timers)
+│   │   ├── logica/           # Reglas de negocio del cliente y navegacion
+│   │   ├── ui/               # Componentes de renderizado de la interfaz
+│   │   └── eventos/          # Manejadores de atajos de teclado y eventos
 │   ├── style.css             # Estilos y variables de diseno
 │   └── admin/                # Consola de administracion y mesa de control
 │       ├── index.html        # Portal de acceso administrativo
@@ -91,6 +100,22 @@ Nota: Las sesiones expiran automaticamente por inactividad. En entornos de produ
 ├── BASES_REGLAS.md           # Transcripcion formal de las Bases del evento
 └── package.json              # Dependencias y scripts de ejecucion
 ```
+
+### 3.1. Estructura de carpetas del frontend modular (public/src/)
+
+* `public/src/main.js`: Inicializa la aplicacion, conecta los modulos y expone en window las funciones que necesita el HTML.
+* `public/src/config/`: Parametros fijos como fecha del evento, tiempos de ciclo e intervalos de sondeo.
+* `public/src/estado/`: Estado compartido reactivo de datos, pestana activa y filtros.
+* `public/src/servicios/`: Consumo de las rutas REST del servidor mediante fetch.
+* `public/src/utils/`: Funciones auxiliares independientes para sonido Web Audio, calculo de podio, timers y pantalla completa.
+* `public/src/logica/`: Reglas del modo proyector, filtrado de actividades, busqueda de alumnos y navegacion.
+* `public/src/ui/`: Generadores de plantillas HTML para cada vista (inicio, proyector, actividades, desafios, alianzas, reglas, premios y modales).
+* `public/src/eventos/`: Registro de escuchadores y atajos de teclado para el modo proyector.
+
+Guia rapida para realizar cambios:
+* Para modificar constantes o fechas de inicio, edita `public/src/config/constantes.js`.
+* Para ajustar vistas, diseno o texto de una pantalla, edita su archivo correspondiente en `public/src/ui/`.
+* Para cambiar busquedas de alumnos o filtros, edita `public/src/logica/estudiantes.js` o `public/src/logica/filtros.js`.
 
 ---
 
