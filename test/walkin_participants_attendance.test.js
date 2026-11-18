@@ -53,10 +53,11 @@ test('Inscripcion en cancha: Agregar participante walk in fija alianza y registr
     assert.strictEqual(addData.student.alliance, 'Terror');
     assert.strictEqual(addData.student.name, testStudentName);
 
-    const studentsRes = await fetch(`${baseUrl}/api/students/by-alliance`);
+    const studentsRes = await fetch(`${baseUrl}/api/students/search?q=${encodeURIComponent(testStudentName)}&alliance=Terror`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     assert.strictEqual(studentsRes.status, 200);
-    const studentsData = await studentsRes.json();
-    const terrorStudents = studentsData.Terror;
+    const terrorStudents = await studentsRes.json();
     const found = terrorStudents.find(s => s.name === testStudentName);
     assert.ok(found, 'El alumno walk in debe permanecer en la Alianza Terror');
 

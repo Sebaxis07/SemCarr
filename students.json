@@ -1,7 +1,205 @@
 [
   {
-    "id": "sho-72",
+    "id": "sho-96",
     "num": 1,
+    "alliance": "Terror",
+    "name": "Bastian Yuri Rodriguez Donoso",
+    "rawName": "BASTIAN YURI RODRIGUEZ DONOSO",
+    "rut": "21.383.849-0",
+    "email": "bazthirod@gmail.com",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "17-11-2026, 11:47:00 p. m."
+  },
+  {
+    "id": "sho-51",
+    "num": 2,
+    "alliance": "Shooter",
+    "name": "Henry alejandro Herbas padilla",
+    "rawName": "HENRY ALEJANDRO HERBAS PADILLA",
+    "rut": "28.731.434-5",
+    "email": "herbaspadillahenryalejandro@gmail.com",
+    "carrera": "Analista Programador",
+    "fechaInscripcion": "17-11-2026, 9:10:18 p. m."
+  },
+  {
+    "id": "insc-3",
+    "num": 3,
+    "alliance": "Terror",
+    "name": "Jonas mondaca",
+    "rawName": "JONAS MONDACA",
+    "rut": "22.449.496-3",
+    "email": "jonas.1900xx@gmail.com",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "17-11-2026, 8:04:12 p. m."
+  },
+  {
+    "id": "act-24",
+    "num": 4,
+    "alliance": "Action",
+    "name": "Yarella Fernanda Rojas Trujillo",
+    "rawName": "YARELLA FERNANDA ROJAS TRUJILLO",
+    "rut": "21.616.326-5",
+    "email": "yarella.rojas03@inacapmail.cl",
+    "carrera": "Diseño e Industria Digital",
+    "fechaInscripcion": "17-11-2026, 8:00:09 p. m."
+  },
+  {
+    "id": "ter-46",
+    "num": 5,
+    "alliance": "Terror",
+    "name": "Eydan Gahona Navarro",
+    "rawName": "EYDAN GAHONA NAVARRO",
+    "rut": "21.902.071-6",
+    "email": "eydan.gahona@inacapmail.cl",
+    "carrera": "Analista Programador",
+    "fechaInscripcion": "17-11-2026, 4:56:04 p. m."
+  },
+  {
+    "id": "sho-46",
+    "num": 6,
+    "alliance": "Terror",
+    "name": "Benjamin Flores",
+    "rawName": "BENJAMIN FLORES",
+    "rut": "21.450.830-3",
+    "email": "benjamin.flores29@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "17-11-2026, 4:25:28 p. m."
+  },
+  {
+    "id": "sho-6",
+    "num": 7,
+    "alliance": "Shooter",
+    "name": "Matias Ignacio Arancibia Solís",
+    "rawName": "MATIAS IGNACIO ARANCIBIA SOLÍS",
+    "rut": "19.951.369-9",
+    "email": "matias.arancibia12@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "17-11-2026, 2:17:45 p. m."
+  },
+  {
+    "id": "sho-12",
+    "num": 8,
+    "alliance": "Terror",
+    "name": "Sebastián Nicolás Barraza Torres",
+    "rawName": "SEBASTIÁN NICOLÁS BARRAZA TORRES",
+    "rut": "21.296.418-2",
+    "email": "sebastian.barraza23@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "17-11-2026, 10:44:53 a. m."
+  },
+  {
+    "id": "insc-9",
+    "num": 9,
+    "alliance": "Terror",
+    "name": "Jossef geremy jaramillo Díaz",
+    "rawName": "JOSSEF GEREMY JARAMILLO DÍAZ",
+    "rut": "20.260.683-0",
+    "email": "jossef.jaramillo@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "16-11-2026, 7:45:53 p. m."
+  },
+  {
+    "id": "insc-10",
+    "num": 10,
+    "alliance": "Action",
+    "name": "Marcelo Leiva",
+    "rawName": "MARCELO LEIVA",
+    "rut": "15.813.568-K",
+    "email": "mleivam@inacap.cl",
+    "carrera": "Diseño e Industria Digital",
+    "fechaInscripcion": "16-11-2026, 7:35:44 p. m."
+  },
+  {
+    "id": "insc-11",
+    "num": 11,
+    "alliance": "Terror",
+    "name": "Jhenny Veliz Moya",
+    "rawName": "JHENNY VELIZ MOYA",
+    "rut": "25.205.527-4",
+    "email": "velizmoyajhenny@gmail.com",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "16-11-2026, 4:09:29 p. m."
+  },
+  {
+    "id": "sho-31",
+    "num": 12,
+    "alliance": "Terror",
+    "name": "Bastian Alonso Cerda Gallardo",
+    "rawName": "BASTIAN ALONSO CERDA GALLARDO",
+    "rut": "22.314.890-5",
+    "email": "bastian.cerda17@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "16-11-2026, 3:33:15 p. m."
+  },
+  {
+    "id": "act-16",
+    "num": 13,
+    "alliance": "Action",
+    "name": "Millaray Muñoz",
+    "rawName": "MILLARAY MUÑOZ",
+    "rut": "22.214.149-4",
+    "email": "millaray.morales09@inacapmail.cl",
+    "carrera": "Diseño e Industria Digital",
+    "fechaInscripcion": "16-11-2026, 11:05:19 a. m."
+  },
+  {
+    "id": "act-27",
+    "num": 14,
+    "alliance": "Action",
+    "name": "Eduardo Soto",
+    "rawName": "EDUARDO SOTO",
+    "rut": "22.072.814-5",
+    "email": "eduardosoto1322@gmail.com",
+    "carrera": "Diseño e Industria Digital",
+    "fechaInscripcion": "16-11-2026, 11:05:16 a. m."
+  },
+  {
+    "id": "sho-109",
+    "num": 15,
+    "alliance": "Terror",
+    "name": "Gohans Alejandro Tapia Henriquez",
+    "rawName": "GOHANS ALEJANDRO TAPIA HENRIQUEZ",
+    "rut": "20.913.773-9",
+    "email": "gohans.tapia@inacapmail.cl",
+    "carrera": "Analista Programador",
+    "fechaInscripcion": "16-11-2026, 11:01:07 a. m."
+  },
+  {
+    "id": "sho-29",
+    "num": 16,
+    "alliance": "Shooter",
+    "name": "Benjamin Javier Castro Ley",
+    "rawName": "BENJAMIN JAVIER CASTRO LEY",
+    "rut": "21.497.254-9",
+    "email": "benjamin.castro26@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "16-11-2026, 9:21:30 a. m."
+  },
+  {
+    "id": "sho-59",
+    "num": 17,
+    "alliance": "Terror",
+    "name": "Yasser Sharif Lara Álvarez",
+    "rawName": "YASSER SHARIF LARA ÁLVAREZ",
+    "rut": "22.115.034-1",
+    "email": "yasser.lara@inacapmail.cl",
+    "carrera": "Analista Programador",
+    "fechaInscripcion": "15-11-2026, 9:37:36 p. m."
+  },
+  {
+    "id": "ter-44",
+    "num": 18,
+    "alliance": "Shooter",
+    "name": "Dylan Friz",
+    "rawName": "DYLAN FRIZ",
+    "rut": "20.737.048-7",
+    "email": "dylan.friz@inacapmail.cl",
+    "carrera": "Ingeniería en Informática",
+    "fechaInscripcion": "14-11-2026, 9:14:34 p. m."
+  },
+  {
+    "id": "sho-72",
+    "num": 19,
     "alliance": "Shooter",
     "name": "Ricardo Jesús Marin Inostroza",
     "rawName": "RICARDO JESÚS MARIN INOSTROZA",
@@ -12,7 +210,7 @@
   },
   {
     "id": "sho-58",
-    "num": 2,
+    "num": 20,
     "alliance": "Terror",
     "name": "MAKARENA JELVEZ MALDONADO",
     "rawName": "MAKARENA JELVEZ MALDONADO",
@@ -23,7 +221,7 @@
   },
   {
     "id": "sho-83",
-    "num": 3,
+    "num": 21,
     "alliance": "Terror",
     "name": "Johans Patrick Palma Eaton",
     "rawName": "JOHANS PATRICK PALMA EATON",
@@ -34,7 +232,7 @@
   },
   {
     "id": "act-10",
-    "num": 4,
+    "num": 22,
     "alliance": "Action",
     "name": "maximiliano lucas elgueta aguayo",
     "rawName": "MAXIMILIANO LUCAS ELGUETA AGUAYO",
@@ -45,7 +243,7 @@
   },
   {
     "id": "sho-41",
-    "num": 5,
+    "num": 23,
     "alliance": "Shooter",
     "name": "RANSES ENCARNACION",
     "rawName": "RANSES ENCARNACION",
@@ -56,7 +254,7 @@
   },
   {
     "id": "sho-37",
-    "num": 6,
+    "num": 24,
     "alliance": "Shooter",
     "name": "Alex Williams Croocker Vasquez",
     "rawName": "ALEX WILLIAMS CROOCKER VASQUEZ",
@@ -67,7 +265,7 @@
   },
   {
     "id": "act-5",
-    "num": 7,
+    "num": 25,
     "alliance": "Action",
     "name": "Gonzalo Borquez",
     "rawName": "GONZALO BORQUEZ",
@@ -78,7 +276,7 @@
   },
   {
     "id": "act-3",
-    "num": 8,
+    "num": 26,
     "alliance": "Action",
     "name": "Eileen Bracamonte",
     "rawName": "EILEEN BRACAMONTE",
@@ -89,7 +287,7 @@
   },
   {
     "id": "act-2",
-    "num": 9,
+    "num": 27,
     "alliance": "Action",
     "name": "Sofia Berrios",
     "rawName": "SOFIA BERRIOS",
@@ -100,7 +298,7 @@
   },
   {
     "id": "ter-5",
-    "num": 10,
+    "num": 28,
     "alliance": "Terror",
     "name": "Benjamin Astudillo",
     "rawName": "BENJAMIN ASTUDILLO",
@@ -111,7 +309,7 @@
   },
   {
     "id": "ter-28",
-    "num": 11,
+    "num": 29,
     "alliance": "Terror",
     "name": "Osman coliñir",
     "rawName": "OSMAN COLIÑIR",
@@ -122,7 +320,7 @@
   },
   {
     "id": "ter-61",
-    "num": 12,
+    "num": 30,
     "alliance": "Terror",
     "name": "Jose Franco justiniano",
     "rawName": "JOSE FRANCO JUSTINIANO",
@@ -133,7 +331,7 @@
   },
   {
     "id": "ter-24",
-    "num": 13,
+    "num": 31,
     "alliance": "Terror",
     "name": "Diego Benjamín Cepeda Castillo",
     "rawName": "DIEGO BENJAMÍN CEPEDA CASTILLO",
@@ -144,7 +342,7 @@
   },
   {
     "id": "ter-122",
-    "num": 14,
+    "num": 32,
     "alliance": "Terror",
     "name": "Rodrigo Zepeda",
     "rawName": "RODRIGO ZEPEDA",
@@ -155,7 +353,7 @@
   },
   {
     "id": "ter-89",
-    "num": 15,
+    "num": 33,
     "alliance": "Terror",
     "name": "Sebastián rivera",
     "rawName": "SEBASTIÁN RIVERA",
@@ -166,7 +364,7 @@
   },
   {
     "id": "sho-100",
-    "num": 16,
+    "num": 34,
     "alliance": "Terror",
     "name": "Patricio Antonio Saavedra Lucero",
     "rawName": "PATRICIO ANTONIO SAAVEDRA LUCERO",
@@ -177,7 +375,7 @@
   },
   {
     "id": "ter-17",
-    "num": 17,
+    "num": 35,
     "alliance": "Terror",
     "name": "Juan Caniuñir",
     "rawName": "JUAN CANIUÑIR",
@@ -188,7 +386,7 @@
   },
   {
     "id": "act-21",
-    "num": 18,
+    "num": 36,
     "alliance": "Action",
     "name": "Valery Alejandra Pizarro Meneses",
     "rawName": "VALERY ALEJANDRA PIZARRO MENESES",
@@ -199,7 +397,7 @@
   },
   {
     "id": "act-15",
-    "num": 19,
+    "num": 37,
     "alliance": "Action",
     "name": "fernanda montt",
     "rawName": "FERNANDA MONTT",
@@ -210,7 +408,7 @@
   },
   {
     "id": "act-8",
-    "num": 20,
+    "num": 38,
     "alliance": "Action",
     "name": "Javiera Constanza Cortés Araya",
     "rawName": "JAVIERA CONSTANZA CORTÉS ARAYA",
@@ -221,7 +419,7 @@
   },
   {
     "id": "act-12",
-    "num": 21,
+    "num": 39,
     "alliance": "Action",
     "name": "Thiara Millaray Escobar Pino",
     "rawName": "THIARA MILLARAY ESCOBAR PINO",
@@ -232,7 +430,7 @@
   },
   {
     "id": "act-19",
-    "num": 22,
+    "num": 40,
     "alliance": "Action",
     "name": "Constanza Martina Olivares Pareja",
     "rawName": "CONSTANZA MARTINA OLIVARES PAREJA",
@@ -243,7 +441,7 @@
   },
   {
     "id": "act-18",
-    "num": 23,
+    "num": 41,
     "alliance": "Action",
     "name": "Aracely Millaray Navea Araya",
     "rawName": "ARACELY MILLARAY NAVEA ARAYA",
@@ -254,7 +452,7 @@
   },
   {
     "id": "ter-38",
-    "num": 24,
+    "num": 42,
     "alliance": "Shooter",
     "name": "jhenifer dorado vargas",
     "rawName": "JHENIFER DORADO VARGAS",
@@ -265,7 +463,7 @@
   },
   {
     "id": "ter-81",
-    "num": 25,
+    "num": 43,
     "alliance": "Shooter",
     "name": "Gerardo Ojeda Alcaino",
     "rawName": "GERARDO OJEDA ALCAINO",
@@ -276,7 +474,7 @@
   },
   {
     "id": "ter-70",
-    "num": 26,
+    "num": 44,
     "alliance": "Shooter",
     "name": "Alfredo Mizushima Medina",
     "rawName": "ALFREDO MIZUSHIMA MEDINA",
@@ -287,7 +485,7 @@
   },
   {
     "id": "sho-66",
-    "num": 27,
+    "num": 45,
     "alliance": "Shooter",
     "name": "Christoffer Macías",
     "rawName": "CHRISTOFFER MACÍAS",
@@ -298,7 +496,7 @@
   },
   {
     "id": "sho-45",
-    "num": 28,
+    "num": 46,
     "alliance": "Shooter",
     "name": "Gabriel Flores Diaz",
     "rawName": "GABRIEL FLORES DIAZ",
@@ -309,7 +507,7 @@
   },
   {
     "id": "ter-69",
-    "num": 29,
+    "num": 47,
     "alliance": "Terror",
     "name": "Nicolas ignacio meneses sepulveda",
     "rawName": "NICOLAS IGNACIO MENESES SEPULVEDA",
@@ -320,7 +518,7 @@
   },
   {
     "id": "sho-76",
-    "num": 30,
+    "num": 48,
     "alliance": "Shooter",
     "name": "Rick Alejandro Montiel Callpa",
     "rawName": "RICK ALEJANDRO MONTIEL CALLPA",
@@ -331,7 +529,7 @@
   },
   {
     "id": "ter-93",
-    "num": 31,
+    "num": 49,
     "alliance": "Shooter",
     "name": "Deyanira Belén Rojas Trujillo",
     "rawName": "DEYANIRA BELÉN ROJAS TRUJILLO",
@@ -342,7 +540,7 @@
   },
   {
     "id": "sho-39",
-    "num": 32,
+    "num": 50,
     "alliance": "Terror",
     "name": "Stephany de la Cruz",
     "rawName": "STEPHANY DE LA CRUZ",
@@ -353,7 +551,7 @@
   },
   {
     "id": "sho-20",
-    "num": 33,
+    "num": 51,
     "alliance": "Terror",
     "name": "Heidy tatiana caicedo salazar",
     "rawName": "HEIDY TATIANA CAICEDO SALAZAR",
@@ -364,7 +562,7 @@
   },
   {
     "id": "ter-68",
-    "num": 34,
+    "num": 52,
     "alliance": "Terror",
     "name": "Ezequiel Martinez Isaias",
     "rawName": "EZEQUIEL MARTINEZ ISAIAS",
@@ -375,7 +573,7 @@
   },
   {
     "id": "sho-23",
-    "num": 35,
+    "num": 53,
     "alliance": "Terror",
     "name": "Shaira Camacho Canales",
     "rawName": "SHAIRA CAMACHO CANALES",
@@ -386,7 +584,7 @@
   },
   {
     "id": "sho-75",
-    "num": 36,
+    "num": 54,
     "alliance": "Terror",
     "name": "Sebastian miranda",
     "rawName": "SEBASTIAN MIRANDA",
@@ -397,7 +595,7 @@
   },
   {
     "id": "sho-34",
-    "num": 37,
+    "num": 55,
     "alliance": "Terror",
     "name": "SAM BASTIAN CORTES MAYA",
     "rawName": "SAM BASTIAN CORTES MAYA",
@@ -408,7 +606,7 @@
   },
   {
     "id": "ter-54",
-    "num": 38,
+    "num": 56,
     "alliance": "Terror",
     "name": "Paolo Grassi Bracamonte",
     "rawName": "PAOLO GRASSI BRACAMONTE",
@@ -419,7 +617,7 @@
   },
   {
     "id": "ter-82",
-    "num": 39,
+    "num": 57,
     "alliance": "Terror",
     "name": "Fernando Olivares Pineda",
     "rawName": "FERNANDO OLIVARES PINEDA",

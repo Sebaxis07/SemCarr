@@ -14,20 +14,18 @@ var pendingReasonCallback = null;
 // Definición de Secciones Permitidas por Rol (RBAC)
 const ALL_SECTIONS = [
   { id: 'asistencia', name: 'Asistencia del Evento', icon: 'clipboard-check', desc: 'Asistencia real consolidada, alianzas y actividades de cada alumno' },
+  { id: 'alianzas', name: 'Lista de Alianzas', icon: 'flag', desc: 'Todas las alianzas, puntajes y en qué participó cada persona' },
   { id: 'participantes', name: 'Participantes por Actividad', icon: 'user-check', desc: 'Nómina, cupos y asistencia en cancha' },
   { id: 'traslados', name: 'Cambio de Alianzas', icon: 'arrow-left-right', desc: 'Traslado individual y permutas 1 a 1' },
   { id: 'puntos', name: 'Registro de Puntos', icon: 'check-circle-2', desc: 'Puestos, deportes triangular y gymkanas' },
-  { id: 'docentes', name: 'Evaluación Docente', icon: 'sparkles', desc: 'Rúbricas de desafíos y obra favorita' },
-  { id: 'disciplina', name: 'Sanciones y Sorpresas', icon: 'alert-triangle', desc: 'Sanciones (200-600) y puntos extra' },
-  { id: 'avisos', name: 'Barra de Avisos', icon: 'radio', desc: 'Anuncios en vivo para proyector e inicio' },
-  { id: 'seguridad', name: 'Auditoría de Seguridad', icon: 'shield-alert', desc: 'Bitácora de accesos, bloqueos y sesiones' }
+  { id: 'docentes', name: 'Evaluación Docente', icon: 'sparkles', desc: 'Rúbricas de desafíos y obra favorita' }
 ];
 
 const ROLE_PERMISSIONS = {
-  admin: ['asistencia', 'participantes', 'traslados', 'puntos', 'docentes', 'disciplina', 'avisos', 'seguridad'],
-  coordinacion: ['asistencia', 'participantes', 'traslados', 'puntos', 'docentes', 'disciplina', 'avisos'],
-  mesa: ['asistencia', 'participantes', 'puntos', 'avisos'],
-  staff: ['participantes', 'puntos', 'traslados'],
+  admin: ['asistencia', 'alianzas', 'participantes', 'traslados', 'puntos', 'docentes'],
+  coordinacion: ['asistencia', 'alianzas', 'participantes', 'traslados', 'puntos', 'docentes'],
+  mesa: ['asistencia', 'alianzas', 'participantes', 'puntos'],
+  staff: ['alianzas', 'participantes', 'puntos', 'traslados'],
   docente: ['docentes']
 };
 
@@ -177,6 +175,15 @@ function showAdminView() {
     };
     roleBadge.className = `px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border ${roleColors[currentUser.role] || 'bg-[#0A1333] text-slate-300'}`;
     roleBadge.textContent = roleNames[currentUser.role] || currentUser.role;
+  }
+
+  const tunnelBtn = document.getElementById('header-tunnel-btn');
+  if (tunnelBtn) {
+    if (currentUser.role === 'admin' || currentUser.role === 'coordinacion') {
+      tunnelBtn.classList.remove('hidden');
+    } else {
+      tunnelBtn.classList.add('hidden');
+    }
   }
 
   renderRoleSidebar();
@@ -331,7 +338,9 @@ function startSessionTimer() {
 
 async function loadStats() {
   try {
-    const res = await fetch('/api/stats');
+    const res = await fetch('/api/stats', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     if (res.ok) {
       appData = await res.json();
     }
@@ -398,6 +407,8 @@ function switchAdminSection(secId) {
 
     if (secId === 'asistencia') {
       initAsistenciaModule();
+    } else if (secId === 'alianzas') {
+      initAlianzasModule();
     } else if (secId === 'participantes') {
       initParticipantesModule();
     } else if (secId === 'traslados') {
@@ -413,6 +424,9 @@ function switchAdminSection(secId) {
 function renderAdminSectionContent(secId) {
   if (secId === 'asistencia') {
     return renderAsistenciaPanel();
+  }
+  if (secId === 'alianzas') {
+    return renderAlianzasPanel();
   }
   if (secId === 'participantes') {
     return renderParticipantesPanel();
@@ -1896,7 +1910,7 @@ let swapSearchTimeout2 = null;
 // Variables de Solicitudes Públicas
 let adminAllianceRequestsData = [];
 let adminRequestsFilter = 'all';
-let adminRequestsCounts = { Terror: 126, Shooter: 126, Action: 29 };
+let adminRequestsCounts = { Terror: 0, Shooter: 0, Action: 0 };
 let adminRequestsConfig = { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
 
 function renderTrasladosPanel() {
@@ -2260,7 +2274,9 @@ async function handleMoveSearch(query) {
 
   moveSearchTimeout = setTimeout(async () => {
     try {
-      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
       const students = await res.json();
       if (students.length === 0) {
         box.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center font-mono">No se encontraron estudiantes con "${q}".</div>`;
@@ -2370,7 +2386,9 @@ async function handleSwapSearch(slot, query) {
 
   const newTimeout = setTimeout(async () => {
     try {
-      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
       const students = await res.json();
       if (students.length === 0) {
         box.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center font-mono">No se encontraron estudiantes con "${q}".</div>`;
@@ -2531,7 +2549,7 @@ async function loadTrasladosHistory() {
 // =========================================================================
 
 function renderPublicRequestsView() {
-  const counts = adminRequestsCounts || { Terror: 126, Shooter: 126, Action: 29 };
+  const counts = adminRequestsCounts || { Terror: 0, Shooter: 0, Action: 0 };
   const diff = counts.Terror - counts.Shooter;
   const absDiff = Math.abs(diff);
   const maxDiff = adminRequestsConfig?.maxDiff || 4;
@@ -2869,7 +2887,7 @@ async function loadAdminAllianceRequests() {
     const data = await res.json();
     adminAllianceRequestsData = data.requests || [];
     adminRequestsConfig = data.config || {};
-    adminRequestsCounts = data.counts || { Terror: 126, Shooter: 126, Action: 29 };
+    adminRequestsCounts = data.counts || { Terror: 0, Shooter: 0, Action: 0 };
 
     // Actualizar badge de la pestaña
     const pendingCount = adminAllianceRequestsData.filter(r => r.status === 'pending').length;
@@ -3674,7 +3692,9 @@ async function handleParticipantAutocomplete(alliance, val) {
 
   try {
     const url = `/api/students/search?q=${encodeURIComponent(query)}&alliance=${encodeURIComponent(alliance)}&excludeActivity=${encodeURIComponent(currentActId)}`;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     let students = await res.json();
 
     // Filtro estricto en cliente: excluir los ya inscritos en la actividad actual
@@ -4175,7 +4195,9 @@ function openStudentSearchModal() {
   const query = prompt('Ingresa el nombre o apellido del estudiante para ver su ficha de participación:');
   if (!query || query.trim().length < 2) return;
 
-  fetch(`/api/students/search?q=${encodeURIComponent(query.trim())}`)
+  fetch(`/api/students/search?q=${encodeURIComponent(query.trim())}`, {
+    headers: { 'Authorization': `Bearer ${adminToken}` }
+  })
     .then(r => r.json())
     .then(list => {
       if (list.length === 0) {
@@ -4478,7 +4500,7 @@ function renderAsistenciaPanel() {
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-red-400" id="asist-kpi-terror">0</span>
-            <span class="text-xs font-mono text-slate-500">/ 126</span>
+            <span class="text-xs font-mono text-slate-500" id="asist-total-terror">/ 0</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
@@ -4496,7 +4518,7 @@ function renderAsistenciaPanel() {
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-blue-400" id="asist-kpi-shooter">0</span>
-            <span class="text-xs font-mono text-slate-500">/ 126</span>
+            <span class="text-xs font-mono text-slate-500" id="asist-total-shooter">/ 0</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
@@ -4514,7 +4536,7 @@ function renderAsistenciaPanel() {
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-emerald-400" id="asist-kpi-action">0</span>
-            <span class="text-xs font-mono text-slate-500">/ 29</span>
+            <span class="text-xs font-mono text-slate-500" id="asist-total-action">/ 0</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
@@ -4701,11 +4723,13 @@ function renderAttendanceKPIs(stats) {
     const alData = stats.alianzas?.[al];
     if (alData) {
       const kpi = document.getElementById(`asist-kpi-${al.toLowerCase()}`);
+      const totalAlEl = document.getElementById(`asist-total-${al.toLowerCase()}`);
       const pct = document.getElementById(`asist-pct-${al.toLowerCase()}`);
       const bar = document.getElementById(`asist-bar-${al.toLowerCase()}`);
       const alPct = alData.total > 0 ? ((alData.asistentes / alData.total) * 100).toFixed(0) : 0;
 
       if (kpi) kpi.textContent = alData.asistentes;
+      if (totalAlEl) totalAlEl.textContent = `/ ${alData.total}`;
       if (pct) pct.textContent = `${alPct}%`;
       if (bar) bar.style.width = `${alPct}%`;
     }
@@ -5063,7 +5087,9 @@ async function openAdminProyector() {
   if (!overlay) return;
 
   try {
-    const res = await fetch('/api/stats');
+    const res = await fetch('/api/stats', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     const statsData = await res.json();
     appData = statsData;
 
@@ -5076,7 +5102,9 @@ async function openAdminProyector() {
     if (adminProyectorInterval) clearInterval(adminProyectorInterval);
     adminProyectorInterval = setInterval(async () => {
       try {
-        const r = await fetch('/api/stats');
+        const r = await fetch('/api/stats', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
         if (r.ok) {
           const fresh = await r.json();
           appData = fresh;
@@ -6921,7 +6949,9 @@ async function handleGymkanasTabSearch(alliance, val) {
 
   try {
     const url = `/api/students/search?q=${encodeURIComponent(query)}&alliance=${encodeURIComponent(alliance)}&excludeActivity=gymkanas`;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     let students = await res.json();
 
     // Excluir estudiantes ya anotados en gymkanas
@@ -8449,4 +8479,423 @@ function filterMobileAllianceCols(alliance) {
       btns[k].className = 'px-3 py-1.5 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent';
     }
   });
+}
+
+// =========================================================================
+// MÓDULO: LISTA DE ALIANZAS (RESUMEN Y PARTICIPACIONES POR INTEGRANTE)
+// =========================================================================
+let alianzasOverviewCache = null;
+let alianzasFilterAlliance = 'ALL';
+let alianzasFilterParticipation = 'ALL';
+let alianzasSearchQuery = '';
+
+function renderAlianzasPanel() {
+  return `
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#142252] pb-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black font-display text-white flex items-center gap-2 uppercase tracking-tight">
+            <i data-lucide="flag" class="w-6 h-6 text-[#E6194B]"></i>
+            Lista de Alianzas
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Vista general de todas las alianzas, puntajes acumulados y en qué actividades participó cada persona.
+          </p>
+        </div>
+        <button onclick="initAlianzasModule()" class="py-2 px-3.5 rounded-xl bg-[#0A1333] hover:bg-[#142252] border border-[#2D46B9]/60 text-xs font-display font-bold text-white transition flex items-center gap-2 self-start sm:self-auto">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
+          <span>Actualizar</span>
+        </button>
+      </div>
+
+      <div id="alianzas-summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="col-span-full py-10 text-center text-slate-400 text-xs font-mono flex items-center justify-center gap-2">
+          <i data-lucide="loader" class="w-4 h-4 animate-spin text-[#E6194B]"></i> Cargando alianzas e integrantes...
+        </div>
+      </div>
+
+      <div class="bg-[#050C24]/80 border border-[#142252] rounded-2xl p-3 sm:p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button id="alianzas-tab-ALL" onclick="setAlianzasFilterAlliance('ALL')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#2D46B9] text-white transition">Todas</button>
+          <button id="alianzas-tab-Terror" onclick="setAlianzasFilterAlliance('Terror')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition">Terror</button>
+          <button id="alianzas-tab-Shooter" onclick="setAlianzasFilterAlliance('Shooter')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition">Shooter</button>
+          <button id="alianzas-tab-Action" onclick="setAlianzasFilterAlliance('Action')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition">Action</button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 lg:max-w-lg">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+              type="text"
+              id="alianzas-search-input"
+              oninput="filterAlianzasList()"
+              placeholder="Buscar por nombre, RUT o actividad..."
+              class="w-full pl-9 pr-3 py-2 bg-[#0A1333] border border-[#142252] focus:border-[#2D46B9] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none transition"
+            />
+          </div>
+          <select id="alianzas-participation-filter" onchange="filterAlianzasList()" class="bg-[#0A1333] border border-[#142252] rounded-xl text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-[#2D46B9]">
+            <option value="ALL">Todos</option>
+            <option value="WITH">Con participación</option>
+            <option value="WITHOUT">Sin participación</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="alianzas-list-container" class="space-y-6"></div>
+    </div>
+  `;
+}
+
+async function initAlianzasModule() {
+  try {
+    const res = await fetch('/api/admin/alliances-overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (!res.ok) throw new Error('Error al cargar alianzas');
+    alianzasOverviewCache = await res.json();
+    renderAlianzasContent();
+  } catch (err) {
+    console.error('Error en initAlianzasModule:', err);
+    const container = document.getElementById('alianzas-list-container');
+    if (container) {
+      container.innerHTML = `<div class="p-4 rounded-2xl bg-red-950/40 border border-red-800 text-red-200 text-xs">No se pudo cargar la lista de alianzas: ${err.message}</div>`;
+    }
+  }
+}
+
+function setAlianzasFilterAlliance(alliance) {
+  alianzasFilterAlliance = alliance;
+  ['ALL', 'Terror', 'Shooter', 'Action'].forEach(k => {
+    const btn = document.getElementById(`alianzas-tab-${k}`);
+    if (!btn) return;
+    if (k === alliance) {
+      btn.className = 'px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#2D46B9] text-white transition shadow';
+    } else {
+      btn.className = 'px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition';
+    }
+  });
+  renderAlianzasContent();
+}
+
+function filterAlianzasList() {
+  const input = document.getElementById('alianzas-search-input');
+  const select = document.getElementById('alianzas-participation-filter');
+  alianzasSearchQuery = (input ? input.value : '').trim().toLowerCase();
+  alianzasFilterParticipation = select ? select.value : 'ALL';
+  renderAlianzasContent();
+}
+
+function renderAlianzasContent() {
+  if (!alianzasOverviewCache) return;
+  const { alliances } = alianzasOverviewCache;
+
+  const palette = {
+    Terror: { border: 'border-[#E6194B]/60', badge: 'bg-[#E6194B]/20 text-[#ff6b8b] border-[#E6194B]/40', dot: 'bg-[#E6194B]', text: 'text-[#ff6b8b]' },
+    Shooter: { border: 'border-[#2D46B9]/70', badge: 'bg-[#2D46B9]/25 text-[#9FB5F8] border-[#2D46B9]/50', dot: 'bg-[#2D46B9]', text: 'text-[#9FB5F8]' },
+    Action: { border: 'border-emerald-500/60', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', dot: 'bg-emerald-500', text: 'text-emerald-400' }
+  };
+
+  const summaryEl = document.getElementById('alianzas-summary-cards');
+  if (summaryEl) {
+    summaryEl.innerHTML = ['Terror', 'Shooter', 'Action'].map(al => {
+      const info = alliances[al] || { points: 0, rank: '-', totalStudents: 0, attendedCount: 0, participationsCount: 0 };
+      const p = palette[al];
+      return `
+        <div onclick="setAlianzasFilterAlliance('${al}')" class="cursor-pointer bg-[#050C24]/90 border-2 ${p.border} rounded-2xl p-4 hover:scale-[1.01] transition shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full ${p.dot}"></span>
+              <h3 class="font-display font-black text-base text-white uppercase tracking-wide">${al}</h3>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${p.badge}">#${info.rank || '-'}</span>
+          </div>
+          <div class="text-2xl font-black font-display ${p.text} mb-2">${Number(info.points || 0).toLocaleString('es-CL')} <span class="text-xs font-mono text-slate-400 font-normal">pts</span></div>
+          <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#142252] text-[11px] font-mono">
+            <div><span class="text-slate-400 block">Integrantes</span><strong class="text-white">${info.totalStudents}</strong></div>
+            <div><span class="text-slate-400 block">Presentes</span><strong class="text-emerald-400">${info.attendedCount}</strong></div>
+            <div><span class="text-slate-400 block">Participac.</span><strong class="text-amber-400">${info.participationsCount}</strong></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const listEl = document.getElementById('alianzas-list-container');
+  if (!listEl) return;
+
+  const targetAlliances = alianzasFilterAlliance === 'ALL' ? ['Terror', 'Shooter', 'Action'] : [alianzasFilterAlliance];
+
+  listEl.innerHTML = targetAlliances.map(al => {
+    const info = alliances[al] || { students: [], points: 0, totalStudents: 0 };
+    const p = palette[al];
+
+    const filteredMembers = (info.students || []).filter(s => {
+      if (alianzasFilterParticipation === 'WITH' && s.activities.length === 0) return false;
+      if (alianzasFilterParticipation === 'WITHOUT' && s.activities.length > 0) return false;
+      if (!alianzasSearchQuery) return true;
+
+      const actsText = s.activities.map(a => a.activityName).join(' ').toLowerCase();
+      return (
+        (s.name || '').toLowerCase().includes(alianzasSearchQuery) ||
+        (s.rut || '').toLowerCase().includes(alianzasSearchQuery) ||
+        (s.carrera || '').toLowerCase().includes(alianzasSearchQuery) ||
+        actsText.includes(alianzasSearchQuery)
+      );
+    });
+
+    const rowsHtml = filteredMembers.length === 0
+      ? `<div class="p-6 text-center text-xs text-slate-400 font-mono">No hay integrantes que coincidan con el filtro en ${al}.</div>`
+      : filteredMembers.map((s, idx) => {
+          const actBadges = s.activities.length > 0
+            ? s.activities.map(a => {
+                const scoreText = a.score !== null && a.score !== undefined ? ` (${a.score} pts)` : '';
+                return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-mono bg-[#142252] text-[#C7D5FA] border border-[#2D46B9]/50">${escapeHtmlAttr(a.activityName)}${scoreText}</span>`;
+              }).join(' ')
+            : `<span class="text-[11px] text-slate-500 italic">Sin actividades registradas aún</span>`;
+
+          return `
+            <div class="p-3 sm:p-4 border-b border-[#142252] last:border-0 hover:bg-[#0E1E48]/40 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[10px] font-mono text-slate-500">#${idx + 1}</span>
+                  <button type="button" onclick="openStudentProfileModalById('${s.id}')" class="text-sm font-bold text-white hover:text-[#7F9CF5] transition text-left">
+                    ${escapeHtmlAttr(s.name)}
+                  </button>
+                  ${s.isWalkIn ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">En cancha</span>` : ''}
+                  ${s.attended
+                    ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Presente</span>`
+                    : `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700">Sin registro</span>`
+                  }
+                </div>
+                <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+                  ${escapeHtmlAttr(s.carrera || '')}${s.rut ? ` • ${escapeHtmlAttr(s.rut)}` : ''}
+                </div>
+              </div>
+              <div class="sm:text-right flex flex-wrap sm:justify-end items-center gap-1.5 max-w-xl">
+                <span class="text-[10px] font-mono uppercase text-slate-400 mr-1">Participó en:</span>
+                ${actBadges}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+    return `
+      <div class="bg-[#050C24]/90 border-2 ${p.border} rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-4 py-3 bg-[#0A1333] border-b border-[#142252] flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${p.dot}"></span>
+            <h3 class="font-display font-black text-sm sm:text-base text-white uppercase tracking-wider">Alianza ${al}</h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono border ${p.badge}">${filteredMembers.length} / ${info.totalStudents} integrantes</span>
+          </div>
+          <span class="text-xs font-mono font-bold ${p.text}">${Number(info.points || 0).toLocaleString('es-CL')} pts</span>
+        </div>
+        <div>${rowsHtml}</div>
+      </div>
+    `;
+  }).join('');
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// =========================================================================
+// MÓDULO: TÚNEL REMOTO Y QR PARA EVALUACIÓN DOCENTE
+// =========================================================================
+let tunnelStatusCache = { active: false, url: null, lanUrl: null, startedAt: null, startedBy: null, error: null };
+
+function openTunnelModal() {
+  const modal = document.getElementById('tunnel-modal');
+  const content = document.getElementById('tunnel-modal-content');
+  if (!modal || !content) return;
+
+  modal.classList.remove('hidden');
+  content.innerHTML = `
+    <div class="py-10 text-center text-slate-400 text-xs font-mono flex items-center justify-center gap-2">
+      <i data-lucide="loader" class="w-4 h-4 animate-spin text-[#7F9CF5]"></i> Consultando estado del túnel...
+    </div>
+  `;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  refreshTunnelStatus();
+}
+
+function closeTunnelModal() {
+  const modal = document.getElementById('tunnel-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function refreshTunnelStatus() {
+  try {
+    const res = await fetch('/api/admin/tunnel/status', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (!res.ok) throw new Error('No autorizado o error al consultar estado');
+    tunnelStatusCache = await res.json();
+    renderTunnelModalContent();
+  } catch (err) {
+    const content = document.getElementById('tunnel-modal-content');
+    if (content) {
+      content.innerHTML = `<div class="p-4 rounded-xl bg-red-950/50 border border-red-800 text-red-200 text-xs">${escapeHtmlAttr(err.message)}</div>`;
+    }
+  }
+}
+
+async function startAdminTunnel() {
+  const btn = document.getElementById('btn-start-tunnel');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> <span>Abriendo túnel Cloudflare...</span>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  try {
+    const res = await fetch('/api/admin/tunnel/start', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el túnel');
+    tunnelStatusCache = data;
+    renderTunnelModalContent();
+  } catch (err) {
+    tunnelStatusCache.error = err.message;
+    renderTunnelModalContent();
+  }
+}
+
+async function stopAdminTunnel() {
+  const btn = document.getElementById('btn-stop-tunnel');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> <span>Cerrando túnel...</span>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  try {
+    const res = await fetch('/api/admin/tunnel/stop', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    tunnelStatusCache = { active: false, url: null, lanUrl: data.lanUrl, error: null };
+    renderTunnelModalContent();
+  } catch (err) {
+    alert('Error al detener el túnel: ' + err.message);
+  }
+}
+
+function copyTunnelUrl(urlToCopy, btnId) {
+  if (!urlToCopy) return;
+  navigator.clipboard.writeText(urlToCopy).then(() => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const prev = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Copiado</span>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    setTimeout(() => {
+      btn.innerHTML = prev;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }, 1800);
+  });
+}
+
+function renderTunnelModalContent() {
+  const content = document.getElementById('tunnel-modal-content');
+  if (!content) return;
+
+  const { active, url, lanUrl, error } = tunnelStatusCache;
+  const qrTargetUrl = active && url ? url : lanUrl;
+
+  content.innerHTML = `
+    <div class="space-y-4">
+      <div class="border-b border-[#142252] pb-3 pr-8">
+        <span class="text-[10px] font-mono uppercase tracking-wider text-[#7F9CF5] font-bold">Acceso Remoto al Servidor Local</span>
+        <h3 class="text-xl font-black font-display text-white mt-0.5 flex items-center gap-2">
+          <i data-lucide="qr-code" class="w-5 h-5 text-[#E6194B]"></i>
+          Link y QR para Docentes
+        </h3>
+        <p class="text-xs text-slate-400 mt-1">
+          Los profesores entran al login desde su celular o notebook (<span class="font-mono text-slate-200">docente1</span> / <span class="font-mono text-slate-200">docente2</span>) y sus notas caen directo en este equipo.
+        </p>
+      </div>
+
+      ${error ? `
+        <div class="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs">
+          ${escapeHtmlAttr(error)}
+        </div>
+      ` : ''}
+
+      <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${active ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}"></span>
+            <span class="text-xs font-display font-bold uppercase text-white">
+              ${active ? 'Túnel Público Activo (HTTPS)' : 'Túnel Público Inactivo'}
+            </span>
+          </div>
+          ${active
+            ? `<button id="btn-stop-tunnel" onclick="stopAdminTunnel()" class="py-1.5 px-3 rounded-xl bg-[#E6194B] hover:bg-[#c81440] text-white text-xs font-display font-bold transition flex items-center gap-1.5">
+                 <i data-lucide="square" class="w-3.5 h-3.5"></i> <span>Detener Túnel</span>
+               </button>`
+            : `<button id="btn-start-tunnel" onclick="startAdminTunnel()" class="py-1.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-display font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/20">
+                 <i data-lucide="globe" class="w-3.5 h-3.5"></i> <span>Activar Túnel</span>
+               </button>`
+          }
+        </div>
+
+        ${active && url ? `
+          <div class="p-2.5 rounded-xl bg-[#0A1333] border border-emerald-500/40 flex items-center justify-between gap-2">
+            <a href="${escapeHtmlAttr(url)}" target="_blank" class="text-xs font-mono text-emerald-300 hover:underline truncate">${escapeHtmlAttr(url)}</a>
+            <button id="btn-copy-tunnel" onclick="copyTunnelUrl('${escapeHtmlAttr(url)}', 'btn-copy-tunnel')" class="py-1 px-2.5 rounded-lg bg-[#142252] hover:bg-[#2D46B9] text-white text-[11px] font-mono shrink-0 flex items-center gap-1 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copiar</span>
+            </button>
+          </div>
+        ` : `
+          <p class="text-[11px] text-slate-400">
+            Presiona <strong>Activar Túnel</strong> para generar un enlace HTTPS externo (<span class="font-mono">trycloudflare.com</span>) accesible desde cualquier red o datos móviles.
+          </p>
+        `}
+      </div>
+
+      ${qrTargetUrl ? `
+        <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 flex flex-col items-center text-center space-y-3">
+          <div id="tunnel-qr-box" class="bg-white p-3 rounded-2xl shadow-lg inline-flex items-center justify-center min-w-[180px] min-h-[180px]"></div>
+          <div class="text-[11px] font-mono text-slate-300">
+            ${active ? 'Escanea para abrir el Login (Túnel Externo)' : 'QR de respaldo (solo misma red Wi-Fi / LAN)'}
+          </div>
+          ${lanUrl ? `
+            <div class="w-full p-2 rounded-xl bg-[#0A1333] border border-[#142252] flex items-center justify-between gap-2 text-left">
+              <div class="min-w-0">
+                <span class="text-[10px] font-mono text-slate-400 block">Alternativa Red Local (Wi-Fi):</span>
+                <span class="text-[11px] font-mono text-[#9FB5F8] truncate block">${escapeHtmlAttr(lanUrl)}</span>
+              </div>
+              <button id="btn-copy-lan" onclick="copyTunnelUrl('${escapeHtmlAttr(lanUrl)}', 'btn-copy-lan')" class="py-1 px-2 rounded-lg bg-[#142252] hover:bg-[#2D46B9] text-white text-[11px] font-mono shrink-0 flex items-center gap-1 transition">
+                <i data-lucide="copy" class="w-3 h-3"></i> <span>Copiar</span>
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  if (qrTargetUrl && typeof qrcode !== 'undefined') {
+    const qrBox = document.getElementById('tunnel-qr-box');
+    if (qrBox) {
+      try {
+        const qr = qrcode(0, 'M');
+        qr.addData(qrTargetUrl);
+        qr.make();
+        qrBox.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 1 });
+        const svg = qrBox.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('width', '190');
+          svg.setAttribute('height', '190');
+          svg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error generando QR:', err);
+      }
+    }
+  }
 }

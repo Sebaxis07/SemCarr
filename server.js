@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+const { spawn } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 5173;
@@ -22,9 +23,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(path.join(__dirname, 'public', 'img')));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
-app.use('/alianzas', express.static(path.join(__dirname, 'alianzas')));
 
 let defaultData = null;
 try {
@@ -134,15 +134,25 @@ function getMasterStudentsMap() {
 
 function syncStudentsFromCSV() {
   try {
-    const dir = path.join(__dirname, 'public', 'Alumn');
-    if (!fs.existsSync(dir)) return;
-    const files = fs.readdirSync(dir)
-      .filter(f => f.toLowerCase().endsWith('.csv'))
-      .map(f => {
-        const p = path.join(dir, f);
-        return { name: f, path: p, mtime: fs.statSync(p).mtimeMs };
-      })
-      .sort((a, b) => b.mtime - a.mtime);
+    const candidateDirs = [
+      path.join(__dirname, 'Inf'),
+      path.join(__dirname, 'public', 'Alumn')
+    ];
+
+    let files = [];
+    for (const dir of candidateDirs) {
+      if (!fs.existsSync(dir)) continue;
+      const found = fs.readdirSync(dir)
+        .filter(f => f.toLowerCase().endsWith('.csv'))
+        .map(f => {
+          const p = path.join(dir, f);
+          return { name: f, path: p, mtime: fs.statSync(p).mtimeMs };
+        });
+      if (found.length > 0) {
+        files = found.sort((a, b) => b.mtime - a.mtime);
+        break;
+      }
+    }
 
     if (files.length === 0) return;
     const latest = files[0];
@@ -162,7 +172,33 @@ function syncStudentsFromCSV() {
     const fechaIdx = header.findIndex(h => h.includes('fecha'));
 
     const masterMap = getMasterStudentsMap();
+
+    // Leer padrón actual para preservar walk-ins y cambios de alianza hechos por admin
+    let existing = [];
+    try {
+      const writable = getWritablePath('students.json');
+      if (fs.existsSync(writable)) {
+        existing = JSON.parse(fs.readFileSync(writable, 'utf8')) || [];
+      } else if (Array.isArray(defaultStudents)) {
+        existing = JSON.parse(JSON.stringify(defaultStudents));
+      }
+    } catch (_) {
+      existing = Array.isArray(defaultStudents) ? JSON.parse(JSON.stringify(defaultStudents)) : [];
+    }
+
+    const existingByRut = new Map();
+    const existingById = new Map();
+    existing.forEach(s => {
+      if (s.rut) {
+        const c = s.rut.replace(/[^0-9kK]/g, '').toUpperCase();
+        if (c) existingByRut.set(c, s);
+      }
+      if (s.id) existingById.set(s.id, s);
+    });
+
     const synced = [];
+    const seenIds = new Set();
+    const seenRuts = new Set();
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -180,29 +216,44 @@ function syncStudentsFromCSV() {
       else if (alLower.includes('action')) alliance = 'Action';
       else if (alLower.includes('terror')) alliance = 'Terror';
 
-      const cleanRut = (rut || '').replace(/[^0-9kK]/g, '').toUpperCase();
-      const matched = cleanRut ? masterMap.get(cleanRut) : null;
+      const cleanRutVal = (rut || '').replace(/[^0-9kK]/g, '').toUpperCase();
+      const matched = cleanRutVal ? masterMap.get(cleanRutVal) : null;
+      const prev = (cleanRutVal && existingByRut.get(cleanRutVal)) || (matched && existingById.get(matched.id)) || existingById.get(`insc-${i}`);
 
-      const id = matched ? matched.id : `insc-${i}`;
-      let carrera = matched ? matched.carrera : '';
+      const id = prev ? prev.id : (matched ? matched.id : `insc-${i}`);
+      let carrera = (prev && prev.carrera) || (matched && matched.carrera) || '';
       if (!carrera) {
         if (alliance === 'Action') carrera = 'Diseño e Industria Digital';
         else if (alliance === 'Shooter') carrera = 'Telecomunicaciones y Conectividad';
         else carrera = 'Ingeniería en Informática';
       }
 
+      const finalAlliance = prev && prev.alliance ? prev.alliance : alliance;
+
       synced.push({
         id,
         num: i,
-        alliance,
-        name: rawName || (matched ? matched.name : `Estudiante ${i}`),
-        rawName: (rawName || (matched ? matched.name : '')).toUpperCase(),
-        rut: rut || (matched ? matched.rut : ''),
-        email: email || (matched ? matched.email : ''),
+        alliance: finalAlliance,
+        name: rawName || (prev && prev.name) || (matched && matched.name) || `Estudiante ${i}`,
+        rawName: (rawName || (prev && prev.name) || (matched && matched.name) || '').toUpperCase(),
+        rut: rut || (prev && prev.rut) || (matched && matched.rut) || '',
+        email: email || (prev && prev.email) || (matched && matched.email) || '',
         carrera,
-        fechaInscripcion: fecha
+        fechaInscripcion: fecha || (prev && prev.fechaInscripcion) || '',
+        ...(prev && prev.isWalkIn ? { isWalkIn: true } : {})
       });
+      seenIds.add(id);
+      if (cleanRutVal) seenRuts.add(cleanRutVal);
     }
+
+    // Preservar participantes agregados en cancha (walk-in / door) que no están en el CSV
+    existing.forEach(s => {
+      const c = (s.rut || '').replace(/[^0-9kK]/g, '').toUpperCase();
+      const alreadyIncluded = seenIds.has(s.id) || (c && seenRuts.has(c));
+      if (!alreadyIncluded && (s.isWalkIn || String(s.id || '').startsWith('walkin-') || String(s.id || '').startsWith('door-'))) {
+        synced.push(s);
+      }
+    });
 
     if (synced.length > 0) {
       saveStudents(synced);
@@ -308,8 +359,8 @@ function recalculateGlobalPoints(data) {
   return { totals, ranks, sorted, tieBreaks, tieBreakDecisions };
 }
 
-// API: Global Stats
-app.get('/api/stats', (req, res) => {
+// API: Global Stats (Solo usuarios autenticados de consola administrativa)
+app.get('/api/stats', security.requireAuth, (req, res) => {
   try {
     const data = loadData();
     const students = loadStudents();
@@ -385,55 +436,10 @@ function normalizeAlliance(al) {
   return al;
 }
 
-// Helper: Obtener usuario autenticado si existe sesión válida
-function getAuthUser(req) {
-  const authHeader = req.headers['authorization'];
-  let token = null;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7).trim();
-  } else if (req.headers['x-session-token']) {
-    token = req.headers['x-session-token'];
-  } else if (req.query && req.query.token) {
-    token = req.query.token;
-  }
-  if (!token) return null;
-  return security.getSession(token);
-}
-
-// Rate limiter en memoria para buscador público por dispositivo/IP (30 req/min)
-const searchRateLimiter = new Map();
-function checkSearchRateLimit(ip) {
-  const now = Date.now();
-  let rec = searchRateLimiter.get(ip);
-  if (!rec || now > rec.resetAt) {
-    rec = { count: 1, resetAt: now + 60000 };
-    searchRateLimiter.set(ip, rec);
-    return { ok: true };
-  }
-  rec.count++;
-  if (rec.count > 30) {
-    const retryAfter = Math.ceil((rec.resetAt - now) / 1000);
-    return { ok: false, retryAfter };
-  }
-  return { ok: true };
-}
-
-// API: Search Students (Busca por Nombre o Carrera en público; RUT solo para administradores autenticados)
-app.get('/api/students/search', (req, res) => {
-  const ip = security.getClientIp(req);
-  const authUser = getAuthUser(req);
+// API: Search Students (Solo personal administrativo autenticado)
+app.get('/api/students/search', security.requireAuth, (req, res) => {
+  const authUser = req.user;
   const isAdminOrStaff = Boolean(authUser && ['admin', 'coordinacion', 'mesa', 'staff'].includes(authUser.role));
-
-  if (!isAdminOrStaff) {
-    const rate = checkSearchRateLimit(ip);
-    if (!rate.ok) {
-      res.setHeader('Retry-After', rate.retryAfter);
-      return res.status(429).json({
-        error: 'Límite de consultas excedido para este dispositivo: por favor espera un momento antes de volver a buscar',
-        retryAfterSeconds: rate.retryAfter
-      });
-    }
-  }
 
   const rawQuery = (req.query.q || '').trim();
   const rawAlliance = req.query.alliance || null;
@@ -529,49 +535,6 @@ app.get('/api/students/search', (req, res) => {
     });
 
   res.json(matches);
-});
-
-// API: Get all public students grouped by alliance (Padrón oficial para Mi Alianza)
-app.get('/api/students/by-alliance', (req, res) => {
-  try {
-    const students = loadStudents();
-    const grouped = {
-      Terror: [],
-      Shooter: [],
-      Action: []
-    };
-
-    (students || []).forEach(s => {
-      if (grouped[s.alliance]) {
-        grouped[s.alliance].push({
-          id: s.id,
-          name: s.name,
-          carrera: s.carrera,
-          alliance: s.alliance
-        });
-      }
-    });
-
-    // Ordenar alfabéticamente por nombre dentro de cada alianza
-    for (const al of ['Terror', 'Shooter', 'Action']) {
-      grouped[al].sort((a, b) => a.name.localeCompare(b.name, 'es'));
-    }
-
-    res.json(grouped);
-  } catch (err) {
-    console.error('Error in /api/students/by-alliance:', err);
-    res.status(500).json({ error: 'Error al cargar estudiantes: ' + err.message });
-  }
-});
-
-// API: Get Full Data for Public/Staff
-app.get('/api/data', (req, res) => {
-  try {
-    res.json(loadData());
-  } catch (err) {
-    console.error('Error in /api/data:', err);
-    res.status(500).json({ error: 'Error al cargar data: ' + err.message });
-  }
 });
 
 // ----------------- SEGURIDAD Y AUDITORÍA OWASP -----------------
@@ -1899,11 +1862,6 @@ app.post('/api/admin/tarreo/inscribir', requireAdminOrCoordOrMesa, (req, res) =>
   res.json({ success: true, status: 'Inscrito' });
 });
 
-app.get('/api/tarreo/inscritos', (req, res) => {
-  const data = loadData();
-  res.json(data.tarreoIndividual);
-});
-
 // 13. Barra de Avisos
 app.post('/api/admin/announcements', requireAdminOrCoordOrMesa, (req, res) => {
   const { text, target, loggedBy } = req.body; // target: 'all' | 'banner' | 'bigscreen'
@@ -2324,7 +2282,7 @@ app.post('/api/admin/event/reopen', security.requireAuth, security.requireRole([
 });
 
 // Consulta de premios de nota académica
-app.get('/api/admin/event/grade-prizes', (req, res) => {
+app.get('/api/admin/event/grade-prizes', security.requireAuth, (req, res) => {
   const data = loadData();
   const students = loadStudents();
   const { ranks } = recalculateGlobalPoints(data);
@@ -2399,13 +2357,10 @@ app.get('/api/admin/participants/export/:activityId', requireStaffOrPoints, (req
 });
 
 // ----------------- ASISTENCIA CONSOLIDADA DEL EVENTO -----------------
-// Obtener consolidado de asistencia efectiva (quién asistió y en qué actividad)
-app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
-  const students = loadStudents();
-  const data = loadData();
+function buildStudentAttendanceSummary(students, data) {
   const actPart = data.activityParticipants || {};
-
   const studentMap = new Map();
+
   students.forEach(s => {
     studentMap.set(s.id, {
       id: s.id,
@@ -2413,6 +2368,7 @@ app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
       rut: s.rut,
       carrera: s.carrera,
       alliance: s.alliance,
+      isWalkIn: Boolean(s.isWalkIn || String(s.id || '').startsWith('walkin-') || String(s.id || '').startsWith('door-')),
       activities: [],
       attended: false
     });
@@ -2430,6 +2386,7 @@ app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
             rut: p.rut || '',
             carrera: p.carrera || '',
             alliance: p.alliance || allianceName,
+            isWalkIn: Boolean(String(p.studentId || '').startsWith('walkin-') || String(p.studentId || '').startsWith('door-')),
             activities: [],
             attended: true
           };
@@ -2478,10 +2435,50 @@ app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
     }
   };
 
+  return { stats, attendees, allStudents };
+}
+
+// Obtener consolidado de asistencia efectiva (quién asistió y en qué actividad)
+app.get('/api/admin/attendance', requireAdminOrCoordOrMesa, (req, res) => {
+  const students = loadStudents();
+  const data = loadData();
+  const { stats, attendees, allStudents } = buildStudentAttendanceSummary(students, data);
+
   res.json({
     stats,
     attendees,
     allStudents,
+    activities: (data.activities || []).map(a => ({ id: a.id, name: a.name }))
+  });
+});
+
+// Lista de Alianzas para Admin: estado general y actividades de cada integrante
+app.get('/api/admin/alliances-overview', requireStaffOrPoints, (req, res) => {
+  const students = loadStudents();
+  const data = loadData();
+  const { stats, allStudents } = buildStudentAttendanceSummary(students, data);
+  const { totals, ranks } = recalculateGlobalPoints(data);
+
+  const alliances = {};
+  ['Terror', 'Shooter', 'Action'].forEach(al => {
+    const members = allStudents
+      .filter(s => s.alliance === al)
+      .sort((a, b) => a.name.localeCompare(b.name, 'es'));
+
+    alliances[al] = {
+      name: al,
+      points: totals[al] ?? 0,
+      rank: ranks[al] ?? null,
+      totalStudents: members.length,
+      attendedCount: members.filter(m => m.attended).length,
+      participationsCount: members.reduce((acc, m) => acc + m.activities.length, 0),
+      students: members
+    };
+  });
+
+  res.json({
+    stats,
+    alliances,
     activities: (data.activities || []).map(a => ({ id: a.id, name: a.name }))
   });
 });
@@ -3008,311 +3005,6 @@ function validateRut(rawRut) {
   return dv === expectedDv;
 }
 
-// Rate Limiter en Memoria para consultas públicas
-const publicRateLimitMap = new Map();
-
-function checkPublicRateLimit(ip) {
-  const now = Date.now();
-  let record = publicRateLimitMap.get(ip);
-  if (!record) {
-    record = { attempts: 0, firstAttemptAt: now, failedRuts: new Set(), blockedUntil: 0 };
-    publicRateLimitMap.set(ip, record);
-  }
-
-  if (record.blockedUntil > now) {
-    const minsLeft = Math.ceil((record.blockedUntil - now) / 60000);
-    return { blocked: true, message: `Dispositivo bloqueado temporalmente por exceso de intentos. Espere ${minsLeft} minuto(s).` };
-  }
-
-  // Ventana de 1 hora
-  if (now - record.firstAttemptAt > 3600000) {
-    record.attempts = 0;
-    record.firstAttemptAt = now;
-    record.failedRuts.clear();
-    record.blockedUntil = 0;
-  }
-
-  if (record.attempts >= 10) {
-    record.blockedUntil = now + 900000; // 15 minutos
-    return { blocked: true, message: 'Límite de 10 consultas por hora alcanzado. Bloqueado temporalmente por 15 minutos.' };
-  }
-
-  record.attempts++;
-  return { blocked: false, attempts: record.attempts };
-}
-
-function recordFailedRutAttempt(ip, rut) {
-  const record = publicRateLimitMap.get(ip);
-  if (record) {
-    record.failedRuts.add(rut);
-    if (record.failedRuts.size >= 5) {
-      record.blockedUntil = Date.now() + 900000; // 15 minutos de bloqueo por fuerza bruta
-    }
-  }
-}
-
-// Sesiones públicas temporales (15 minutos)
-const publicSessions = new Map();
-
-function createPublicSession(student, req) {
-  const token = 'pub_' + crypto.randomBytes(24).toString('hex');
-  const ip = security.getClientIp(req);
-  const userAgent = req.headers['user-agent'] || 'Unknown';
-  const expiresAt = Date.now() + 15 * 60 * 1000;
-
-  publicSessions.set(token, {
-    studentId: student.id,
-    rut: cleanRut(student.rut),
-    name: student.name,
-    carrera: student.carrera,
-    alliance: student.alliance,
-    expiresAt,
-    ip,
-    userAgent
-  });
-
-  return token;
-}
-
-function getPublicSession(req) {
-  const authHeader = req.headers['authorization'];
-  let token = null;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7).trim();
-  } else if (req.headers['x-public-token']) {
-    token = req.headers['x-public-token'];
-  }
-  if (!token) return null;
-
-  const sess = publicSessions.get(token);
-  if (!sess) return null;
-  if (Date.now() > sess.expiresAt) {
-    publicSessions.delete(token);
-    return null;
-  }
-  return sess;
-}
-
-// 1. Estadísticas públicas de cupos y alianzas
-app.get('/api/public/alliance/stats', (req, res) => {
-  const data = loadData();
-  const students = loadStudents();
-
-  const counts = { Terror: 0, Shooter: 0, Action: 0 };
-  (students || []).forEach(s => {
-    if (counts[s.alliance] !== undefined) counts[s.alliance]++;
-  });
-
-  const cfg = data.allianceChangeConfig || { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
-  const maxDiff = cfg.maxDiff || 4;
-  const isPastDeadline = cfg.deadline ? (new Date() > new Date(cfg.deadline)) : false;
-  const isOpen = cfg.open && !isPastDeadline;
-
-  // Cálculo de cupos disponibles para Terror y Shooter
-  const diff = counts.Terror - counts.Shooter;
-  const terrorCanGrow = (diff + 2) <= maxDiff;
-  const shooterCanGrow = (-diff + 2) <= maxDiff;
-
-  res.json({
-    counts,
-    config: {
-      open: isOpen,
-      rawOpen: cfg.open,
-      deadline: cfg.deadline,
-      maxDiff
-    },
-    slots: {
-      terrorCurrent: counts.Terror,
-      shooterCurrent: counts.Shooter,
-      actionCurrent: counts.Action,
-      diff: Math.abs(diff),
-      terrorCanAccept: terrorCanGrow,
-      shooterCanAccept: shooterCanGrow
-    }
-  });
-});
-
-// 2. Autenticación pública de estudiante con RUT (NO DEVUELVE NINGÚN RUT)
-app.post('/api/public/alliance/auth', (req, res) => {
-  const { rut } = req.body;
-  const ip = security.getClientIp(req);
-
-  const rateCheck = checkPublicRateLimit(ip);
-  if (rateCheck.blocked) {
-    return res.status(429).json({ error: rateCheck.message });
-  }
-
-  if (!rut || !validateRut(rut)) {
-    recordFailedRutAttempt(ip, cleanRut(rut));
-    return res.status(400).json({ error: 'RUT no registrado en el padrón oficial o datos incorrectos.' });
-  }
-
-  const targetRut = cleanRut(rut);
-  const students = loadStudents();
-  const student = students.find(s => cleanRut(s.rut) === targetRut);
-
-  if (!student) {
-    recordFailedRutAttempt(ip, targetRut);
-    return res.status(404).json({ error: 'RUT no registrado en el padrón oficial o datos incorrectos.' });
-  }
-
-  // Crear sesión pública (15 min)
-  const token = createPublicSession(student, req);
-  const data = loadData();
-  const myRequest = (data.allianceRequests || []).find(r => r.studentId === student.id && r.status !== 'reverted');
-
-  // NINGÚN RUT SALE EN LA RESPUESTA
-  res.json({
-    success: true,
-    token,
-    student: {
-      id: student.id,
-      name: student.name,
-      carrera: student.carrera,
-      alliance: student.alliance
-    },
-    hasRequestedChange: !!myRequest,
-    request: myRequest || null
-  });
-});
-
-// 3. Solicitar cambio de alianza
-app.post('/api/public/alliance/request', (req, res) => {
-  const sess = getPublicSession(req);
-  if (!sess) {
-    return res.status(401).json({ error: 'Sesión expirada o no válida. Por favor ingrese su RUT nuevamente.' });
-  }
-
-  const data = loadData();
-  const cfg = data.allianceChangeConfig || { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
-  const isPastDeadline = cfg.deadline ? (new Date() > new Date(cfg.deadline)) : false;
-  if (!cfg.open || isPastDeadline) {
-    return res.status(403).json({ error: 'El periodo oficial de recepción de solicitudes de cambio se encuentra cerrado.' });
-  }
-
-  // Alianza Action (Diseño) está CERRADA
-  if (sess.alliance === 'Action' || (sess.carrera && sess.carrera.toLowerCase().includes('diseño'))) {
-    return res.status(403).json({ error: 'La Alianza Action (Diseño e Industria Digital) es exclusiva y no admite cambios.' });
-  }
-
-  const { targetAlliance, reason, termsAccepted } = req.body;
-  if (!termsAccepted) {
-    return res.status(400).json({ error: 'Debes leer y aceptar el reglamento y condiciones de traslado antes de formalizar la solicitud.' });
-  }
-  if (!targetAlliance || (targetAlliance !== 'Terror' && targetAlliance !== 'Shooter')) {
-    return res.status(400).json({ error: 'El cambio solo está permitido entre Alianza Terror y Alianza Shooter.' });
-  }
-
-  if (targetAlliance === sess.alliance) {
-    return res.status(400).json({ error: `Ya perteneces a la Alianza ${sess.alliance}.` });
-  }
-
-  // Comprobar si ya tiene una solicitud registrada
-  data.allianceRequests = data.allianceRequests || [];
-  const existing = data.allianceRequests.find(r => r.studentId === sess.studentId && r.status !== 'rejected' && r.status !== 'reverted');
-  if (existing) {
-    return res.status(400).json({ error: 'Ya tienes una solicitud de cambio registrada. Solo se permite una por estudiante.' });
-  }
-
-  const students = loadStudents();
-  const counts = { Terror: 0, Shooter: 0, Action: 0 };
-  students.forEach(s => {
-    if (counts[s.alliance] !== undefined) counts[s.alliance]++;
-  });
-
-  // Verificar si existe una solicitud opuesta que pueda emparejarse como Swap
-  const swapCandidate = data.allianceRequests.find(r => 
-    (r.status === 'pending' || r.status === 'waiting_list') &&
-    r.currentAlliance === targetAlliance &&
-    r.targetAlliance === sess.alliance &&
-    !r.swapPartnerId
-  );
-
-  let initialStatus = 'pending';
-  let isSwap = false;
-  let swapPartnerId = null;
-
-  if (swapCandidate) {
-    // Emparejado como permuta: no consume cupos netos
-    isSwap = true;
-    swapPartnerId = swapCandidate.id;
-    initialStatus = 'pending';
-  } else {
-    // Evaluar cupo con maxDiff
-    const maxDiff = cfg.maxDiff || 4;
-    const newTargetCount = counts[targetAlliance] + 1;
-    const newSourceCount = counts[sess.alliance] - 1;
-    const diffAfter = Math.abs(newTargetCount - newSourceCount);
-
-    if (diffAfter > maxDiff) {
-      initialStatus = 'waiting_list'; // Sin cupo inmediato
-    } else {
-      initialStatus = 'pending';
-    }
-  }
-
-  const newRequest = {
-    id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-    studentId: sess.studentId,
-    studentName: sess.name,
-    carrera: sess.carrera,
-    currentAlliance: sess.alliance,
-    targetAlliance,
-    reason: (reason || '').trim(),
-    status: initialStatus, // 'pending' | 'waiting_list'
-    createdAt: new Date().toISOString(),
-    termsAccepted: true,
-    termsAcceptedAt: new Date().toISOString(),
-    ip: sess.ip,
-    userAgent: sess.userAgent,
-    isSwap,
-    swapPartnerId
-  };
-
-  data.allianceRequests.unshift(newRequest);
-
-  // Si se emparejó con swapCandidate, actualizar swapCandidate
-  if (swapCandidate) {
-    swapCandidate.isSwap = true;
-    swapCandidate.swapPartnerId = newRequest.id;
-    if (swapCandidate.status === 'waiting_list') {
-      swapCandidate.status = 'pending'; // Promover ya que ahora está emparejada
-    }
-  }
-
-  saveData(data);
-
-  res.json({
-    success: true,
-    request: newRequest,
-    message: initialStatus === 'pending' 
-      ? 'Solicitud recibida correctamente. Queda en estado Pendiente de Revisión por el administrador.' 
-      : 'No hay cupos disponibles de inmediato. Tu solicitud ha quedado registrada en Lista de Espera por orden de llegada.'
-  });
-});
-
-// 4. Consultar estado propio
-app.get('/api/public/alliance/my-request', (req, res) => {
-  const sess = getPublicSession(req);
-  if (!sess) {
-    return res.status(401).json({ error: 'Sesión no válida o expirada.' });
-  }
-
-  const data = loadData();
-  const request = (data.allianceRequests || []).find(r => r.studentId === sess.studentId && r.status !== 'reverted') || null;
-
-  res.json({
-    success: true,
-    student: {
-      id: sess.studentId,
-      name: sess.name,
-      carrera: sess.carrera,
-      alliance: sess.alliance
-    },
-    request
-  });
-});
-
 // ----------------- RUTAS ADMIN DE GESTIÓN DE SOLICITUDES -----------------
 
 // Listar solicitudes
@@ -3605,19 +3297,193 @@ function reevaluateWaitingList(data, students) {
   }
 }
 
+// ----------------- TÚNEL REMOTO PARA DOCENTES (CLOUDFLARED + LAN) -----------------
+const tunnelState = {
+  process: null,
+  active: false,
+  url: null,
+  startedAt: null,
+  startedBy: null,
+  error: null
+};
+
+function getLocalLanUrl(activePort) {
+  const portToUse = activePort || PORT;
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === 'IPv4' && !iface.internal && !iface.address.startsWith('169.254.')) {
+        return `http://${iface.address}:${portToUse}/admin`;
+      }
+    }
+  }
+  return `http://localhost:${portToUse}/admin`;
+}
+
+function findCloudflaredBin() {
+  const candidates = [
+    path.join(__dirname, 'bin', 'cloudflared.exe'),
+    'C:\\Program Files (x86)\\cloudflared\\cloudflared.exe',
+    'C:\\Program Files\\cloudflared\\cloudflared.exe',
+    'cloudflared'
+  ];
+  for (const c of candidates) {
+    if (c === 'cloudflared' || fs.existsSync(c)) {
+      return c;
+    }
+  }
+  return 'cloudflared';
+}
+
+function stopTunnelProcess() {
+  if (tunnelState.process) {
+    try {
+      tunnelState.process.kill();
+    } catch (_) {}
+    tunnelState.process = null;
+  }
+  tunnelState.active = false;
+  tunnelState.url = null;
+  tunnelState.startedAt = null;
+  tunnelState.startedBy = null;
+}
+
+process.on('exit', stopTunnelProcess);
+
+app.get('/api/admin/tunnel/status', requireAdminOrCoord, (req, res) => {
+  const activePort = req.socket?.localPort || PORT;
+  res.json({
+    active: tunnelState.active,
+    url: tunnelState.url,
+    lanUrl: getLocalLanUrl(activePort),
+    startedAt: tunnelState.startedAt,
+    startedBy: tunnelState.startedBy,
+    error: tunnelState.error
+  });
+});
+
+app.post('/api/admin/tunnel/start', requireAdminOrCoord, (req, res) => {
+  const activePort = req.socket?.localPort || PORT;
+  const lanUrl = getLocalLanUrl(activePort);
+
+  if (tunnelState.active && tunnelState.url) {
+    return res.json({
+      success: true,
+      active: true,
+      url: tunnelState.url,
+      lanUrl,
+      startedAt: tunnelState.startedAt,
+      startedBy: tunnelState.startedBy
+    });
+  }
+
+  stopTunnelProcess();
+  tunnelState.error = null;
+
+  const bin = findCloudflaredBin();
+  let responded = false;
+
+  try {
+    const child = spawn(bin, ['tunnel', '--url', `http://127.0.0.1:${activePort}`, '--no-autoupdate'], {
+      windowsHide: true
+    });
+    tunnelState.process = child;
+
+    const timeout = setTimeout(() => {
+      if (!responded) {
+        responded = true;
+        stopTunnelProcess();
+        tunnelState.error = 'Tiempo de espera agotado al iniciar el túnel Cloudflare.';
+        res.status(504).json({ error: tunnelState.error, lanUrl });
+      }
+    }, 18000);
+
+    const handleOutput = (chunk) => {
+      const text = chunk.toString();
+      const match = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/i);
+      if (match && !responded) {
+        responded = true;
+        clearTimeout(timeout);
+        const fullUrl = `${match[0]}/admin`;
+        tunnelState.active = true;
+        tunnelState.url = fullUrl;
+        tunnelState.startedAt = new Date().toISOString();
+        tunnelState.startedBy = req.user?.name || req.user?.username || 'Admin';
+
+        addSecurityAuditLog({
+          action: 'TUNNEL_STARTED',
+          user: tunnelState.startedBy,
+          details: { url: fullUrl }
+        });
+
+        res.json({
+          success: true,
+          active: true,
+          url: fullUrl,
+          lanUrl,
+          startedAt: tunnelState.startedAt,
+          startedBy: tunnelState.startedBy
+        });
+      }
+    };
+
+    child.stdout.on('data', handleOutput);
+    child.stderr.on('data', handleOutput);
+
+    child.on('error', (err) => {
+      if (!responded) {
+        responded = true;
+        clearTimeout(timeout);
+        stopTunnelProcess();
+        tunnelState.error = `No se pudo ejecutar cloudflared: ${err.message}`;
+        res.status(500).json({ error: tunnelState.error, lanUrl });
+      }
+    });
+
+    child.on('close', () => {
+      if (tunnelState.process === child) {
+        tunnelState.process = null;
+        tunnelState.active = false;
+        tunnelState.url = null;
+      }
+    });
+  } catch (err) {
+    if (!responded) {
+      responded = true;
+      stopTunnelProcess();
+      res.status(500).json({ error: 'Error al iniciar el túnel: ' + err.message, lanUrl });
+    }
+  }
+});
+
+app.post('/api/admin/tunnel/stop', requireAdminOrCoord, (req, res) => {
+  const wasActive = tunnelState.active;
+  const oldUrl = tunnelState.url;
+  stopTunnelProcess();
+
+  if (wasActive) {
+    addSecurityAuditLog({
+      action: 'TUNNEL_STOPPED',
+      user: req.user?.name || req.user?.username || 'Admin',
+      details: { url: oldUrl }
+    });
+  }
+
+  const activePort = req.socket?.localPort || PORT;
+  res.json({ success: true, active: false, lanUrl: getLocalLanUrl(activePort) });
+});
+
 // SPA Fallback for Admin Portal
 app.get(/^\/admin(\/.+)?$/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
 });
 
-// SPA Fallback for Alianzas Portal
-app.get(/^\/alianzas(\/.+)?$/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'alianzas', 'index.html'));
-});
-
-// Fallback to index.html for Public SPA
+// 404 para cualquier otra ruta (solo módulos de administración activos)
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Endpoint no encontrado' });
+  }
+  return res.status(404).send('404 Not Found');
 });
 
 if (require.main === module) {

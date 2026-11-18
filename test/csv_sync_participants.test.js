@@ -20,37 +20,88 @@ test('Sincronizacion CSV: /Alumn queda bloqueado por HTTP retornando 404', async
   }
 });
 
-test('Sincronizacion CSV: /api/students/by-alliance entrega los 39 alumnos del formulario', async () => {
+test('Sincronizacion CSV: /api/stats autenticado entrega los 57 alumnos del formulario en Inf/', async () => {
   const server = http.createServer(app);
   await new Promise(resolve => server.listen(0, resolve));
   const port = server.address().port;
   const baseUrl = `http://127.0.0.1:${port}`;
 
   try {
-    const res = await fetch(`${baseUrl}/api/students/by-alliance`);
+    const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: 'InacapAdmin2026!' })
+    });
+    assert.strictEqual(loginRes.status, 200);
+    const { token } = await loginRes.json();
+
+    const res = await fetch(`${baseUrl}/api/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     assert.strictEqual(res.ok, true);
     const data = await res.json();
 
-    assert.strictEqual(data.Terror.length, 19, 'Terror debe tener 19 alumnos inscritos');
-    assert.strictEqual(data.Shooter.length, 10, 'Shooter debe tener 10 alumnos inscritos');
-    assert.strictEqual(data.Action.length, 10, 'Action debe tener 10 alumnos inscritos');
+    assert.strictEqual(data.alliances.Terror.totalStudents, 29, 'Terror debe tener 29 alumnos inscritos');
+    assert.strictEqual(data.alliances.Shooter.totalStudents, 14, 'Shooter debe tener 14 alumnos inscritos');
+    assert.strictEqual(data.alliances.Action.totalStudents, 14, 'Action debe tener 14 alumnos inscritos');
 
-    const total = data.Terror.length + data.Shooter.length + data.Action.length;
-    assert.strictEqual(total, 39, 'El total de inscritos debe ser exactamente 39');
+    const total = data.alliances.Terror.totalStudents + data.alliances.Shooter.totalStudents + data.alliances.Action.totalStudents;
+    assert.strictEqual(total, 57, 'El total de inscritos debe ser exactamente 57');
   } finally {
     server.close();
   }
 });
 
-test('Sincronizacion CSV: Buscador publico encuentra alumnos con la alianza elegida en el formulario', async () => {
+test('Lista de Alianzas: /api/admin/alliances-overview entrega alianzas, integrantes y actividades', async () => {
   const server = http.createServer(app);
   await new Promise(resolve => server.listen(0, resolve));
   const port = server.address().port;
   const baseUrl = `http://127.0.0.1:${port}`;
 
   try {
+    const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: 'InacapAdmin2026!' })
+    });
+    assert.strictEqual(loginRes.status, 200);
+    const { token } = await loginRes.json();
+
+    const res = await fetch(`${baseUrl}/api/admin/alliances-overview`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+
+    assert.ok(data.alliances.Terror && data.alliances.Shooter && data.alliances.Action);
+    assert.strictEqual(data.alliances.Terror.totalStudents, 29);
+    assert.strictEqual(data.alliances.Shooter.totalStudents, 14);
+    assert.strictEqual(data.alliances.Action.totalStudents, 14);
+    assert.ok(Array.isArray(data.alliances.Terror.students[0].activities), 'Cada integrante debe incluir su arreglo de actividades');
+  } finally {
+    server.close();
+  }
+});
+
+test('Sincronizacion CSV: Buscador admin encuentra alumnos con la alianza elegida en el formulario', async () => {
+  const server = http.createServer(app);
+  await new Promise(resolve => server.listen(0, resolve));
+  const port = server.address().port;
+  const baseUrl = `http://127.0.0.1:${port}`;
+
+  try {
+    const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'admin', password: 'InacapAdmin2026!' })
+    });
+    assert.strictEqual(loginRes.status, 200);
+    const { token } = await loginRes.json();
+
     // Makarena se inscribio en Terror en el formulario
-    const res = await fetch(`${baseUrl}/api/students/search?q=Makarena`);
+    const res = await fetch(`${baseUrl}/api/students/search?q=Makarena`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     assert.strictEqual(res.ok, true);
     const list = await res.json();
     assert.strictEqual(list.length > 0, true);
