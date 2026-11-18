@@ -14,6 +14,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -245,19 +247,12 @@
         </button>
       </form>
 
-      <!-- Pie de Seguridad y Enlace Público -->
-      <div class="mt-6 pt-4 border-t border-[#142252] flex items-center justify-between text-[11px] text-slate-400">
+      <!-- Pie de Seguridad -->
+      <div class="mt-6 pt-4 border-t border-[#142252] flex items-center justify-center text-[11px] text-slate-400">
         <span class="flex items-center gap-1 font-mono text-[10px]">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
           Sesión Scrypt 256-bit
         </span>
-        <button onclick="openAdminProyector()" title="Abrir Pantalla de Marcador para Proyector de Cancha" class="py-1 px-2.5 rounded-lg text-xs font-display font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-900/50 transition flex items-center gap-1.5">
-          <i data-lucide="tv" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Modo Proyector</span>
-        </button>
-        <a href="/" target="_blank" class="text-slate-300 hover:text-white transition flex items-center gap-1 font-display font-bold text-xs">
-          Portal Público <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-        </a>
       </div>
     </div>
   </div>
@@ -295,10 +290,15 @@
             </span>
           </div>
 
-          <a href="/" target="_blank" title="Abrir portal público en pestaña nueva" class="py-1.5 px-3 rounded-xl text-xs font-display font-bold text-slate-300 hover:text-white bg-[#0A1333] hover:bg-[#0E1E48] border border-[#142252] transition flex items-center gap-1.5">
-            <i data-lucide="external-link" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
-            <span class="hidden sm:inline">Portal Público</span>
-          </a>
+          <button id="header-tunnel-btn" onclick="openTunnelModal()" title="Activar enlace remoto y QR para que docentes evalúen desde sus dispositivos" class="hidden py-1.5 px-3 rounded-xl text-xs font-display font-bold text-[#9FB5F8] hover:text-white bg-[#0A1333] hover:bg-[#142252] border border-[#2D46B9]/70 transition flex items-center gap-1.5">
+            <i data-lucide="qr-code" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
+            <span class="hidden sm:inline">Acceso Docentes (QR)</span>
+          </button>
+
+          <button onclick="openAdminProyector()" title="Abrir Pantalla de Marcador para Proyector de Cancha" class="py-1.5 px-3 rounded-xl text-xs font-display font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-900/50 transition flex items-center gap-1.5">
+            <i data-lucide="tv" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Modo Proyector</span>
+          </button>
 
           <button onclick="logoutAdmin()" title="Cerrar Sesión de Administrador" class="py-1.5 px-3 rounded-xl text-xs font-display font-bold text-[#E6194B] hover:text-white bg-[#E6194B]/10 hover:bg-[#E6194B] border border-[#E6194B]/40 transition flex items-center gap-1.5">
             <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
@@ -426,6 +426,18 @@
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
       <div id="calc-modal-content">
+        <!-- Inyectado dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Túnel Remoto y QR para Evaluación Docente -->
+  <div id="tunnel-modal" class="fixed inset-0 bg-[#050C24]/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#0A1333] via-[#050C24] to-[#0A1333] border-2 border-[#2D46B9] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative glow-electric max-h-[92vh] overflow-y-auto">
+      <button onclick="closeTunnelModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#142252] transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div id="tunnel-modal-content">
         <!-- Inyectado dinámicamente -->
       </div>
     </div>

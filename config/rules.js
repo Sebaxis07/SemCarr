@@ -41,7 +41,7 @@ const ACTIVITY_POINTS = {
   },
   retro: {
     name: 'Torneo Retro',
-    distribution: [3000, 1800, 900],
+    distribution: [4000, 2400, 1200],
     minPlayers: 4,
     maxPlayers: 5, // 4 titulares + 1 suplente
     duelsPerMatch: 4,
@@ -49,16 +49,16 @@ const ACTIVITY_POINTS = {
   },
   tacataca: {
     name: 'Taca-Taca',
-    distribution: [1000, 600, 300],
+    distribution: [1500, 900, 450],
     minPlayers: 2,
     maxPlayers: 3, // 2 titulares + 1 suplente
     maxVictories: 8
   },
   pingpong: {
     name: 'Ping Pong',
-    distribution: [1000, 600, 300],
-    minPlayers: 2,
-    maxPlayers: 3, // 2 titulares + 1 suplente
+    distribution: [1500, 900, 450],
+    minPlayers: 1,
+    maxPlayers: 2, // 1 titular + 1 suplente
     maxVictories: 8
   },
   trivia: {
@@ -68,8 +68,8 @@ const ACTIVITY_POINTS = {
   },
   canto: {
     name: 'Si Se la Sabe Cante',
-    distribution: [1500, 900, 450],
-    initialRowSize: 10
+    distribution: [2000, 1200, 600],
+    initialRowSize: 5
   },
   barra: {
     name: 'Barra y Ruido',
@@ -78,20 +78,21 @@ const ACTIVITY_POINTS = {
   },
   gymkanas: {
     name: 'Gymkanas',
-    maxPoints: 3000,
-    postsCount: 4,
+    maxPoints: 4000,
+    postsCount: 3,
     pointsPerAttempt: 1,
     pointsPerSolved: 1,
-    maxPointsPerPerson: 8
+    maxPointsPerPerson: 6
   }
 };
 
-// Desafío Creativo (Sección 6)
+// Desafío Creativo (Sección 6 / Regla Actualizada)
+// Solo al llevarlo/entregarlo ganan los 4.000 puntos. Las evaluaciones docentes definen la Mención de Honor sin puntos adicionales.
 const CREATIVE_CHALLENGE = {
-  deliveryOnTimePoints: 1000,
-  maxEvaluationPoints: 2500,
-  favoriteWorkPoints: PROVISIONAL_SETTINGS.FAVORITE_WORK_TOTAL_POINTS,
-  maxTeacherDiscrepancy: 20 // Diferencia > 20 pts gatilla "revisión conjunta pendiente"
+  deliveryOnTimePoints: 4000,
+  maxEvaluationPoints: 0,
+  favoriteWorkPoints: 0,
+  maxTeacherDiscrepancy: 20 // Diferencia > 20 pts gatilla "revisión conjunta pendiente" para mención de honor
 };
 
 // Sanciones (Sección 8)
@@ -555,8 +556,8 @@ function calculateDocenteScore(criterios, scores) {
   return totalScore;
 }
 
-// Cálculo del Desafío Creativo (Entrega 1.000 + Nota Docente hasta 2.500 + Obra Favorita 500)
-// Aplica Decisión 1 (máx 500 repartido en empates) y Regla de Discrepancia > 20 pts
+// Cálculo del Desafío Creativo (Solo al llevarlo gana los 4.000 pts. Evaluaciones docentes determinan Mención de Honor sin sumar puntos)
+// Aplica Regla de Discrepancia > 20 pts para definir Mención de Honor
 function calculateCreativeScores(creativeChallenges) {
   if (!creativeChallenges || !creativeChallenges.rubrics) {
     return {
@@ -564,6 +565,9 @@ function calculateCreativeScores(creativeChallenges) {
       breakdown: {},
       favoriteAlliances: [],
       favoriteAllianceText: null,
+      mencionHonorAlliances: [],
+      mencionHonorText: null,
+      favoritePointsPerAlliance: { Terror: 0, Shooter: 0, Action: 0 },
       hasProvisional: false
     };
   }
@@ -586,7 +590,7 @@ function calculateCreativeScores(creativeChallenges) {
       hasProvisional = true;
       r.estado = 'revisión conjunta pendiente';
       r.notaDefinitiva = false;
-      return; // Queda fuera de la obra favorita hasta acordar nota
+      return; // Queda fuera de la mención de honor hasta acordar nota
     }
 
     const avg = r.notaPromedio;
@@ -600,50 +604,38 @@ function calculateCreativeScores(creativeChallenges) {
     }
   });
 
-  // Reparto exacto de los 500 puntos de Obra Favorita (Decisión 1)
+  // Las evaluaciones docentes y mención de honor no otorgan puntos numéricos (0 pts adicionales)
   const favoritePointsPerAlliance = { Terror: 0, Shooter: 0, Action: 0 };
-  if (eligibleTopAlliances.length === 1) {
-    favoritePointsPerAlliance[eligibleTopAlliances[0]] = 500;
-  } else if (eligibleTopAlliances.length === 2) {
-    eligibleTopAlliances.forEach(al => favoritePointsPerAlliance[al] = 250);
-  } else if (eligibleTopAlliances.length === 3) {
-    eligibleTopAlliances.forEach(al => favoritePointsPerAlliance[al] = Number((500 / 3).toFixed(2))); // 166.67
-  }
 
   const pointsAwarded = {};
   const breakdown = {};
 
   alliances.forEach(al => {
     const r = rubrics[al] || {};
-    const st = status[al] || {};
-    let pts = 0;
-
-    // 1000 pts por entrega dentro de plazo
+    const st = (typeof status[al] === 'object' && status[al] !== null) 
+      ? status[al] 
+      : (status[al] === 'Entregado' || status[al] === 'Entregada' ? { delivered: true } : {});
+    
+    // Solo al llevarlo/entregarlo ganan los 4.000 puntos completos
     const isDelivered = st.delivered === true || st.delivered === 'true';
-    const deliveryPts = isDelivered ? 1000 : 0;
-    pts += deliveryPts;
-
-    // Hasta 2500 pts proporcionales a la nota docente promedio
-    let gradePts = 0;
+    const deliveryPts = isDelivered ? CREATIVE_CHALLENGE.deliveryOnTimePoints : 0; // 4000
+    
+    // Evaluaciones docentes: 0 puntos numéricos, solo mención de honor
     const avg = r.notaPromedio;
-    if (avg !== null && avg !== undefined && !isNaN(avg)) {
-      gradePts = (Number(avg) / 100) * 2500;
-      pts += gradePts;
-    }
+    const gradePts = 0;
+    const favPts = 0;
+    const totalPts = deliveryPts;
 
-    // Puntos de obra favorita (solo si califica)
-    const favPts = favoritePointsPerAlliance[al] || 0;
-    pts += favPts;
-
-    pointsAwarded[al] = pts;
+    pointsAwarded[al] = totalPts;
     breakdown[al] = {
       delivered: isDelivered,
       deliveryPts,
       notaPromedio: avg,
-      gradePts,
-      favoritePts: favPts,
+      gradePts: 0,
+      favoritePts: 0,
+      mencionHonor: eligibleTopAlliances.includes(al),
       isPendingDiscrepancy: (r.discrepancyAlert || r.estado === 'revisión conjunta pendiente') && !r.discrepancyResolved,
-      total: pts
+      total: totalPts
     };
   });
 
@@ -656,6 +648,8 @@ function calculateCreativeScores(creativeChallenges) {
     breakdown,
     favoriteAlliances: eligibleTopAlliances,
     favoriteAllianceText,
+    mencionHonorAlliances: eligibleTopAlliances,
+    mencionHonorText: favoriteAllianceText,
     favoritePointsPerAlliance,
     hasProvisional
   };
@@ -680,11 +674,11 @@ function evaluateClaimWindow(activityEndedAt, claimTimestamp = new Date()) {
   };
 }
 
-// Cálculo trazable de Gymkanas por puesto (4 puestos, máx 8 por persona)
+// Cálculo trazable de Gymkanas por puesto (3 puestos, máx 6 por persona)
 function calculateGymkanaParticipantTotal(posts) {
   if (!Array.isArray(posts)) return 0;
   let total = 0;
-  for (let i = 0; i < Math.min(4, posts.length); i++) {
+  for (let i = 0; i < Math.min(3, posts.length); i++) {
     const p = posts[i];
     if (p && (p.attempted === true || p.attempted === 'true' || p.intento === true)) {
       total += 1; // 1 punto por intentar
@@ -693,31 +687,31 @@ function calculateGymkanaParticipantTotal(posts) {
       }
     }
   }
-  return Math.min(8, total);
+  return Math.min(6, total);
 }
 
-// Puntos de la alianza en Gymkanas: 3.000 * (promedio / 8)
+// Puntos de la alianza en Gymkanas: 4.000 * (promedio / 6)
 function calculateGymkanaAlliancePoints(participants) {
   if (!Array.isArray(participants) || participants.length === 0) {
     return { average: 0, pointsAwarded: 0, rawPoints: 0 };
   }
   const totals = participants.map(p => {
-    if (typeof p === 'number') return Math.min(8, Math.max(0, p));
+    if (typeof p === 'number') return Math.min(6, Math.max(0, p));
     return calculateGymkanaParticipantTotal(p.posts || []);
   });
   const sum = totals.reduce((a, b) => a + b, 0);
   const average = Number((sum / totals.length).toFixed(2));
-  const rawPoints = 3000 * (average / 8);
-  const pointsAwarded = Math.min(3000, Number(rawPoints.toFixed(2)));
+  const rawPoints = 4000 * (average / 6);
+  const pointsAwarded = Math.min(4000, Number(rawPoints.toFixed(2)));
   return { average, pointsAwarded, rawPoints };
 }
 
-// Función de migración de puntajes planos (0-8) a estructura de 4 puestos trazables
+// Función de migración de puntajes planos (0-6) a estructura de 3 puestos trazables
 function migrateGymkanaScoreToPosts(score) {
-  const s = Math.min(8, Math.max(0, Number(score || 0)));
+  const s = Math.min(6, Math.max(0, Number(score || 0)));
   let remaining = s;
   const posts = [];
-  for (let p = 1; p <= 4; p++) {
+  for (let p = 1; p <= 3; p++) {
     if (remaining >= 2) {
       posts.push({ post: p, attempted: true, solved: true });
       remaining -= 2;

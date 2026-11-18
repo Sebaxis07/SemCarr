@@ -14,20 +14,18 @@ var pendingReasonCallback = null;
 // Definición de Secciones Permitidas por Rol (RBAC)
 const ALL_SECTIONS = [
   { id: 'asistencia', name: 'Asistencia del Evento', icon: 'clipboard-check', desc: 'Asistencia real consolidada, alianzas y actividades de cada alumno' },
+  { id: 'alianzas', name: 'Lista de Alianzas', icon: 'flag', desc: 'Todas las alianzas, puntajes y en qué participó cada persona' },
   { id: 'participantes', name: 'Participantes por Actividad', icon: 'user-check', desc: 'Nómina, cupos y asistencia en cancha' },
   { id: 'traslados', name: 'Cambio de Alianzas', icon: 'arrow-left-right', desc: 'Traslado individual y permutas 1 a 1' },
   { id: 'puntos', name: 'Registro de Puntos', icon: 'check-circle-2', desc: 'Puestos, deportes triangular y gymkanas' },
-  { id: 'docentes', name: 'Evaluación Docente', icon: 'sparkles', desc: 'Rúbricas de desafíos y obra favorita' },
-  { id: 'disciplina', name: 'Sanciones y Sorpresas', icon: 'alert-triangle', desc: 'Sanciones (200-600) y puntos extra' },
-  { id: 'avisos', name: 'Barra de Avisos', icon: 'radio', desc: 'Anuncios en vivo para proyector e inicio' },
-  { id: 'seguridad', name: 'Auditoría de Seguridad', icon: 'shield-alert', desc: 'Bitácora de accesos, bloqueos y sesiones' }
+  { id: 'docentes', name: 'Evaluación Docente', icon: 'sparkles', desc: 'Rúbricas de desafíos y obra favorita' }
 ];
 
 const ROLE_PERMISSIONS = {
-  admin: ['asistencia', 'participantes', 'traslados', 'puntos', 'docentes', 'disciplina', 'avisos', 'seguridad'],
-  coordinacion: ['asistencia', 'participantes', 'traslados', 'puntos', 'docentes', 'disciplina', 'avisos'],
-  mesa: ['asistencia', 'participantes', 'puntos', 'avisos'],
-  staff: ['participantes', 'puntos', 'traslados'],
+  admin: ['asistencia', 'alianzas', 'participantes', 'traslados', 'puntos', 'docentes'],
+  coordinacion: ['asistencia', 'alianzas', 'participantes', 'traslados', 'puntos', 'docentes'],
+  mesa: ['asistencia', 'alianzas', 'participantes', 'puntos'],
+  staff: ['alianzas', 'participantes', 'puntos', 'traslados'],
   docente: ['docentes']
 };
 
@@ -179,6 +177,15 @@ function showAdminView() {
     roleBadge.textContent = roleNames[currentUser.role] || currentUser.role;
   }
 
+  const tunnelBtn = document.getElementById('header-tunnel-btn');
+  if (tunnelBtn) {
+    if (currentUser.role === 'admin' || currentUser.role === 'coordinacion') {
+      tunnelBtn.classList.remove('hidden');
+    } else {
+      tunnelBtn.classList.add('hidden');
+    }
+  }
+
   renderRoleSidebar();
   startSessionTimer();
   loadStats();
@@ -186,6 +193,18 @@ function showAdminView() {
   const allowed = ROLE_PERMISSIONS[currentUser.role] || ['puntos'];
   if (!allowed.includes(currentAdminSection)) {
     currentAdminSection = allowed[0];
+  }
+
+  // Preselección inteligente según rol docente
+  const teacherInfo = getTeacherRoleInfo();
+  if (teacherInfo.isNatalia) {
+    docenteUIState.selectedDocenteNum = 2;
+    docenteUIState.selectedAlliance = 'Action';
+  } else if (teacherInfo.isEduardo) {
+    docenteUIState.selectedDocenteNum = 1;
+    if (!['Terror', 'Shooter'].includes(docenteUIState.selectedAlliance)) {
+      docenteUIState.selectedAlliance = 'Terror';
+    }
   }
 
   switchAdminSection(currentAdminSection);
@@ -319,7 +338,9 @@ function startSessionTimer() {
 
 async function loadStats() {
   try {
-    const res = await fetch('/api/stats');
+    const res = await fetch('/api/stats', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     if (res.ok) {
       appData = await res.json();
     }
@@ -386,6 +407,8 @@ function switchAdminSection(secId) {
 
     if (secId === 'asistencia') {
       initAsistenciaModule();
+    } else if (secId === 'alianzas') {
+      initAlianzasModule();
     } else if (secId === 'participantes') {
       initParticipantesModule();
     } else if (secId === 'traslados') {
@@ -401,6 +424,9 @@ function switchAdminSection(secId) {
 function renderAdminSectionContent(secId) {
   if (secId === 'asistencia') {
     return renderAsistenciaPanel();
+  }
+  if (secId === 'alianzas') {
+    return renderAlianzasPanel();
   }
   if (secId === 'participantes') {
     return renderParticipantesPanel();
@@ -480,84 +506,7 @@ async function renderSeguridadPanelAsync(mainView) {
 function renderCoreAdminSectionContent(secId) {
 
   if (secId === 'docentes') {
-    return `
-      <div class="space-y-5">
-        <div class="border-b border-[#142252] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <span class="text-[11px] font-mono uppercase text-slate-500">Módulo 2</span>
-            <h3 class="text-base font-bold font-display text-white">Evaluación Docente de Desafíos Creativos</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Rúbricas oficiales con botones cuadrados interactivos. Alerta automática si la discrepancia supera 20 puntos.</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] font-mono uppercase text-emerald-400 bg-emerald-950/50 border border-emerald-900/60 px-2 py-0.5 rounded-full">
-              Formato Oficial Docente
-            </span>
-          </div>
-        </div>
-
-        <!-- FILTROS Y SELECCIÓN DE EVALUACIÓN -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-[#050C24] p-4 rounded-2xl border border-[#142252]">
-          <div>
-            <label class="text-[11px] text-slate-400 font-mono block mb-1.5">Alianza a Evaluar</label>
-            <select id="docente-al-select" onchange="renderDocenteRubricForm()" class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs font-semibold focus:border-[#E6194B] focus:outline-none">
-              <option value="Terror">Terror: Videojuego con IA</option>
-              <option value="Shooter">Shooter: Asistente con IA</option>
-              <option value="Action">Action: Collage Digital</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-[11px] text-slate-400 font-mono block mb-1.5">Docente Juez</label>
-            <select id="docente-num-select" onchange="renderDocenteRubricForm()" class="w-full bg-[#0A1333] border border-[#142252] text-white rounded-xl p-2.5 text-xs font-semibold focus:border-[#E6194B] focus:outline-none">
-              <option value="1">Docente 1</option>
-              <option value="2">Docente 2</option>
-            </select>
-          </div>
-          <div class="flex items-center gap-3 pt-6 sm:pt-5">
-            <input type="checkbox" id="docente-delivered" onchange="recalculateRubricLiveScore()" class="w-4 h-4 rounded text-red-600 bg-[#0A1333] border-[#142252] cursor-pointer">
-            <label for="docente-delivered" class="text-xs text-slate-200 font-semibold cursor-pointer select-none">Entrega en plazo (+1.000 pts)</label>
-          </div>
-        </div>
-
-        <!-- MARCADOR EN VIVO DE CALIFICACIÓN -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-[#050C24] rounded-2xl border border-[#142252]">
-          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
-            <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Nota Docente (0-100)</span>
-            <div class="flex items-baseline justify-center gap-1">
-              <span id="rubric-live-score" class="text-xl font-bold font-mono text-emerald-400">0</span>
-              <span class="text-[10px] font-mono text-slate-500">/ 100</span>
-            </div>
-          </div>
-          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
-            <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Puntos por Nota (×25)</span>
-            <div class="flex items-baseline justify-center gap-1">
-              <span id="rubric-live-pts" class="text-xl font-bold font-mono text-white">0</span>
-              <span class="text-[10px] font-mono text-slate-500">/ 2.500</span>
-            </div>
-          </div>
-          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
-            <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Bono Entrega Plazo</span>
-            <span id="rubric-live-bono" class="text-xl font-bold font-mono text-amber-400 block">+1.000 pts</span>
-          </div>
-          <div class="p-2.5 bg-[#0A1333]/60 rounded-xl border border-[#142252] text-center">
-            <span class="text-[10px] font-mono uppercase text-slate-400 block mb-0.5">Total Estimado Alianza</span>
-            <span id="rubric-live-total" class="text-xl font-bold font-mono text-amber-300 block">0 pts</span>
-          </div>
-        </div>
-
-        <!-- CONTENEDOR DE LA RÚBRICA CON BOTONES CUADRADOS (ESTILO EVALUACIÓN DOCENTE) -->
-        <div id="docente-rubric-container" class="space-y-3">
-          <!-- Rendered dynamically -->
-        </div>
-
-        <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <button onclick="submitDocenteEval()" class="py-2.5 px-6 bg-[#E6194B] hover:bg-[#ff2b5f] active:scale-[0.99] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-lg shadow-[#E6194B]/30 transition flex items-center justify-center gap-2">
-            <i data-lucide="save" class="w-4 h-4"></i>
-            <span>Guardar Calificación Docente</span>
-          </button>
-          <span class="text-[11px] text-slate-500 font-mono text-center sm:text-right">Guarda la evaluación del docente seleccionado y verifica discrepancias (> 20 pts).</span>
-        </div>
-      </div>
-    `;
+    return renderDocentesMainContainer();
   }
 
   if (secId === 'disciplina') {
@@ -735,13 +684,92 @@ async function submitAdminGymkanas() {
       })
     });
     if (res.ok) {
-      alert('Puntos de Gymkanas calculados con la fórmula 3.000 × (Promedio / 8).');
+      alert('Puntos de Gymkanas calculados con la fórmula 4.000 × (Promedio / 6) según Bases v2.3.');
       loadStats();
     }
   } catch (e) {
     alert('Error');
   }
 }
+
+// =========================================================================
+// MÓDULO 2: EVALUACIÓN DOCENTE DE DESAFÍOS CREATIVOS (SYNTH-TECH / ESPORTS)
+// =========================================================================
+
+const docenteUIState = {
+  selectedAlliance: 'Terror',
+  selectedDocenteNum: 1,
+  saving: false
+};
+
+const ALLIANCE_CHALLENGES_INFO = {
+  Terror: {
+    name: 'Terror',
+    colorName: 'Rojo',
+    carrera: 'Informática (Ingeniería & Telecom)',
+    themeColor: '#E6194B',
+    badgeBorder: 'border-red-600/40',
+    borderActive: 'border-[#E6194B]',
+    glowBg: 'bg-red-950/20',
+    glowHover: 'hover:border-[#E6194B]',
+    glowRing: 'ring-[#E6194B]',
+    textCol: 'text-[#E6194B]',
+    badgeBg: 'bg-red-950/60',
+    icon: 'gamepad-2',
+    desafio: 'Videojuego de Terror con IA',
+    shortDesc: 'Videojuego de terror original, jugable en navegador (2-3 min) y desarrollado con ayuda de inteligencia artificial.',
+    entregables: [
+      'Enlace a versión web o archivo único (HTML) ejecutable sin instalaciones',
+      'Video de respaldo MP4 (2 minutos) mostrando partida completa',
+      'Ficha técnica PDF (1 pág): historia breve, controles, declaración de IA y créditos'
+    ],
+    requisitos: 'Terror suave, 100% original, partida de 2-3 min, inicio y final definidos.'
+  },
+  Shooter: {
+    name: 'Shooter',
+    colorName: 'Azul',
+    carrera: 'Informática (Ingeniería & Telecom)',
+    themeColor: '#2D46B9',
+    badgeBorder: 'border-blue-600/40',
+    borderActive: 'border-[#2D46B9]',
+    glowBg: 'bg-blue-950/20',
+    glowHover: 'hover:border-[#2D46B9]',
+    glowRing: 'ring-[#2D46B9]',
+    textCol: 'text-[#7F9CF5]',
+    badgeBg: 'bg-blue-950/60',
+    icon: 'bot',
+    desafio: 'Asistente con IA (Chatbot)',
+    shortDesc: 'Asistente conversacional con IA para responder dudas de estudiantes sobre trámites, ramos, horarios y sede.',
+    entregables: [
+      'Enlace funcional al asistente conversacional (chatbot) sin cuenta obligatoria',
+      'Video de respaldo MP4 (2 minutos) con demostración de preguntas y respuestas',
+      'Ficha técnica y bitácora PDF: herramienta de IA, temas cubiertos y 20 preguntas probadas'
+    ],
+    requisitos: 'Español de Chile, datos oficiales reales, honestidad ante preguntas trampa.'
+  },
+  Action: {
+    name: 'Action',
+    colorName: 'Verde',
+    carrera: 'Diseño Digital',
+    themeColor: '#059669',
+    badgeBorder: 'border-emerald-600/40',
+    borderActive: 'border-emerald-500',
+    glowBg: 'bg-emerald-950/20',
+    glowHover: 'hover:border-emerald-500',
+    glowRing: 'ring-emerald-500',
+    textCol: 'text-emerald-400',
+    badgeBg: 'bg-emerald-950/60',
+    icon: 'palette',
+    desafio: 'Collage Fotográfico Digital',
+    shortDesc: 'Collage digital 1080×1080 px en base a fotografías originales de la sede, diseñado en Photoshop e Illustrator sin IA.',
+    entregables: [
+      'Pieza gráfica digital terminada en PNG de 1080 × 1080 px (1:1)',
+      'Archivos originales editables de Photoshop (.PSD) e Illustrator (.AI) con capas ordenadas',
+      'Ficha de presentación PDF: concepto visual, identidad y registro de fotografías'
+    ],
+    requisitos: 'Mínimo 6 fotografías originales de sede, uso obligatorio de Adobe, sin IA generativa.'
+  }
+};
 
 const CRITERIOS_MAP = {
   Terror: [
@@ -766,8 +794,206 @@ const CRITERIOS_MAP = {
   ]
 };
 
+const RUBRIC_LEVELS = [
+  { 
+    key: 'Excelente', 
+    mult: 1.0, 
+    badge: '100%', 
+    desc: 'Muy bien logrado, se nota el cuidado',
+    icon: 'check-circle-2',
+    colorActive: 'border-emerald-500 bg-emerald-950/80 text-emerald-200 ring-2 ring-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.35)]',
+    textActive: 'text-emerald-200',
+    ptsActive: 'text-emerald-400 font-black'
+  },
+  { 
+    key: 'Bueno', 
+    mult: 0.8, 
+    badge: '80%', 
+    desc: 'Funciona bien, con detalles por mejorar',
+    icon: 'thumbs-up',
+    colorActive: 'border-[#2D46B9] bg-[#0E1E48] text-blue-200 ring-2 ring-[#7F9CF5]/50 shadow-[0_0_15px_rgba(45,70,185,0.35)]',
+    textActive: 'text-blue-200',
+    ptsActive: 'text-[#7F9CF5] font-black'
+  },
+  { 
+    key: 'Regular', 
+    mult: 0.5, 
+    badge: '50%', 
+    desc: 'Cumple a medias, con fallas visibles',
+    icon: 'alert-triangle',
+    colorActive: 'border-amber-500 bg-amber-950/80 text-amber-200 ring-2 ring-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.35)]',
+    textActive: 'text-amber-200',
+    ptsActive: 'text-amber-400 font-black'
+  },
+  { 
+    key: 'Básico', 
+    mult: 0.2, 
+    badge: '20%', 
+    desc: 'Cumple muy poco, aunque hay intento',
+    icon: 'flag',
+    colorActive: 'border-rose-500 bg-rose-950/80 text-rose-200 ring-2 ring-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.35)]',
+    textActive: 'text-rose-200',
+    ptsActive: 'text-rose-400 font-black'
+  }
+];
+
+function getTeacherRoleInfo() {
+  const u = (currentUser?.username || '').toLowerCase();
+  const name = (currentUser?.name || '').toLowerCase();
+  const role = (currentUser?.role || '').toLowerCase();
+
+  const isEduardo = u === 'docente1' || u === 'eduardo' || name.includes('eduardo');
+  const isNatalia = u === 'docente2' || u === 'natalia' || name.includes('natalia');
+  const isDirectivo = role === 'admin' || role === 'coordinacion' || (!isEduardo && !isNatalia);
+
+  let assignedAlliances = ['Terror', 'Shooter', 'Action'];
+  let teacherTitle = 'Supervisión General';
+  let teacherName = currentUser?.name || 'Administración';
+  let defaultDocNum = 1;
+
+  if (isEduardo) {
+    assignedAlliances = ['Terror', 'Shooter'];
+    teacherTitle = 'Área de Informática';
+    teacherName = 'Profesor Eduardo';
+    defaultDocNum = 1;
+  } else if (isNatalia) {
+    assignedAlliances = ['Action'];
+    teacherTitle = 'Área de Diseño Digital';
+    teacherName = 'Profesora Natalia';
+    defaultDocNum = 2;
+  }
+
+  return {
+    isEduardo,
+    isNatalia,
+    isDirectivo,
+    assignedAlliances,
+    teacherTitle,
+    teacherName,
+    defaultDocNum
+  };
+}
+
+function renderDocentesMainContainer() {
+  const teacher = getTeacherRoleInfo();
+
+  let headerBadgeText = 'Consola Docente • Desafíos Creativos';
+  let headerDesc = 'Sistema de calificación técnica de obras. Toda alianza que entrega su obra acredita <strong class="text-emerald-400">4.000 pts oficiales</strong>; tu evaluación define la calificación técnica y la <strong class="text-[#7F9CF5]">Mención de Honor</strong>.';
+
+  if (teacher.isEduardo) {
+    headerBadgeText = 'Consola Docente • Informática • Prof. Eduardo';
+    headerDesc = 'Bienvenido Profesor Eduardo. Tienes asignada la evaluación de los desafíos de Informática: <strong class="text-[#E6194B]">Terror</strong> (Videojuego IA) y <strong class="text-[#7F9CF5]">Shooter</strong> (Chatbot IA). Entrega oficial: <strong class="text-emerald-400">4.000 pts</strong>.';
+  } else if (teacher.isNatalia) {
+    headerBadgeText = 'Consola Docente • Diseño Digital • Prof. Natalia';
+    headerDesc = 'Bienvenida Profesora Natalia. Tienes asignada la evaluación del desafío de Diseño Digital: <strong class="text-emerald-400">Action</strong> (Collage Fotográfico). Entrega oficial: <strong class="text-emerald-400">4.000 pts</strong>.';
+  } else {
+    headerBadgeText = 'Consola de Supervisión • Rúbricas Docentes';
+    headerDesc = 'Panel de supervisión directiva. Revisa las calificaciones asignadas por el <strong class="text-white">Profesor Eduardo</strong> (Terror & Shooter) y la <strong class="text-white">Profesora Natalia</strong> (Action).';
+  }
+
+  const gridColsClass = teacher.assignedAlliances.length === 1 ? 'max-w-md' : (teacher.assignedAlliances.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-4xl' : 'grid-cols-1 md:grid-cols-3');
+
+  return `
+    <div class="space-y-6">
+      <!-- HEADER ESPORTS SYNTH-TECH -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#142252] pb-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#0E1E48] text-[#7F9CF5] border border-[#2D46B9]">
+              <span class="w-2 h-2 rounded-full bg-[#E6194B] animate-pulse"></span>
+              ${headerBadgeText}
+            </span>
+            <span class="text-xs text-slate-500 font-mono hidden sm:inline">• Semana de las Carreras 2026</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black font-display text-white tracking-tight italic uppercase flex items-center gap-2">
+            Evaluación de Desafíos Creativos
+          </h2>
+          <p class="text-xs text-slate-400 mt-1 max-w-3xl leading-relaxed">
+            ${headerDesc}
+          </p>
+        </div>
+
+        <div id="docente-judge-identity-pill" class="flex items-center gap-3 p-2 rounded-2xl bg-[#050C24] border border-[#142252] shrink-0">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- DASHBOARD DE ALIANZAS ASIGNADAS -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>${teacher.isDirectivo ? 'Supervisión de Obras & Rúbricas Oficiales' : 'Tus Desafíos Asignados'}</span>
+          </span>
+          <span class="text-[10px] font-mono text-slate-500 hidden sm:inline">Selecciona un desafío para calificar</span>
+        </div>
+        <div id="docente-alliances-overview" class="grid ${gridColsClass} gap-3.5">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- CONTENEDOR ACTIVO DE RÚBRICA Y BRIEFING -->
+      <div id="docente-active-evaluation-container" class="space-y-5">
+        <!-- Rendered dynamically by renderDocenteRubricForm() -->
+      </div>
+    </div>
+  `;
+}
+
+function selectDocenteAlliance(alliance) {
+  const teacher = getTeacherRoleInfo();
+  if (!teacher.assignedAlliances.includes(alliance)) return;
+  docenteUIState.selectedAlliance = alliance;
+  if (teacher.isNatalia) {
+    docenteUIState.selectedDocenteNum = 2;
+  } else if (teacher.isEduardo) {
+    docenteUIState.selectedDocenteNum = 1;
+  } else {
+    docenteUIState.selectedDocenteNum = (alliance === 'Action') ? 2 : 1;
+  }
+  renderDocenteRubricForm();
+}
+
+function selectDocenteJudge(num) {
+  const n = Number(num);
+  if (n !== 1 && n !== 2) return;
+  docenteUIState.selectedDocenteNum = n;
+  renderDocenteRubricForm();
+}
+
+async function quickToggleDocenteDelivery(alliance) {
+  const teacher = getTeacherRoleInfo();
+  const currentSt = appData.creativeChallenges?.status?.[alliance];
+  const isDelivered = (currentSt && typeof currentSt === 'object') ? Boolean(currentSt.delivered) : (currentSt === 'Entregado');
+  const newDelivered = !isDelivered;
+
+  const loggedBy = teacher.isNatalia ? 'Profesora Natalia' : (teacher.isEduardo ? 'Profesor Eduardo' : (currentUser?.name || 'Administración'));
+
+  try {
+    const res = await fetch('/api/admin/docentes/entrega', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        alliance,
+        delivered: newDelivered,
+        loggedBy
+      })
+    });
+    const result = await res.json();
+    if (result.success) {
+      showPuntosToast(`✓ Estado de entrega para ${alliance} actualizado: ${newDelivered ? 'Entregado (+4.000 pts)' : 'Sin entregar (0 pts)'}.`);
+      await loadStats();
+      renderDocenteRubricForm();
+    } else {
+      showPuntosToast(result.error || 'Error al actualizar entrega', true);
+    }
+  } catch (err) {
+    showPuntosToast('Error de red al actualizar entrega', true);
+  }
+}
+
 function recalculateRubricLiveScore() {
-  const al = document.getElementById('docente-al-select')?.value;
+  const al = docenteUIState.selectedAlliance || 'Terror';
   const rubric = appData.creativeChallenges?.rubrics?.[al];
   const criterios = (rubric && rubric.criterios && rubric.criterios.length > 0) ? rubric.criterios : (CRITERIOS_MAP[al] || []);
 
@@ -779,48 +1005,83 @@ function recalculateRubricLiveScore() {
   };
 
   let totalScore = 0;
+  let evaluatedCount = 0;
+
   criterios.forEach(c => {
-    const val = document.getElementById(`rubric-crit-${c.id}`)?.value || 'Bueno';
-    const mult = multipliers[val] !== undefined ? multipliers[val] : 0.8;
-    totalScore += c.peso * mult;
+    const val = document.getElementById(`rubric-crit-${c.id}`)?.value;
+    if (val && multipliers[val] !== undefined) {
+      evaluatedCount++;
+      totalScore += c.peso * multipliers[val];
+    } else {
+      // Default to Bueno (0.8) if not evaluated yet
+      totalScore += c.peso * 0.8;
+    }
   });
 
   totalScore = Math.round(totalScore);
-  const ptsPonderados = Math.round((totalScore / 100) * 2500);
-  const isDelivered = document.getElementById('docente-delivered')?.checked || false;
-  const bonoEntrega = isDelivered ? 1000 : 0;
-  const totalFinal = ptsPonderados + bonoEntrega;
 
   const scoreEl = document.getElementById('rubric-live-score');
-  const ptsEl = document.getElementById('rubric-live-pts');
-  const bonoEl = document.getElementById('rubric-live-bono');
-  const totalEl = document.getElementById('rubric-live-total');
+  const badgeEl = document.getElementById('rubric-live-badge');
+  const progressEl = document.getElementById('rubric-live-progress');
+  const progressBar = document.getElementById('rubric-live-progressbar');
+
+  // Calificación cualitativa
+  let badgeText = 'Regular';
+  let badgeClass = 'text-amber-400 bg-amber-950/60 border-amber-800';
+  if (totalScore >= 85) {
+    badgeText = 'Sobresaliente';
+    badgeClass = 'text-emerald-400 bg-emerald-950/60 border-emerald-800';
+  } else if (totalScore >= 70) {
+    badgeText = 'Muy Bueno';
+    badgeClass = 'text-blue-400 bg-blue-950/60 border-blue-800';
+  } else if (totalScore < 50) {
+    badgeText = 'Básico';
+    badgeClass = 'text-rose-400 bg-rose-950/60 border-rose-800';
+  }
 
   if (scoreEl) scoreEl.textContent = totalScore;
-  if (ptsEl) ptsEl.textContent = ptsPonderados.toLocaleString('es-CL');
-  if (bonoEl) bonoEl.textContent = isDelivered ? '+1.000 pts' : '0 pts';
-  if (totalEl) totalEl.textContent = totalFinal.toLocaleString('es-CL') + ' pts';
+  if (badgeEl) {
+    badgeEl.textContent = badgeText;
+    badgeEl.className = `px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold border ${badgeClass}`;
+  }
+  if (progressEl) {
+    progressEl.textContent = `${evaluatedCount} de ${criterios.length} criterios calificados`;
+  }
+  if (progressBar) {
+    const pct = Math.round((evaluatedCount / criterios.length) * 100);
+    progressBar.style.width = `${pct}%`;
+  }
+
+  // Compatibilidad con selectores heredados
+  const legacyPtsEl = document.getElementById('rubric-live-pts');
+  const legacyBonoEl = document.getElementById('rubric-live-bono');
+  const legacyTotalEl = document.getElementById('rubric-live-total');
+  if (legacyPtsEl) legacyPtsEl.textContent = 'Mención Honor (0 pts)';
+  if (legacyBonoEl) legacyBonoEl.textContent = '+4.000 pts';
+  if (legacyTotalEl) legacyTotalEl.textContent = '4.000 pts';
 }
 
 function setRubricCritScore(critId, levelName) {
   const input = document.getElementById(`rubric-crit-${critId}`);
   if (input) input.value = levelName;
 
-  const levels = ['Excelente', 'Bueno', 'Regular', 'Básico'];
-  levels.forEach(lvl => {
-    const btn = document.getElementById(`btn-crit-${critId}-${lvl}`);
+  RUBRIC_LEVELS.forEach(lvl => {
+    const btn = document.getElementById(`btn-crit-${critId}-${lvl.key}`);
     if (!btn) return;
     const ptsSpan = btn.querySelector('.rubric-pts-text');
     const labelSpan = btn.querySelector('.rubric-lbl-text');
+    const descSpan = btn.querySelector('.rubric-desc-text');
     
-    if (lvl === levelName) {
-      btn.className = 'rubric-btn p-2 sm:p-2.5 rounded-xl border border-emerald-500 bg-emerald-950/80 ring-2 ring-emerald-500/50 text-white shadow-md transition flex flex-col items-center justify-center min-w-0 w-full sm:min-w-[75px] cursor-pointer';
-      if (labelSpan) labelSpan.className = 'rubric-lbl-text text-xs font-bold text-emerald-200 block text-center leading-tight';
-      if (ptsSpan) ptsSpan.className = 'rubric-pts-text text-[11px] font-mono italic font-black text-emerald-400 mt-1 block text-center';
+    if (lvl.key === levelName) {
+      btn.className = `rubric-btn p-3 rounded-xl border text-center flex flex-col items-center justify-center transition cursor-pointer select-none ${lvl.colorActive}`;
+      if (labelSpan) labelSpan.className = `rubric-lbl-text text-xs font-bold ${lvl.textActive} block text-center leading-tight`;
+      if (ptsSpan) ptsSpan.className = `rubric-pts-text text-[11px] font-mono italic mt-1 block text-center ${lvl.ptsActive}`;
+      if (descSpan) descSpan.className = `rubric-desc-text text-[9px] text-slate-300 font-sans mt-0.5 hidden sm:block truncate max-w-full`;
     } else {
-      btn.className = 'rubric-btn p-2 sm:p-2.5 rounded-xl border border-[#142252] bg-[#050C24]/90 text-slate-400 hover:bg-[#0A1333] hover:border-[#142252] hover:text-slate-200 transition flex flex-col items-center justify-center min-w-[70px] sm:min-w-[85px] cursor-pointer';
+      btn.className = `rubric-btn p-3 rounded-xl border border-[#142252] bg-[#050C24]/90 text-slate-400 hover:bg-[#0A1333] hover:border-[#142252] hover:text-slate-200 transition flex flex-col items-center justify-center cursor-pointer select-none`;
       if (labelSpan) labelSpan.className = 'rubric-lbl-text text-xs font-medium text-slate-300 block text-center leading-tight';
       if (ptsSpan) ptsSpan.className = 'rubric-pts-text text-[11px] font-mono italic text-slate-500 mt-1 block text-center';
+      if (descSpan) descSpan.className = 'rubric-desc-text text-[9px] text-slate-500 font-sans mt-0.5 hidden sm:block truncate max-w-full';
     }
   });
 
@@ -828,103 +1089,502 @@ function setRubricCritScore(critId, levelName) {
 }
 
 function renderDocenteRubricForm() {
-  const alSelect = document.getElementById('docente-al-select');
-  const docSelect = document.getElementById('docente-num-select');
-  const deliveredCheck = document.getElementById('docente-delivered');
-  const container = document.getElementById('docente-rubric-container');
-  if (!alSelect || !container) return;
+  const activeContainer = document.getElementById('docente-active-evaluation-container');
+  const identityPill = document.getElementById('docente-judge-identity-pill');
+  const overviewContainer = document.getElementById('docente-alliances-overview');
+  if (!activeContainer) return;
 
-  const al = alSelect.value;
-  const docNum = docSelect ? Number(docSelect.value) : 1;
-  const rubric = appData.creativeChallenges?.rubrics?.[al];
-  const criterios = (rubric && rubric.criterios && rubric.criterios.length > 0) ? rubric.criterios : (CRITERIOS_MAP[al] || []);
+  const teacher = getTeacherRoleInfo();
 
-  const savedScores = (docNum === 1 ? rubric?.docente1 : rubric?.docente2) || {};
-  const statusInfo = appData.creativeChallenges?.status?.[al];
-  if (deliveredCheck && statusInfo && statusInfo.delivered !== undefined) {
-    deliveredCheck.checked = Boolean(statusInfo.delivered);
+  // Asegurar que la alianza seleccionada pertenece a las asignadas del docente
+  if (!teacher.assignedAlliances.includes(docenteUIState.selectedAlliance)) {
+    docenteUIState.selectedAlliance = teacher.assignedAlliances[0];
   }
 
-  const levels = [
-    { key: 'Excelente', mult: 1.0 },
-    { key: 'Bueno', mult: 0.8 },
-    { key: 'Regular', mult: 0.5 },
-    { key: 'Básico', mult: 0.2 }
-  ];
+  const al = docenteUIState.selectedAlliance || teacher.assignedAlliances[0] || 'Terror';
+  const docNum = teacher.isNatalia ? 2 : (teacher.isEduardo ? 1 : (al === 'Action' ? 2 : 1));
+  docenteUIState.selectedDocenteNum = docNum;
 
-  container.innerHTML = `
-    <!-- TABLA DE RÚBRICA CON BOTONES CUADRADOS (FORMATO EVALUACIÓN DOCENTE) -->
-    <div class="border border-[#142252] rounded-2xl overflow-hidden bg-[#050C24] shadow-sm divide-y divide-slate-800/80">
-      ${criterios.map((c, idx) => {
-        const currentVal = savedScores[c.id] || 'Bueno';
-        return `
-          <div class="p-3.5 sm:p-4.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 hover:bg-[#0A1333]/30 transition">
-            <!-- Columna Izquierda: Criterio y Aspectos Evaluados -->
-            <div class="flex-1 pr-2">
+  const info = ALLIANCE_CHALLENGES_INFO[al] || ALLIANCE_CHALLENGES_INFO.Terror;
+  const rubricsData = appData.creativeChallenges?.rubrics || {};
+  const statusData = appData.creativeChallenges?.status || {};
+  const rubric = rubricsData[al] || {};
+  const criterios = (rubric && rubric.criterios && rubric.criterios.length > 0) ? rubric.criterios : (CRITERIOS_MAP[al] || []);
+
+  const st = statusData[al];
+  const isDelivered = (st && typeof st === 'object') ? Boolean(st.delivered) : (st === 'Entregado');
+  const deliveryTimeStr = (st && st.deliveryTime) ? new Date(st.deliveryTime).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }) : null;
+
+  const savedScores = (docNum === 1 ? rubric?.docente1 : rubric?.docente2) || {};
+  const doc1Nota = (rubric.docente1Nota !== null && rubric.docente1Nota !== undefined) ? rubric.docente1Nota : null;
+  const doc2Nota = (rubric.docente2Nota !== null && rubric.docente2Nota !== undefined) ? rubric.docente2Nota : null;
+  const notaPromedio = (rubric.notaPromedio !== null && rubric.notaPromedio !== undefined) ? rubric.notaPromedio : null;
+  const favAlliance = appData.creativeChallenges?.favoriteAlliance;
+
+  // 1. Render Identidad del Juez en la esquina superior
+  if (identityPill) {
+    if (teacher.isEduardo) {
+      identityPill.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-red-950/70 border border-[#E6194B] flex items-center justify-center text-[#E6194B] shadow-inner">
+            <i data-lucide="terminal" class="w-4 h-4"></i>
+          </div>
+          <div class="text-left">
+            <span class="text-[9px] font-mono uppercase text-slate-400 block leading-tight">Docente Informática</span>
+            <span class="text-xs font-bold text-white block">Profesor Eduardo</span>
+          </div>
+        </div>
+      `;
+    } else if (teacher.isNatalia) {
+      identityPill.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-950/70 border border-emerald-500 flex items-center justify-center text-emerald-400 shadow-inner">
+            <i data-lucide="palette" class="w-4 h-4"></i>
+          </div>
+          <div class="text-left">
+            <span class="text-[9px] font-mono uppercase text-slate-400 block leading-tight">Docente Diseño Digital</span>
+            <span class="text-xs font-bold text-white block">Profesora Natalia</span>
+          </div>
+        </div>
+      `;
+    } else {
+      identityPill.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-[#0A1333] border border-[#2D46B9] flex items-center justify-center text-amber-400 shadow-inner">
+            <i data-lucide="shield" class="w-4 h-4"></i>
+          </div>
+          <div class="text-left">
+            <span class="text-[9px] font-mono uppercase text-slate-400 block leading-tight">Supervisión Directiva</span>
+            <span class="text-xs font-bold text-white block">${currentUser?.name || 'Administración'}</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // 2. Render Dashboard de Resumen de Alianzas Asignadas (Cards Interactivas)
+  if (overviewContainer) {
+    overviewContainer.innerHTML = teacher.assignedAlliances.map(itemAl => {
+      const itemInfo = ALLIANCE_CHALLENGES_INFO[itemAl];
+      const itemRubric = rubricsData[itemAl] || {};
+      const itemSt = statusData[itemAl];
+      const itemDelivered = (itemSt && typeof itemSt === 'object') ? Boolean(itemSt.delivered) : (itemSt === 'Entregado');
+      const itemIsSelected = itemAl === al;
+      const isFav = favAlliance && (favAlliance === itemAl || favAlliance.includes(itemAl));
+
+      let myScore = null;
+      if (itemAl === 'Action') {
+        myScore = itemRubric.docente2Nota !== null && itemRubric.docente2Nota !== undefined ? itemRubric.docente2Nota : itemRubric.notaPromedio;
+      } else {
+        myScore = itemRubric.docente1Nota !== null && itemRubric.docente1Nota !== undefined ? itemRubric.docente1Nota : itemRubric.notaPromedio;
+      }
+
+      const assignedTeacherLabel = itemAl === 'Action' ? 'Profesora Natalia (Diseño)' : 'Profesor Eduardo (Informática)';
+
+      return `
+        <div 
+          onclick="selectDocenteAlliance('${itemAl}')"
+          class="relative p-4 rounded-2xl border transition cursor-pointer select-none ${itemIsSelected ? `bg-[#0A1333] ${itemInfo.borderActive} ring-2 ${itemInfo.glowRing}/40 shadow-lg` : 'bg-[#050C24] border-[#142252] hover:border-slate-700 hover:bg-[#0A1333]/50'}"
+        >
+          ${isFav ? `
+            <div class="absolute -top-2.5 right-3 bg-amber-500 text-black text-[9px] font-mono font-black uppercase px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+              <i data-lucide="crown" class="w-3 h-3"></i> Mención de Honor
+            </div>
+          ` : ''}
+
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${itemInfo.themeColor};"></span>
+              <h4 class="font-display font-black text-sm uppercase text-white tracking-wide">
+                ${itemInfo.name}
+              </h4>
+              <span class="text-[10px] font-mono text-slate-400 bg-[#0A1333] px-1.5 py-0.5 rounded border border-[#142252]">
+                ${itemInfo.colorName}
+              </span>
+            </div>
+
+            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${itemDelivered ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800' : 'text-slate-500 bg-slate-900 border-slate-800'}">
+              ${itemDelivered ? '✓ 4.000 pts' : 'Sin entregar'}
+            </span>
+          </div>
+
+          <p class="text-[11px] text-slate-300 font-sans truncate mb-3">
+            ${itemInfo.desafio}
+          </p>
+
+          ${teacher.isDirectivo ? `
+            <!-- VISTA DE SUPERVISIÓN DIRECTIVA -->
+            <div class="p-2.5 rounded-xl bg-[#050C24]/80 border border-[#142252] flex items-center justify-between text-xs font-mono">
+              <div>
+                <span class="text-[9px] text-slate-400 block uppercase">Evaluador/a Titular</span>
+                <span class="text-white font-bold text-[11px]">${assignedTeacherLabel}</span>
+              </div>
+              <div class="text-right">
+                <span class="text-[9px] text-slate-400 block uppercase">Calificación</span>
+                <span class="font-black ${myScore !== null && myScore !== undefined ? 'text-emerald-400' : 'text-slate-500'}">
+                  ${myScore !== null && myScore !== undefined ? `${myScore} pts` : 'Pendiente'}
+                </span>
+              </div>
+            </div>
+          ` : `
+            <!-- VISTA DOCENTE INDIVIDUAL (SIN COMPARACIONES NI DATOS DEL OTRO DOCENTE) -->
+            <div class="p-2.5 rounded-xl bg-[#050C24]/80 border border-[#142252] flex items-center justify-between text-xs font-mono">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5 ${myScore !== null && myScore !== undefined ? 'text-emerald-400' : 'text-slate-500'}"></i>
+                <span class="text-slate-300 text-[11px]">Tu Calificación:</span>
+              </div>
+              <div>
+                <span class="font-black text-xs ${myScore !== null && myScore !== undefined ? 'text-emerald-400' : 'text-slate-500'}">
+                  ${myScore !== null && myScore !== undefined ? `${myScore} / 100 pts` : 'Por evaluar'}
+                </span>
+              </div>
+            </div>
+          `}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 3. Render Contenedor Activo de Evaluación
+  const hasDiscrepancyAlert = teacher.isDirectivo && (rubric.discrepancyAlert || (doc1Nota !== null && doc2Nota !== null && Math.abs(doc1Nota - doc2Nota) > 20 && !rubric.discrepancyResolved));
+
+  activeContainer.innerHTML = `
+    <!-- Hidden inputs for form actions -->
+    <input type="hidden" id="docente-al-select" value="${al}">
+    <input type="hidden" id="docente-num-select" value="${docNum}">
+    <input type="checkbox" id="docente-delivered" class="hidden" ${isDelivered ? 'checked' : ''}>
+
+    <!-- CARD BRIEFING DEL DESAFÍO + CONTROL DE ENTREGA OFICIAL -->
+    <div class="bg-[#050C24] border ${info.borderActive} rounded-2xl p-5 shadow-lg relative overflow-hidden">
+      <!-- Glow ambient corner -->
+      <div class="absolute -right-16 -top-16 w-48 h-48 rounded-full pointer-events-none opacity-20" style="background-color: ${info.themeColor}; filter: blur(40px);"></div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#142252] pb-4 mb-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${info.themeColor};"></span>
+            <span class="text-xs font-mono font-bold uppercase tracking-wider ${info.textCol}">Alianza ${info.name} • ${info.carrera}</span>
+          </div>
+          <h3 class="text-lg sm:text-xl font-bold font-display text-white">
+            ${info.desafio}
+          </h3>
+          <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+            ${info.shortDesc}
+          </p>
+        </div>
+
+        <!-- CONTROL DE ENTREGA CON ACCIÓN RÁPIDA -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0 bg-[#0A1333] p-3 rounded-xl border border-[#142252]">
+          <div>
+            <span class="text-[10px] font-mono uppercase text-slate-400 block">Puntaje por Entrega Oficial</span>
+            <span class="text-sm font-bold font-mono ${isDelivered ? 'text-emerald-400' : 'text-slate-400'}">
+              ${isDelivered ? '✓ 4.000 pts acreditados' : '0 pts (Sin entregar)'}
+            </span>
+            ${deliveryTimeStr ? `<span class="text-[9px] font-mono text-slate-500 block">Hora: ${deliveryTimeStr}</span>` : ''}
+          </div>
+          <button 
+            type="button"
+            onclick="quickToggleDocenteDelivery('${al}')"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold font-mono uppercase transition flex items-center gap-2 cursor-pointer ${isDelivered ? 'bg-emerald-950 text-emerald-300 border border-emerald-700 hover:bg-emerald-900/60' : 'bg-[#E6194B] text-white hover:bg-[#ff2b5f] shadow-md shadow-[#E6194B]/30'}"
+          >
+            <i data-lucide="${isDelivered ? 'check' : 'upload'}" class="w-4 h-4"></i>
+            <span>${isDelivered ? 'Entregada' : 'Marcar Entrega'}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ENTREGABLES Y REQUISITOS OFICIALES -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
+        <div class="bg-[#0A1333]/60 p-3.5 rounded-xl border border-[#142252]">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-2 flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#7F9CF5]"></i> Entregables Oficiales Obligatorios:
+          </span>
+          <ul class="space-y-1.5 text-slate-300 text-[11px]">
+            ${info.entregables.map(e => `
+              <li class="flex items-start gap-2">
+                <span class="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style="background-color: ${info.themeColor};"></span>
+                <span>${e}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div class="bg-[#0A1333]/60 p-3.5 rounded-xl border border-[#142252] flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-2 flex items-center gap-1.5">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Condiciones Técnicas:
+            </span>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              ${info.requisitos}
+            </p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-[#142252] text-[10px] font-mono text-slate-400 flex items-center justify-between">
+            <span>Rúbrica: <strong>${criterios.length} Criterios</strong></span>
+            <span>Escala: <strong>100 Puntos Totales</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IDENTIDAD DOCENTE TITULAR Y ASIGNACIÓN (SIN SELECTORES DE OTRO DOCENTE) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0A1333] p-3 rounded-2xl border border-[#142252]">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg ${teacher.isNatalia ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-500/60' : 'bg-red-950/60 text-[#E6194B] border border-red-600/60'} flex items-center justify-center font-bold">
+          <i data-lucide="${teacher.isNatalia ? 'palette' : (teacher.isEduardo ? 'laptop' : 'shield-check')}" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <span class="text-[10px] font-mono uppercase text-slate-400 block leading-tight">Docente Titular Asignado</span>
+          <span class="text-xs font-bold text-white font-mono">
+            ${teacher.isNatalia ? 'Profesora Natalia • Área de Diseño Digital' : (teacher.isEduardo ? 'Profesor Eduardo • Área de Informática' : (al === 'Action' ? 'Profesora Natalia (Diseño Digital)' : 'Profesor Eduardo (Informática)'))}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="text-[11px] font-mono text-slate-300 bg-[#050C24] px-3 py-1 rounded-xl border border-[#142252]">
+          Desafío Oficial: <strong class="text-white">${info.name} (${info.colorName})</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- HUD DE CALIFICACIÓN EN VIVO -->
+    <div class="p-4 bg-[#050C24] rounded-2xl border border-[#142252] shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+        <div>
+          <span class="text-[10px] font-mono uppercase text-slate-400 block">
+            ${teacher.isDirectivo ? 'Calificación Oficial en Tiempo Real' : 'Tu Calificación en Tiempo Real'}
+          </span>
+          <div class="flex items-baseline gap-2 mt-0.5">
+            <span id="rubric-live-score" class="text-3xl font-black font-mono text-emerald-400">0</span>
+            <span class="text-xs font-mono text-slate-500">/ 100 puntos</span>
+            <span id="rubric-live-badge" class="px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold border text-emerald-400 bg-emerald-950/60 border-emerald-800">
+              Evaluando
+            </span>
+          </div>
+        </div>
+
+        <div class="text-left sm:text-right">
+          <span id="rubric-live-progress" class="text-xs font-mono text-slate-300 block">
+            0 de ${criterios.length} criterios calificados
+          </span>
+          <span class="text-[10px] font-mono text-[#7F9CF5] block mt-0.5">
+            ${isDelivered ? '✓ 4.000 pts asignados por entrega' : '⚠ Obra pendiente de entrega'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Barra de progreso lineal -->
+      <div class="w-full bg-[#0A1333] h-2 rounded-full overflow-hidden border border-[#142252]">
+        <div id="rubric-live-progressbar" class="bg-gradient-to-r from-[#2D46B9] to-[#E6194B] h-full transition-all duration-300" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- ALERTA DE DISCREPANCIA (SOLO VISIBLE PARA DIRECTIVO SI AMBOS EVALUARON HISTÓRICAMENTE) -->
+    ${hasDiscrepancyAlert ? `
+      <div class="p-4 rounded-2xl border border-amber-600/60 bg-amber-950/20 space-y-3">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-950 border border-amber-600 flex items-center justify-center text-amber-400 shrink-0">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-white text-sm font-display uppercase tracking-wide">
+              Discrepancia Histórica > 20 Puntos (Supervisión Requerida)
+            </h4>
+            <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+              Docente 1 calificó con <strong class="text-white">${doc1Nota} pts</strong> y Docente 2 con <strong class="text-white">${doc2Nota} pts</strong> (Diferencia de <strong class="text-amber-400 font-mono">${Math.abs((doc1Nota || 0) - (doc2Nota || 0))} pts</strong>). Como directivo, puedes fijar la nota acordada definitiva.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-amber-800/40">
+          <div>
+            <label class="text-[10px] font-mono uppercase text-slate-300 block mb-1">Nota Acordada (0 - 100)</label>
+            <input 
+              type="number" 
+              id="docente-acuerdo-nota" 
+              min="0" 
+              max="100" 
+              value="${rubric.notaAcordada || Math.round(((doc1Nota || 0) + (doc2Nota || 0)) / 2)}" 
+              class="w-full bg-[#050C24] border border-amber-600/60 text-white rounded-xl p-2.5 text-xs font-mono font-bold focus:outline-none focus:border-amber-400"
+            >
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-[10px] font-mono uppercase text-slate-300 block mb-1">Motivo o Fundamento del Acuerdo</label>
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                id="docente-acuerdo-motivo" 
+                placeholder="Ej: Se acordó valorar la calidad técnica y narrativa..." 
+                value="${rubric.acuerdoMotivo || ''}" 
+                class="flex-1 bg-[#050C24] border border-amber-600/60 text-white rounded-xl p-2.5 text-xs focus:outline-none focus:border-amber-400"
+              >
+              <button 
+                type="button" 
+                onclick="submitDocenteAcuerdo('${al}')" 
+                class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs uppercase font-mono rounded-xl shrink-0 transition"
+              >
+                Guardar Acuerdo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+
+    <!-- RÚBRICA: TARJETAS DE CRITERIOS INTERACTIVAS CON BOTONES TÁCTILES -->
+    <div class="space-y-3.5">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
+          Criterios Oficiales de Evaluación (${criterios.length})
+        </span>
+        <span class="text-[10px] font-mono text-slate-500">Selecciona el nivel de desempeño para cada aspecto</span>
+      </div>
+
+      <div class="space-y-3">
+        ${criterios.map((c, idx) => {
+          const currentVal = savedScores[c.id] || 'Bueno';
+          return `
+            <div class="p-4 bg-[#050C24] border border-[#142252] rounded-2xl hover:border-[#2D46B9]/40 transition space-y-3">
               <input type="hidden" id="rubric-crit-${c.id}" value="${currentVal}">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-mono font-bold text-red-400 bg-red-950/50 border border-red-900/60 px-1.5 py-0.5 rounded">
-                  ${c.code || `2.${idx+1}`}
-                </span>
-                <span class="text-xs sm:text-sm font-bold text-white leading-tight">
-                  ${c.nombre}
-                </span>
-                <span class="text-[10px] font-mono text-slate-400 bg-[#0A1333] px-2 py-0.5 rounded border border-[#142252] ml-auto lg:ml-0 shrink-0">
+
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b border-slate-900 pb-2.5">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-mono font-bold px-2 py-0.5 rounded" style="background-color: ${info.themeColor}20; color: ${info.themeColor}; border: 1px solid ${info.themeColor}50;">
+                      ${c.code || `2.${idx+1}`}
+                    </span>
+                    <h5 class="text-sm font-bold text-white font-heading">
+                      ${c.nombre}
+                    </h5>
+                  </div>
+                  <p class="text-xs text-slate-300 leading-relaxed font-sans">
+                    ${c.desc}
+                  </p>
+                </div>
+
+                <span class="text-xs font-mono font-bold text-slate-300 bg-[#0A1333] px-2.5 py-1 rounded-xl border border-[#142252] shrink-0 self-start">
                   ${c.peso} pts máx
                 </span>
               </div>
-              <p class="text-[11px] text-slate-400 leading-relaxed font-sans mt-1">
-                ${c.desc}
-              </p>
-            </div>
 
-            <!-- Columna Derecha: Botones Cuadrados de Niveles de Desempeño -->
-            <div class="grid grid-cols-2 min-[480px]:grid-cols-4 gap-1.5 sm:gap-2 shrink-0 w-full lg:w-auto">
-              ${levels.map(lvl => {
-                const isSel = currentVal === lvl.key;
-                const ptsValue = Math.round((c.peso * lvl.mult) * 10) / 10;
-                return `
-                  <button 
-                    type="button"
-                    onclick="setRubricCritScore('${c.id}', '${lvl.key}')"
-                    id="btn-crit-${c.id}-${lvl.key}"
-                    class="rubric-btn p-2 sm:p-2.5 rounded-xl border text-center flex flex-col items-center justify-center transition min-w-[70px] sm:min-w-[85px] cursor-pointer select-none ${isSel ? 'border-emerald-500 bg-emerald-950/80 ring-2 ring-emerald-500/50 text-white shadow-md' : 'border-[#142252] bg-[#050C24]/90 text-slate-400 hover:bg-[#0A1333] hover:border-[#142252] hover:text-slate-200'}"
-                  >
-                    <span class="rubric-lbl-text text-xs font-bold ${isSel ? 'text-emerald-200' : 'text-slate-300'} block text-center leading-tight">
-                      ${lvl.key}
-                    </span>
-                    <span class="rubric-pts-text text-[11px] font-mono italic mt-1 block text-center ${isSel ? 'text-emerald-400 font-black' : 'text-slate-500'}">
-                      ${ptsValue} puntos
-                    </span>
-                  </button>
-                `;
-              }).join('')}
+              <!-- BOTONES TÁCTILES DE NIVELES (EXCELENTE, BUENO, REGULAR, BÁSICO) -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                ${RUBRIC_LEVELS.map(lvl => {
+                  const isSel = currentVal === lvl.key;
+                  const ptsValue = Math.round((c.peso * lvl.mult) * 10) / 10;
+                  return `
+                    <button 
+                      type="button"
+                      onclick="setRubricCritScore('${c.id}', '${lvl.key}')"
+                      id="btn-crit-${c.id}-${lvl.key}"
+                      class="rubric-btn p-3 rounded-xl border text-center flex flex-col items-center justify-center transition cursor-pointer select-none ${isSel ? lvl.colorActive : 'border-[#142252] bg-[#050C24]/90 text-slate-400 hover:bg-[#0A1333] hover:border-[#142252] hover:text-slate-200'}"
+                    >
+                      <div class="flex items-center gap-1.5 mb-0.5">
+                        <i data-lucide="${lvl.icon}" class="w-3.5 h-3.5"></i>
+                        <span class="rubric-lbl-text text-xs font-bold ${isSel ? lvl.textActive : 'text-slate-200'}">
+                          ${lvl.key}
+                        </span>
+                        <span class="text-[9px] font-mono opacity-80">(${lvl.badge})</span>
+                      </div>
+                      <span class="rubric-pts-text text-[11px] font-mono italic mt-0.5 ${isSel ? lvl.ptsActive : 'text-slate-400'}">
+                        ${ptsValue} pts
+                      </span>
+                      <span class="rubric-desc-text text-[9px] text-slate-500 font-sans mt-0.5 hidden sm:block truncate max-w-full">
+                        ${lvl.desc}
+                      </span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
             </div>
-          </div>
-        `;
-      }).join('')}
+          `;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- BARRA PRINCIPAL DE GUARDADO -->
+    <div class="p-4 bg-[#0A1333] border border-[#142252] rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+      <div class="text-xs text-slate-300 font-sans">
+        <span class="font-bold text-white block">
+          ${teacher.isNatalia ? 'Calificación Oficial • Profesora Natalia' : (teacher.isEduardo ? 'Calificación Oficial • Profesor Eduardo' : `Supervisión Directiva • Desafío ${al}`)}
+        </span>
+        <span class="text-[11px] text-slate-400">
+          ${teacher.isNatalia ? 'Tu evaluación asignará la nota definitiva de Action y definirá la Mención de Honor de Diseño Digital.' : (teacher.isEduardo ? `Tu evaluación asignará la nota definitiva de ${al} y definirá la Mención de Honor de Informática.` : `Calificación registrada bajo la titularidad docente de ${al}.`)}
+        </span>
+      </div>
+
+      <button 
+        type="button"
+        onclick="submitDocenteEval()" 
+        class="py-3 px-8 bg-[#E6194B] hover:bg-[#ff2b5f] active:scale-[0.98] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-[#E6194B]/30 transition flex items-center justify-center gap-2 cursor-pointer shrink-0"
+      >
+        <i data-lucide="save" class="w-4 h-4"></i>
+        <span>${teacher.isNatalia ? 'Guardar Calificación (Prof. Natalia)' : (teacher.isEduardo ? 'Guardar Calificación (Prof. Eduardo)' : `Guardar Calificación Oficial (${al})`)}</span>
+      </button>
     </div>
   `;
 
   recalculateRubricLiveScore();
+  lucide.createIcons();
+}
+
+async function submitDocenteAcuerdo(alliance) {
+  const notaInput = document.getElementById('docente-acuerdo-nota');
+  const motivoInput = document.getElementById('docente-acuerdo-motivo');
+  if (!notaInput || !motivoInput) return;
+
+  const nota = Number(notaInput.value);
+  const motivo = motivoInput.value.trim();
+
+  if (isNaN(nota) || nota < 0 || nota > 100) {
+    showPuntosToast('La nota acordada debe ser entre 0 y 100.', true);
+    return;
+  }
+  if (!motivo) {
+    showPuntosToast('Debe ingresar el motivo o acuerdo de la revisión conjunta.', true);
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/docentes/acordar-nota', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        alliance,
+        notaAcordada: nota,
+        motivo,
+        loggedBy: (currentUser?.name || 'Administración')
+      })
+    });
+    const result = await res.json();
+    if (result.success) {
+      showPuntosToast(`✓ Nota acordada para ${alliance} guardada: ${nota} pts.`);
+      await loadStats();
+      renderDocenteRubricForm();
+    } else {
+      showPuntosToast(result.error || 'Error al guardar acuerdo', true);
+    }
+  } catch (err) {
+    showPuntosToast('Error de conexión al guardar acuerdo', true);
+  }
 }
 
 async function submitDocenteEval() {
-  const alSelect = document.getElementById('docente-al-select');
-  const docSelect = document.getElementById('docente-num-select');
-  const deliveredCheck = document.getElementById('docente-delivered');
-  if (!alSelect) return;
+  const teacher = getTeacherRoleInfo();
+  const al = docenteUIState.selectedAlliance || teacher.assignedAlliances[0] || 'Terror';
+  const docNum = teacher.isNatalia ? 2 : (teacher.isEduardo ? 1 : (al === 'Action' ? 2 : 1));
+  const loggedBy = teacher.isNatalia ? 'Profesora Natalia' : (teacher.isEduardo ? 'Profesor Eduardo' : (currentUser?.name || 'Administración'));
 
-  const al = alSelect.value;
-  const docNum = docSelect ? Number(docSelect.value) : 1;
+  const deliveredCheck = document.getElementById('docente-delivered');
   const delivered = deliveredCheck ? deliveredCheck.checked : false;
+
   const rubric = appData.creativeChallenges?.rubrics?.[al];
   const criterios = (rubric && rubric.criterios && rubric.criterios.length > 0) ? rubric.criterios : (CRITERIOS_MAP[al] || []);
 
   const scores = {};
   criterios.forEach(c => {
     const el = document.getElementById(`rubric-crit-${c.id}`);
-    if (el) scores[c.id] = el.value;
+    if (el) scores[c.id] = el.value || 'Bueno';
   });
 
   try {
@@ -936,23 +1596,23 @@ async function submitDocenteEval() {
         docenteNum: docNum,
         scores,
         delivered,
-        loggedBy: `Docente ${docNum}`
+        loggedBy
       })
     });
     const result = await res.json();
     if (result.success) {
       if (result.discrepancyAlert) {
-        showPuntosToast('⚠ ATENCIÓN: La diferencia de notas entre ambos docentes supera los 20 puntos. Se requiere revisión conjunta.');
+        showPuntosToast('⚠ ATENCIÓN: La diferencia de notas supera los 20 puntos. Se requiere revisión.');
       } else {
-        showPuntosToast(`✓ Calificación de Docente ${docNum} para ${al} guardada con éxito (${result.totalScore || ''} pts).`);
+        showPuntosToast(`✓ Calificación de ${loggedBy} para ${al} guardada con éxito (${result.rubric?.notaPromedio || ''} pts).`);
       }
       await loadStats();
       renderDocenteRubricForm();
     } else {
-      showPuntosToast(result.error || 'Error al guardar la evaluación');
+      showPuntosToast(result.error || 'Error al guardar la evaluación', true);
     }
   } catch (e) {
-    showPuntosToast('Error de conexión al guardar evaluación docente');
+    showPuntosToast('Error de conexión al guardar evaluación docente', true);
   }
 }
 
@@ -1132,13 +1792,13 @@ function openCreativeDetail() {
     <div class="space-y-4">
       <div class="border-b border-[#142252] pb-3">
         <span class="text-xs font-bold uppercase text-indigo-400">Desafíos Creativos</span>
-        <h3 class="text-2xl font-black font-display text-white mt-1">Cálculo de Desafíos (Máx 4.000 pts)</h3>
+        <h3 class="text-2xl font-black font-display text-white mt-1">Cálculo de Desafíos (4.000 pts por Entrega)</h3>
       </div>
       <p class="text-xs text-slate-300">
-        Fórmula: 1.000 pts (entrega en plazo) + hasta 2.500 pts (nota promedio docente sobre 100 × 25) + 500 pts (mejor nota de las tres).
+        Regla oficial: Toda alianza que entregue su obra única dentro de los plazos y requisitos obtiene de forma íntegra los <strong>4.000 puntos</strong> oficiales. Las evaluaciones docentes mediante rúbrica definen la <strong>Mención de Honor</strong> a la mejor obra técnica/creativa (sin sumar puntos adicionales).
       </p>
       <div class="bg-[#050C24] p-3 rounded-xl border border-[#142252] text-xs text-slate-400">
-        Obra con mejor nota docente actual: <strong class="text-white">${fav || 'Pendiente de evaluación'}</strong>
+        Mención de Honor docente: <strong class="text-white">${fav ? `Alianza ${fav}` : 'Pendiente de evaluación'}</strong>
       </div>
       <div class="grid grid-cols-3 gap-3 text-center">
         <div class="bg-red-950/40 border border-red-800/60 p-3 rounded-xl">
@@ -1250,7 +1910,7 @@ let swapSearchTimeout2 = null;
 // Variables de Solicitudes Públicas
 let adminAllianceRequestsData = [];
 let adminRequestsFilter = 'all';
-let adminRequestsCounts = { Terror: 126, Shooter: 126, Action: 29 };
+let adminRequestsCounts = { Terror: 0, Shooter: 0, Action: 0 };
 let adminRequestsConfig = { open: true, deadline: '2026-11-16T23:59:59-03:00', maxDiff: 4 };
 
 function renderTrasladosPanel() {
@@ -1614,7 +2274,9 @@ async function handleMoveSearch(query) {
 
   moveSearchTimeout = setTimeout(async () => {
     try {
-      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
       const students = await res.json();
       if (students.length === 0) {
         box.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center font-mono">No se encontraron estudiantes con "${q}".</div>`;
@@ -1724,7 +2386,9 @@ async function handleSwapSearch(slot, query) {
 
   const newTimeout = setTimeout(async () => {
     try {
-      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/students/search?q=${encodeURIComponent(q)}`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
       const students = await res.json();
       if (students.length === 0) {
         box.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center font-mono">No se encontraron estudiantes con "${q}".</div>`;
@@ -1885,7 +2549,7 @@ async function loadTrasladosHistory() {
 // =========================================================================
 
 function renderPublicRequestsView() {
-  const counts = adminRequestsCounts || { Terror: 126, Shooter: 126, Action: 29 };
+  const counts = adminRequestsCounts || { Terror: 0, Shooter: 0, Action: 0 };
   const diff = counts.Terror - counts.Shooter;
   const absDiff = Math.abs(diff);
   const maxDiff = adminRequestsConfig?.maxDiff || 4;
@@ -2223,7 +2887,7 @@ async function loadAdminAllianceRequests() {
     const data = await res.json();
     adminAllianceRequestsData = data.requests || [];
     adminRequestsConfig = data.config || {};
-    adminRequestsCounts = data.counts || { Terror: 126, Shooter: 126, Action: 29 };
+    adminRequestsCounts = data.counts || { Terror: 0, Shooter: 0, Action: 0 };
 
     // Actualizar badge de la pestaña
     const pendingCount = adminAllianceRequestsData.filter(r => r.status === 'pending').length;
@@ -2546,7 +3210,7 @@ function renderParticipantesPanel() {
             </div>
 
             <!-- BUSCADOR CON AUTOCOMPLETADO TERROR -->
-            <div class="relative mb-2.5">
+            <div class="relative mb-1.5">
               <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-600">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </div>
@@ -2559,6 +3223,17 @@ function renderParticipantesPanel() {
               />
               <div id="autocomplete-terror" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
+
+            <!-- BOTÓN ANOTAR EN EL MOMENTO TERROR -->
+            <button 
+              type="button" 
+              onclick="openWalkInParticipantModal('Terror')" 
+              class="w-full mb-2.5 py-1 px-2 text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-red-950/40 border border-[#142252] hover:border-red-600/50 rounded flex items-center justify-center gap-1 transition"
+              title="Anotar estudiante en el momento para Terror"
+            >
+              <i data-lucide="user-plus" class="w-3 h-3 text-red-400"></i>
+              <span>+ Anotar en el Momento</span>
+            </button>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS TERROR -->
             <div id="list-terror" class="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 custom-scrollbar">
@@ -2581,7 +3256,7 @@ function renderParticipantesPanel() {
             </div>
 
             <!-- BUSCADOR CON AUTOCOMPLETADO SHOOTER -->
-            <div class="relative mb-2.5">
+            <div class="relative mb-1.5">
               <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-600">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </div>
@@ -2594,6 +3269,17 @@ function renderParticipantesPanel() {
               />
               <div id="autocomplete-shooter" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
+
+            <!-- BOTÓN ANOTAR EN EL MOMENTO SHOOTER -->
+            <button 
+              type="button" 
+              onclick="openWalkInParticipantModal('Shooter')" 
+              class="w-full mb-2.5 py-1 px-2 text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-blue-950/40 border border-[#142252] hover:border-blue-600/50 rounded flex items-center justify-center gap-1 transition"
+              title="Anotar estudiante en el momento para Shooter"
+            >
+              <i data-lucide="user-plus" class="w-3 h-3 text-blue-400"></i>
+              <span>+ Anotar en el Momento</span>
+            </button>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS SHOOTER -->
             <div id="list-shooter" class="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 custom-scrollbar">
@@ -2616,7 +3302,7 @@ function renderParticipantesPanel() {
             </div>
 
             <!-- BUSCADOR CON AUTOCOMPLETADO ACTION -->
-            <div class="relative mb-2.5">
+            <div class="relative mb-1.5">
               <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-600">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </div>
@@ -2629,6 +3315,17 @@ function renderParticipantesPanel() {
               />
               <div id="autocomplete-action" class="absolute left-0 right-0 top-full mt-1 bg-[#0A1333] border border-[#142252] rounded-xl shadow-2xl z-20 hidden max-h-56 overflow-y-auto"></div>
             </div>
+
+            <!-- BOTÓN ANOTAR EN EL MOMENTO ACTION -->
+            <button 
+              type="button" 
+              onclick="openWalkInParticipantModal('Action')" 
+              class="w-full mb-2.5 py-1 px-2 text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-emerald-950/40 border border-[#142252] hover:border-emerald-600/50 rounded flex items-center justify-center gap-1 transition"
+              title="Anotar estudiante en el momento para Action"
+            >
+              <i data-lucide="user-plus" class="w-3 h-3 text-emerald-400"></i>
+              <span>+ Anotar en el Momento</span>
+            </button>
 
             <!-- LISTA DE ESTUDIANTES AGREGADOS ACTION -->
             <div id="list-action" class="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 custom-scrollbar">
@@ -2696,8 +3393,8 @@ function renderActivityParticipantsView() {
     else if (data.activityId === 'babyfutbol') ruleDetail = '5 por equipo (con arquero). Rotar integrantes entre partidos.';
     else if (data.activityId === 'quemadas') ruleDetail = '8 vs 8. Rotar integrantes en cada ronda. Sin límite de tiempo (salvo aviso por alargue). Balones blandos sin golpes a la cabeza. Si se atrapa la pelota, sale el lanzador.';
     else if (data.activityId === 'trivia') ruleDetail = '3 representantes por alianza respondiendo con paletas.';
-    else if (data.activityId === 'canto') ruleDetail = 'Fila de 8 cantantes por alianza frente al escenario.';
-    else if (data.activityId === 'gymkanas') ruleDetail = 'Anotar puntaje individual (0 a 8 pts) por estudiante.';
+    else if (data.activityId === 'canto') ruleDetail = 'Fila de 5 voluntarios por alianza frente al escenario.';
+    else if (data.activityId === 'gymkanas') ruleDetail = 'Anotar puntaje individual (0 a 6 pts) por estudiante. Puntos alianza = 4.000 * (promedio / 6).';
     else if (data.activityId === 'barra') ruleDetail = 'Participación comunitaria masiva. No requiere nómina individual.';
 
     bannerEl.innerHTML = `
@@ -2757,11 +3454,11 @@ function renderActivityParticipantsView() {
                 </div>
               </div>
 
-              <!-- SI ES GYMKANA: CONTROL DE PUNTOS (0 A 8) -->
+              <!-- SI ES GYMKANA: CONTROL DE PUNTOS (0 A 6) -->
               ${isGymkana ? `
                 <div class="flex items-center gap-1 shrink-0">
                   <select onchange="handleGymkanaScoreChange('${p.studentId}', '${al}', this.value)" class="bg-[#0A1333] border border-[#142252] rounded px-1.5 py-0.5 text-[11px] text-amber-300 font-mono font-bold focus:outline-none">
-                    ${[0,1,2,3,4,5,6,7,8].map(s => `
+                    ${[0,1,2,3,4,5,6].map(s => `
                       <option value="${s}" ${p.score === s ? 'selected' : ''}>${s} pts</option>
                     `).join('')}
                   </select>
@@ -2980,6 +3677,11 @@ function renderActivityParticipantsView() {
   lucide.createIcons();
 }
 
+function escapeHtmlAttr(str) {
+  if (!str) return '';
+  return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // Autocompletado desde el padrón oficial (281 estudiantes)
 async function handleParticipantAutocomplete(alliance, val) {
   const box = document.getElementById(`autocomplete-${alliance.toLowerCase()}`);
@@ -2990,7 +3692,9 @@ async function handleParticipantAutocomplete(alliance, val) {
 
   try {
     const url = `/api/students/search?q=${encodeURIComponent(query)}&alliance=${encodeURIComponent(alliance)}&excludeActivity=${encodeURIComponent(currentActId)}`;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     let students = await res.json();
 
     // Filtro estricto en cliente: excluir los ya inscritos en la actividad actual
@@ -3011,12 +3715,25 @@ async function handleParticipantAutocomplete(alliance, val) {
       const msg = query.length > 0 
         ? `No hay estudiantes de ${alliance} que coincidan o ya están anotados.`
         : `No hay estudiantes disponibles para anotar en ${alliance}.`;
-      box.innerHTML = `<div class="p-3 text-[11px] text-slate-500 font-mono text-center">${msg}</div>`;
+      box.innerHTML = `
+        <div class="p-3 text-[11px] text-slate-400 font-mono text-center">
+          <div>${msg}</div>
+          <button 
+            type="button"
+            onclick="openWalkInParticipantModal('${alliance}', '${escapeHtmlAttr(query)}')" 
+            class="mt-2 w-full py-1.5 px-2.5 rounded bg-[#142252] hover:bg-emerald-600 text-white font-sans text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow"
+          >
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>Anotar "${escapeHtmlAttr(query) || 'nuevo'}" en ${alliance} ahora</span>
+          </button>
+        </div>
+      `;
       box.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       return;
     }
 
-    box.innerHTML = students.map(s => {
+    const itemsHtml = students.map(s => {
       if (currentActId === 'gymkanas') {
         return `
           <div class="p-2.5 hover:bg-[#142252]/90 text-xs border-b border-[#142252] last:border-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition group">
@@ -3051,7 +3768,19 @@ async function handleParticipantAutocomplete(alliance, val) {
       `;
     }).join('');
 
+    const walkInFooter = `
+      <div 
+        onclick="openWalkInParticipantModal('${alliance}', '${escapeHtmlAttr(query)}')" 
+        class="p-2 bg-[#050C24] hover:bg-[#142252] text-xs border-t border-[#142252] flex items-center justify-center gap-1.5 text-[#7F9CF5] cursor-pointer transition font-mono"
+      >
+        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+        <span>¿No está en la lista? Anotar en el momento</span>
+      </div>
+    `;
+
+    box.innerHTML = itemsHtml + walkInFooter;
     box.classList.remove('hidden');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   } catch (err) {
     console.error(err);
   }
@@ -3141,6 +3870,176 @@ async function doAddParticipant(studentId, targetAlliance, reason, score = null)
     loadStats(); // refresca los cálculos si fue gymkanas
   } catch (err) {
     alert('Error al agregar participante');
+  }
+}
+
+// Modal para inscribir estudiante en el momento (walk in en cancha)
+function openWalkInParticipantModal(alliance, defaultName = '', defaultScore = null) {
+  const modal = document.getElementById('calc-modal');
+  const content = document.getElementById('calc-modal-content');
+  if (!modal || !content) return;
+
+  const currentActId = currentSelectedActivityId || '';
+  const currentAct = (appData.activities || []).find(a => a.id === currentActId);
+  const actName = currentAct ? currentAct.name : 'Actividad';
+  const isGymkana = currentActId === 'gymkanas';
+
+  const allianceColors = {
+    Terror: 'text-red-500 border-red-500/50 bg-red-950/30',
+    Shooter: 'text-blue-500 border-blue-500/50 bg-blue-950/30',
+    Action: 'text-emerald-500 border-emerald-500/50 bg-emerald-950/30'
+  };
+
+  const defaultCarrera = alliance === 'Action' 
+    ? 'Diseño e Industria Digital' 
+    : (alliance === 'Shooter' ? 'Telecomunicaciones y Conectividad' : 'Ingeniería en Informática');
+
+  content.innerHTML = `
+    <div class="space-y-4">
+      <div class="border-b border-[#142252] pb-3 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-bold">Inscripción en Cancha</span>
+          <h3 class="text-xl font-black font-display text-white mt-0.5">Anotar Participante en el Momento</h3>
+          <span class="text-xs text-slate-400">Actividad: <strong class="text-white">${actName}</strong></span>
+        </div>
+        <button type="button" onclick="closeCalcModal()" class="text-slate-500 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300/90 leading-relaxed">
+        <strong>Importante:</strong> Si el alumno no estaba preinscrito y compite para <strong class="text-white">${alliance}</strong>, quedará registrado y asignado de forma fija a la Alianza <strong class="text-white">${alliance}</strong> para todo el resto del evento.
+      </div>
+
+      <form id="walkin-participant-form" onsubmit="event.preventDefault(); submitWalkInParticipant('${alliance}');" class="space-y-3">
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Alianza Asignada</label>
+          <div class="px-3 py-2 rounded-lg border font-mono font-bold text-xs ${allianceColors[alliance] || 'border-[#142252] text-white'} flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full ${alliance === 'Terror' ? 'bg-red-500' : (alliance === 'Shooter' ? 'bg-blue-500' : 'bg-emerald-500')}"></span>
+            <span>Alianza ${alliance}</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Nombre Completo del Estudiante *</label>
+          <input 
+            type="text" 
+            id="walkin-name" 
+            required 
+            value="${escapeHtmlAttr(defaultName)}" 
+            placeholder="Ej: Juan Pérez Morales" 
+            class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">RUT (Opcional)</label>
+            <input 
+              type="text" 
+              id="walkin-rut" 
+              placeholder="RUT del estudiante (opcional)" 
+              class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Carrera (Opcional)</label>
+            <input 
+              type="text" 
+              id="walkin-carrera" 
+              value="${defaultCarrera}"
+              placeholder="Carrera" 
+              class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+        </div>
+
+        ${isGymkana ? `
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Puntos Obtenidos en Gymkana (0 a 8 pts)</label>
+            <select id="walkin-gymkana-score" class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white focus:outline-none focus:border-amber-500 transition">
+              ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(p => `
+                <option value="${p}" ${p === (defaultScore !== null && defaultScore !== undefined ? Number(defaultScore) : 0) ? 'selected' : ''}>${p} puntos</option>
+              `).join('')}
+            </select>
+          </div>
+        ` : ''}
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#142252]">
+          <button 
+            type="button" 
+            onclick="closeCalcModal()" 
+            class="px-3 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white border border-transparent hover:border-[#142252] transition"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50"
+          >
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Guardar e Inscribir</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => {
+    const nameInput = document.getElementById('walkin-name');
+    if (nameInput) nameInput.focus();
+  }, 50);
+}
+
+// Enviar inscripción en el momento
+async function submitWalkInParticipant(alliance) {
+  const nameEl = document.getElementById('walkin-name');
+  const rutEl = document.getElementById('walkin-rut');
+  const carreraEl = document.getElementById('walkin-carrera');
+  const gymkanaScoreEl = document.getElementById('walkin-gymkana-score');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const rut = rutEl ? rutEl.value.trim() : '';
+  const carrera = carreraEl ? carreraEl.value.trim() : '';
+  const score = gymkanaScoreEl ? Number(gymkanaScoreEl.value) : undefined;
+
+  if (!name) {
+    alert('Debes ingresar el nombre del estudiante');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/participants/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        activityId: currentSelectedActivityId,
+        alliance,
+        isWalkIn: true,
+        newStudent: { name, rut, carrera },
+        score: score !== undefined ? Number(score) : undefined,
+        loggedBy: (currentUser?.name || 'Staff'),
+        reason: 'Inscripción en el momento (walk in en cancha)'
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      alert(`⚠️ ${result.error || 'Error al inscribir participante'}`);
+      return;
+    }
+
+    closeCalcModal();
+    loadActivityParticipants(currentSelectedActivityId);
+    loadStats();
+  } catch (err) {
+    console.error('Error submitWalkInParticipant:', err);
+    alert('Error de conexión al inscribir');
   }
 }
 
@@ -3296,7 +4195,9 @@ function openStudentSearchModal() {
   const query = prompt('Ingresa el nombre o apellido del estudiante para ver su ficha de participación:');
   if (!query || query.trim().length < 2) return;
 
-  fetch(`/api/students/search?q=${encodeURIComponent(query.trim())}`)
+  fetch(`/api/students/search?q=${encodeURIComponent(query.trim())}`, {
+    headers: { 'Authorization': `Bearer ${adminToken}` }
+  })
     .then(r => r.json())
     .then(list => {
       if (list.length === 0) {
@@ -3547,6 +4448,15 @@ function renderAsistenciaPanel() {
 
         <div class="flex items-center gap-2.5">
           <button 
+            type="button"
+            onclick="openWalkInAttendanceModal()" 
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold flex items-center gap-2 transition shadow-md shadow-emerald-950/40"
+            title="Anotar llegada de un estudiante en cancha"
+          >
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>+ Registrar en Cancha</span>
+          </button>
+          <button 
             onclick="exportConsolidatedAttendanceCSV()" 
             class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#0A1333] hover:bg-[#142252] text-slate-200 border border-[#142252] flex items-center gap-2 transition"
             title="Descargar nómina consolidada en formato Excel / CSV"
@@ -3590,7 +4500,7 @@ function renderAsistenciaPanel() {
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-red-400" id="asist-kpi-terror">0</span>
-            <span class="text-xs font-mono text-slate-500">/ 126</span>
+            <span class="text-xs font-mono text-slate-500" id="asist-total-terror">/ 0</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
@@ -3608,7 +4518,7 @@ function renderAsistenciaPanel() {
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-blue-400" id="asist-kpi-shooter">0</span>
-            <span class="text-xs font-mono text-slate-500">/ 126</span>
+            <span class="text-xs font-mono text-slate-500" id="asist-total-shooter">/ 0</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
@@ -3626,7 +4536,7 @@ function renderAsistenciaPanel() {
           </div>
           <div class="flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-mono font-black text-emerald-400" id="asist-kpi-action">0</span>
-            <span class="text-xs font-mono text-slate-500">/ 29</span>
+            <span class="text-xs font-mono text-slate-500" id="asist-total-action">/ 0</span>
           </div>
           <div class="mt-2 flex items-center gap-2">
             <div class="w-full bg-[#0A1333] h-1.5 rounded-full overflow-hidden">
@@ -3733,11 +4643,12 @@ function renderAsistenciaPanel() {
                 <th class="py-3 px-3.5">Carrera</th>
                 <th class="py-3 px-3.5">Actividades en Cancha</th>
                 <th class="py-3 px-3.5 w-24 text-right">Total</th>
+                <th class="py-3 px-3.5 w-28 text-center">Asistencia</th>
               </tr>
             </thead>
             <tbody id="attendance-table-body" class="divide-y divide-slate-900">
               <tr>
-                <td colspan="6" class="py-12 text-center text-slate-500 font-mono">
+                <td colspan="7" class="py-12 text-center text-slate-500 font-mono">
                   <div class="flex items-center justify-center gap-2">
                     <i data-lucide="loader" class="w-4 h-4 animate-spin text-emerald-400"></i>
                     <span>Cargando nómina oficial...</span>
@@ -3812,11 +4723,13 @@ function renderAttendanceKPIs(stats) {
     const alData = stats.alianzas?.[al];
     if (alData) {
       const kpi = document.getElementById(`asist-kpi-${al.toLowerCase()}`);
+      const totalAlEl = document.getElementById(`asist-total-${al.toLowerCase()}`);
       const pct = document.getElementById(`asist-pct-${al.toLowerCase()}`);
       const bar = document.getElementById(`asist-bar-${al.toLowerCase()}`);
       const alPct = alData.total > 0 ? ((alData.asistentes / alData.total) * 100).toFixed(0) : 0;
 
       if (kpi) kpi.textContent = alData.asistentes;
+      if (totalAlEl) totalAlEl.textContent = `/ ${alData.total}`;
       if (pct) pct.textContent = `${alPct}%`;
       if (bar) bar.style.width = `${alPct}%`;
     }
@@ -3898,7 +4811,7 @@ function renderAttendanceTable() {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-xs">
+        <td colspan="7" class="py-12 text-center text-slate-500 font-mono text-xs">
           No se encontraron estudiantes con los filtros seleccionados.
         </td>
       </tr>
@@ -3915,7 +4828,7 @@ function renderAttendanceTable() {
   tbody.innerHTML = filtered.map((s, idx) => {
     const badgeStyle = allianceBadgeStyles[s.alliance] || 'bg-[#0A1333] text-slate-400 border-[#142252]';
     const acts = s.activities || [];
-    const hasAttended = acts.length > 0;
+    const hasAttended = Boolean(s.attended || acts.length > 0);
 
     return `
       <tr class="hover:bg-[#0A1333]/50 transition group">
@@ -3940,7 +4853,7 @@ function renderAttendanceTable() {
           ${s.carrera || 'General'}
         </td>
         <td class="py-3 px-3.5">
-          ${hasAttended ? `
+          ${acts.length > 0 ? `
             <div class="flex flex-wrap items-center gap-1.5">
               ${acts.map(a => `
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono bg-[#0A1333] text-slate-300 border border-[#142252] hover:border-[#142252] transition" title="Registrado: ${new Date(a.addedAt).toLocaleTimeString('es-CL')}">
@@ -3950,11 +4863,36 @@ function renderAttendanceTable() {
               `).join('')}
             </div>
           ` : `
-            <span class="text-slate-600 italic text-[11px]">Sin participación registrada</span>
+            <span class="text-slate-600 italic text-[11px]">Sin actividad específica</span>
           `}
         </td>
         <td class="py-3 px-3.5 text-right font-mono font-bold ${hasAttended ? 'text-emerald-400' : 'text-slate-600'}">
           ${acts.length} ${acts.length === 1 ? 'actividad' : 'actividades'}
+        </td>
+        <td class="py-3 px-3.5 text-center whitespace-nowrap">
+          ${hasAttended ? `
+            <button 
+              type="button"
+              onclick="toggleAttendanceStatus('${s.id}', false)"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/50 hover:bg-red-950/60 hover:text-red-400 hover:border-red-500/60 transition shadow-sm group/btn"
+              title="Clic para desmarcar asistencia"
+            >
+              <i data-lucide="check" class="w-3 h-3 text-emerald-400 group-hover/btn:hidden"></i>
+              <i data-lucide="x" class="w-3 h-3 text-red-400 hidden group-hover/btn:inline"></i>
+              <span class="group-hover/btn:hidden">Presente</span>
+              <span class="hidden group-hover/btn:inline">Desmarcar</span>
+            </button>
+          ` : `
+            <button 
+              type="button"
+              onclick="toggleAttendanceStatus('${s.id}', true)"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-mono text-slate-300 hover:text-white bg-[#0A1333] hover:bg-emerald-950/60 border border-[#142252] hover:border-emerald-500/50 transition"
+              title="Marcar asistencia al evento"
+            >
+              <i data-lucide="user-check" class="w-3 h-3 text-emerald-400"></i>
+              <span>Marcar</span>
+            </button>
+          `}
         </td>
       </tr>
     `;
@@ -3966,15 +4904,192 @@ function exportConsolidatedAttendanceCSV() {
   window.open(`/api/admin/attendance/export?token=${encodeURIComponent(adminToken)}`, '_blank');
 }
 
+// Modal para registrar asistencia de un estudiante en cancha (walk-in en asistencia)
+function openWalkInAttendanceModal() {
+  const modal = document.getElementById('calc-modal');
+  const content = document.getElementById('calc-modal-content');
+  if (!modal || !content) return;
+
+  content.innerHTML = `
+    <div class="space-y-4">
+      <div class="border-b border-[#142252] pb-3 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-bold">Control de Cancha</span>
+          <h3 class="text-xl font-black font-display text-white mt-0.5">Registrar Asistente en Cancha</h3>
+          <span class="text-xs text-slate-400">Anota la llegada de un estudiante que no estaba preinscrito</span>
+        </div>
+        <button type="button" onclick="closeCalcModal()" class="text-slate-500 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-blue-950/20 border border-blue-500/30 rounded-xl p-3 text-xs text-blue-300 leading-relaxed">
+        <strong>Nota:</strong> Si el estudiante se registra en una alianza, quedará asignado a dicha alianza durante toda la Semana de la Carrera.
+      </div>
+
+      <form id="walkin-attendance-form" onsubmit="event.preventDefault(); submitWalkInAttendance();" class="space-y-3">
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Nombre Completo *</label>
+          <input 
+            type="text" 
+            id="asist-walkin-name" 
+            required 
+            placeholder="Ej: Constanza Morales Rivera" 
+            class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">RUT (Opcional)</label>
+            <input 
+              type="text" 
+              id="asist-walkin-rut" 
+              placeholder="RUT del estudiante (opcional)" 
+              class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-slate-300 mb-1">Alianza Asignada *</label>
+            <select id="asist-walkin-alliance" class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white focus:outline-none focus:border-emerald-500 transition">
+              <option value="Terror">Alianza Terror</option>
+              <option value="Shooter">Alianza Shooter</option>
+              <option value="Action">Alianza Action</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1">Carrera (Opcional)</label>
+          <input 
+            type="text" 
+            id="asist-walkin-carrera" 
+            placeholder="Ej: Ingeniería en Informática" 
+            class="w-full bg-[#050C24] border border-[#142252] rounded-lg text-xs py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#142252]">
+          <button 
+            type="button" 
+            onclick="closeCalcModal()" 
+            class="px-3 py-1.5 rounded-lg text-xs font-mono text-slate-400 hover:text-white border border-transparent hover:border-[#142252] transition"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50"
+          >
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Registrar Asistencia</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => {
+    const input = document.getElementById('asist-walkin-name');
+    if (input) input.focus();
+  }, 50);
+}
+
+// Enviar registro de asistencia en el momento
+async function submitWalkInAttendance() {
+  const nameEl = document.getElementById('asist-walkin-name');
+  const rutEl = document.getElementById('asist-walkin-rut');
+  const allianceEl = document.getElementById('asist-walkin-alliance');
+  const carreraEl = document.getElementById('asist-walkin-carrera');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const rut = rutEl ? rutEl.value.trim() : '';
+  const alliance = allianceEl ? allianceEl.value : 'Terror';
+  const carrera = carreraEl ? carreraEl.value.trim() : '';
+
+  if (!name) {
+    alert('Debes ingresar el nombre del estudiante');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin/attendance/register-walkin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        name,
+        rut,
+        carrera,
+        alliance,
+        loggedBy: (currentUser?.name || 'Staff')
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      alert(`⚠️ ${result.error || 'Error al registrar asistencia'}`);
+      return;
+    }
+
+    closeCalcModal();
+    loadAttendanceData();
+    loadStats();
+  } catch (err) {
+    console.error('Error submitWalkInAttendance:', err);
+    alert('Error de conexión');
+  }
+}
+
+// Alternar asistencia de un alumno (marcar / desmarcar presente)
+async function toggleAttendanceStatus(studentId, targetStatus) {
+  try {
+    const res = await fetch('/api/admin/attendance/toggle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        studentId,
+        attended: targetStatus,
+        loggedBy: (currentUser?.name || 'Staff')
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      alert(`⚠️ ${result.error || 'Error al actualizar asistencia'}`);
+      return;
+    }
+
+    loadAttendanceData();
+    loadStats();
+  } catch (err) {
+    console.error('Error toggleAttendanceStatus:', err);
+    alert('Error de conexión');
+  }
+}
+
 // ==========================================
-// MODO PROYECTOR DEDICADO PARA ADMINISTRACIÓN
 // ==========================================
+// MODO PROYECTOR DEDICADO PARA ADMINISTRACIÓN (SYNTH-TECH / ESPORTS)
+// ==========================================
+let adminProyectorInterval = null;
+let adminProyectorViewMode = 'leaderboard'; // 'leaderboard' | 'podium' | 'cancha'
+
 async function openAdminProyector() {
   const overlay = document.getElementById('admin-proyector-overlay');
   if (!overlay) return;
 
   try {
-    const res = await fetch('/api/stats');
+    const res = await fetch('/api/stats', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     const statsData = await res.json();
     appData = statsData;
 
@@ -3982,12 +5097,42 @@ async function openAdminProyector() {
     overlay.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
     lucide.createIcons();
+
+    // Auto-polling en vivo cada 4 segundos
+    if (adminProyectorInterval) clearInterval(adminProyectorInterval);
+    adminProyectorInterval = setInterval(async () => {
+      try {
+        const r = await fetch('/api/stats', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (r.ok) {
+          const fresh = await r.json();
+          appData = fresh;
+          overlay.innerHTML = renderAdminProyectorView(fresh);
+          lucide.createIcons();
+        }
+      } catch (e) {}
+    }, 4000);
   } catch (err) {
-    console.error('Error al abrir proyector:', err);
+    console.error('Error al abrir proyector admin:', err);
+  }
+}
+
+function setAdminProyectorView(mode) {
+  if (!['leaderboard', 'podium', 'cancha'].includes(mode)) return;
+  adminProyectorViewMode = mode;
+  const overlay = document.getElementById('admin-proyector-overlay');
+  if (overlay && appData) {
+    overlay.innerHTML = renderAdminProyectorView(appData);
+    lucide.createIcons();
   }
 }
 
 function closeAdminProyector() {
+  if (adminProyectorInterval) {
+    clearInterval(adminProyectorInterval);
+    adminProyectorInterval = null;
+  }
   const overlay = document.getElementById('admin-proyector-overlay');
   if (overlay) {
     overlay.classList.add('hidden');
@@ -3996,10 +5141,20 @@ function closeAdminProyector() {
   document.body.classList.remove('overflow-hidden');
 }
 
+function toggleAdminProyectorFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+}
+
 function renderAdminProyectorView(statsData) {
   const al = statsData.alliances || {};
-  const terror = al.Terror || { points: { total: 0 }, carrera: 'Informática (Ingeniería y Tec)' };
-  const shooter = al.Shooter || { points: { total: 0 }, carrera: 'Informática (Ingeniería y Tec)' };
+  const terror = al.Terror || { points: { total: 0 }, carrera: 'Informática & Telecomunicaciones' };
+  const shooter = al.Shooter || { points: { total: 0 }, carrera: 'Informática & Telecomunicaciones' };
   const action = al.Action || { points: { total: 0 }, carrera: 'Diseño e Industria Digital' };
 
   const pT = terror.points?.total || 0;
@@ -4007,141 +5162,451 @@ function renderAdminProyectorView(statsData) {
   const pA = action.points?.total || 0;
 
   const MAX_EVENT_POINTS = 32000;
+  const creativeData = statsData.creativeChallenges || {};
+  const favAlliance = creativeData.favoriteAlliance;
+
   const alliancesList = [
-    { name: 'TERROR', carrera: 'Informática', pts: pT, dot: 'bg-red-500', bar: 'bg-gradient-to-r from-red-700 via-red-600 to-red-500', border: 'border-red-900/50', tag: 'text-red-400 border-red-900/50 bg-red-950/40' },
-    { name: 'SHOOTER', carrera: 'Informática', pts: pS, dot: 'bg-blue-500', bar: 'bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500', border: 'border-blue-900/50', tag: 'text-blue-400 border-blue-900/50 bg-blue-950/40' },
-    { name: 'ACTION', carrera: 'Diseño e Industria', pts: pA, dot: 'bg-emerald-500', bar: 'bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500', border: 'border-emerald-900/50', tag: 'text-emerald-400 border-emerald-900/50 bg-emerald-950/40' }
+    { 
+      name: 'TERROR', 
+      key: 'Terror',
+      carrera: 'Informática & Telecomunicaciones',
+      themeColor: '#E6194B',
+      pts: pT, 
+      dot: 'bg-[#E6194B]', 
+      bar: 'bg-gradient-to-r from-red-800 via-[#E6194B] to-red-400', 
+      border: 'border-[#E6194B]/70', 
+      glowBorder: 'border-[#E6194B] shadow-[0_0_35px_rgba(230,25,75,0.4)]',
+      bgCard: 'bg-gradient-to-r from-red-950/40 via-[#0A1333] to-[#050C24]',
+      tag: 'text-[#E6194B] border-red-700/80 bg-red-950/70',
+      textAccent: 'text-[#E6194B]',
+      mascot: '/img/mascota-terror.png',
+      desafioName: 'Videojuego IA',
+      delivered: Boolean(creativeData.status?.Terror?.delivered),
+      isFav: favAlliance && (favAlliance === 'Terror' || favAlliance.includes('Terror'))
+    },
+    { 
+      name: 'SHOOTER', 
+      key: 'Shooter',
+      carrera: 'Informática & Telecomunicaciones',
+      themeColor: '#2D46B9',
+      pts: pS, 
+      dot: 'bg-[#2D46B9]', 
+      bar: 'bg-gradient-to-r from-blue-900 via-[#2D46B9] to-[#7F9CF5]', 
+      border: 'border-[#2D46B9]/70', 
+      glowBorder: 'border-[#2D46B9] shadow-[0_0_35px_rgba(45,70,185,0.4)]',
+      bgCard: 'bg-gradient-to-r from-blue-950/40 via-[#0A1333] to-[#050C24]',
+      tag: 'text-[#7F9CF5] border-blue-700/80 bg-blue-950/70',
+      textAccent: 'text-[#7F9CF5]',
+      mascot: '/img/mascota-shooter.png',
+      desafioName: 'Chatbot IA',
+      delivered: Boolean(creativeData.status?.Shooter?.delivered),
+      isFav: favAlliance && (favAlliance === 'Shooter' || favAlliance.includes('Shooter'))
+    },
+    { 
+      name: 'ACTION', 
+      key: 'Action',
+      carrera: 'Diseño e Industria Digital',
+      themeColor: '#059669',
+      pts: pA, 
+      dot: 'bg-emerald-500', 
+      bar: 'bg-gradient-to-r from-emerald-900 via-emerald-600 to-emerald-400', 
+      border: 'border-emerald-600/70', 
+      glowBorder: 'border-emerald-500 shadow-[0_0_35px_rgba(5,150,105,0.4)]',
+      bgCard: 'bg-gradient-to-r from-emerald-950/40 via-[#0A1333] to-[#050C24]',
+      tag: 'text-emerald-400 border-emerald-700/80 bg-emerald-950/70',
+      textAccent: 'text-emerald-400',
+      mascot: '/img/mascota-action.png',
+      desafioName: 'Collage Digital',
+      delivered: Boolean(creativeData.status?.Action?.delivered),
+      isFav: favAlliance && (favAlliance === 'Action' || favAlliance.includes('Action'))
+    }
   ];
 
-  const sorted = [...alliancesList].sort((a, b) => b.pts - a.pts);
+  const sorted = [...alliancesList].sort((a, b) => {
+    const rA = statsData.alliances?.[a.key]?.rank || 99;
+    const rB = statsData.alliances?.[b.key]?.rank || 99;
+    if (rA !== rB) return rA - rB;
+    return b.pts - a.pts;
+  });
+
   const placesMap = {};
-  sorted.forEach((item, idx) => { placesMap[item.name] = idx + 1; });
+  sorted.forEach((item, idx) => {
+    placesMap[item.key] = statsData.alliances?.[item.key]?.rank || (idx + 1);
+  });
 
   const leader = sorted[0];
   const second = sorted[1];
+  const third = sorted[2];
   const diff12 = Math.abs(leader.pts - second.pts);
 
+  const chileTimeStr = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const activeAct = statsData.activeActivity;
+  const nextAct = statsData.nextActivity;
+  const currentView = adminProyectorViewMode || 'leaderboard';
+
   return `
-    <div class="h-screen w-screen bg-[#050C24] text-white flex flex-col justify-between p-6 sm:p-10 select-none overflow-hidden">
-      <!-- HEADER PROYECTOR -->
-      <div class="flex items-center justify-between border-b border-[#142252] pb-4">
+    <div class="h-screen w-screen bg-[#050C24] text-white flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none overflow-hidden relative">
+      
+      <!-- ENMARCADO DINÁMICO DE ESTADIO -->
+      <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[#0E1E48]/50 blur-[140px] rounded-full"></div>
+        <div class="absolute bottom-5 left-5 w-[500px] h-[500px] bg-[#2D46B9]/15 blur-[120px] rounded-full"></div>
+        <div class="absolute top-10 right-5 w-[500px] h-[500px] bg-[#E6194B]/15 blur-[130px] rounded-full"></div>
+      </div>
+
+      <!-- HEADER PROYECTOR ADMIN -->
+      <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[#142252] pb-3 sm:pb-4 shrink-0">
+        
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2">
-            <span class="w-3.5 h-3.5 rounded-full bg-[#E30613] shadow-md shadow-red-600/40"></span>
-            <span class="font-display font-black text-white text-xl sm:text-2xl tracking-tight">TI & DISEÑO</span>
+            <span class="w-3.5 h-3.5 rounded-sm bg-[#E6194B] shadow-lg shadow-[#E6194B]/60 rotate-45"></span>
+            <div>
+              <span class="font-display font-black text-white text-lg sm:text-2xl tracking-wider italic block leading-none">
+                TI & DISEÑO DIGITAL
+              </span>
+              <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest block mt-0.5">
+                Semana de las Carreras 2026 • Marcador de Cancha (Modo Administración)
+              </span>
+            </div>
           </div>
-          <div class="h-6 w-px bg-[#142252]"></div>
-          <div>
-            <span class="text-xs font-mono font-bold text-slate-300 tracking-wider uppercase block">Marcador Oficial de Cancha</span>
-            <span class="text-[10px] font-mono text-slate-400 block">Informática • Telecomunicaciones • Analista • Diseño Web</span>
+          <div class="h-8 w-px bg-[#142252] hidden sm:block"></div>
+          <div class="hidden sm:flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-xs font-mono font-bold text-white">${chileTimeStr}</span>
+            <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded uppercase">Sincronizado (4s)</span>
           </div>
         </div>
 
-        ${diff12 <= 800 && leader.pts > 0 ? `
-          <div class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-950/40 border border-amber-600/50 text-amber-300 font-mono text-xs">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            <span>Duelo al rojo: solo ${diff12.toLocaleString('es-CL')} pts de diferencia</span>
-          </div>
-        ` : ''}
+        <!-- Selector de Vistas Proyector -->
+        <div class="flex items-center gap-2">
+          ${diff12 <= 800 && leader.pts > 0 ? `
+            <div class="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 border-2 border-[#E6194B] text-white font-mono text-xs shadow-lg shadow-[#E6194B]/30 animate-pulse">
+              <span class="w-2 h-2 rounded-full bg-[#E6194B]"></span>
+              <span>⚔️ DUELO AL ROJO: solo <strong class="text-amber-400">${diff12.toLocaleString('es-CL')} pts</strong> de diferencia</span>
+            </div>
+          ` : ''}
 
-        <div class="flex items-center gap-4">
-          <button onclick="closeAdminProyector()" class="px-3 py-1.5 rounded-xl text-xs font-mono bg-[#0A1333] hover:bg-[#142252] text-slate-300 border border-[#142252] flex items-center gap-1.5 transition">
-            <i data-lucide="x" class="w-4 h-4"></i>
+          <div class="inline-flex p-1 bg-[#0A1333] border border-[#142252] rounded-xl gap-1 shrink-0">
+            <button 
+              type="button" 
+              onclick="setAdminProyectorView('leaderboard')" 
+              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-display font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 ${currentView === 'leaderboard' ? 'bg-[#2D46B9] text-white shadow' : 'text-slate-400 hover:text-white'}"
+            >
+              <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline">Marcador</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="setAdminProyectorView('podium')" 
+              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-display font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 ${currentView === 'podium' ? 'bg-[#2D46B9] text-white shadow' : 'text-slate-400 hover:text-white'}"
+            >
+              <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span class="hidden sm:inline">Podio 3D</span>
+            </button>
+            <button 
+              type="button" 
+              onclick="setAdminProyectorView('cancha')" 
+              class="px-2.5 sm:px-3 py-1 rounded-lg text-xs font-display font-bold uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 ${currentView === 'cancha' ? 'bg-[#2D46B9] text-white shadow' : 'text-slate-400 hover:text-white'}"
+            >
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline">En Cancha</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Controles Operativos: Fullscreen y Cerrar -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button 
+            type="button" 
+            onclick="toggleAdminProyectorFullscreen()" 
+            title="Pantalla Completa F11" 
+            class="p-2 rounded-xl text-xs font-mono bg-[#0A1333] hover:bg-[#142252] text-slate-300 border border-[#142252] transition cursor-pointer"
+          >
+            <i data-lucide="maximize" class="w-4 h-4"></i>
+          </button>
+          <button 
+            type="button" 
+            onclick="closeAdminProyector()" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold uppercase bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
             <span>Cerrar Proyector</span>
           </button>
         </div>
+
       </div>
 
-      <!-- ZONA DE BARRAS DE PROYECTOR -->
-      <div class="my-auto max-w-5xl mx-auto w-full space-y-6">
+      <!-- CUERPO PRINCIPAL ADMIN -->
+      <div class="relative z-10 my-auto py-2 max-w-7xl mx-auto w-full overflow-y-auto">
+
+        <!-- PRUEBA SORPRESA EN CURSO -->
         ${statsData.activeSorpresa ? `
-          <div class="bg-gradient-to-r from-red-950/80 via-amber-950/80 to-red-950/80 border-2 border-red-500 rounded-2xl py-3 px-6 text-center mb-4 shadow-2xl animate-pulse">
+          <div class="bg-gradient-to-r from-red-950/95 via-amber-950/95 to-red-950/95 border-2 border-red-500 rounded-3xl py-4 px-6 text-center mb-5 shadow-2xl shadow-red-600/40 animate-pulse">
             <div class="flex items-center justify-center gap-3">
-              <span class="text-xl">🚨</span>
-              <span class="text-xs font-mono font-black text-amber-400 uppercase tracking-widest">¡PRUEBA SORPRESA EN CURSO!</span>
-              <span class="text-xl">🚨</span>
+              <span class="text-2xl animate-bounce">🚨</span>
+              <span class="text-xs sm:text-sm font-mono font-black text-amber-400 uppercase tracking-widest">¡PRUEBA SORPRESA EN CURSO!</span>
+              <span class="text-2xl animate-bounce">🚨</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-display font-black text-white uppercase mt-0.5">${statsData.activeSorpresa.name}</h2>
-            <p class="text-xs text-slate-300 mt-0.5">${statsData.activeSorpresa.description || ''}</p>
-            <div class="mt-2 flex items-center justify-center gap-4 text-xs font-mono text-amber-300">
-              <span>⏱️ Duración: ${statsData.activeSorpresa.durationMin || 3} min</span>
-              <span>⚖️ ${statsData.activeSorpresa.decisionType === 'jurado' ? 'Jurado de 3' : 'Medición directa'}</span>
-              <span>🏆 1°: ${statsData.activeSorpresa.points1st || 500} pts | 2°: ${statsData.activeSorpresa.points2nd || 300} pts | 3°: ${statsData.activeSorpresa.points3rd || 150} pts</span>
+            <h2 class="text-2xl sm:text-4xl font-display font-black text-white uppercase tracking-tight mt-1">
+              ${statsData.activeSorpresa.name}
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-200 mt-1 max-w-2xl mx-auto">
+              ${statsData.activeSorpresa.description || 'Presentar representantes ante mesa de control de inmediato.'}
+            </p>
+            <div class="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-amber-300">
+              <span class="bg-black/40 px-3 py-1 rounded-xl border border-amber-600/60">
+                🏆 1°: +${statsData.activeSorpresa.points1st || 500} pts | 2°: +${statsData.activeSorpresa.points2nd || 300} pts | 3°: +${statsData.activeSorpresa.points3rd || 150} pts
+              </span>
             </div>
           </div>
         ` : ''}
 
-        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1 border-b border-[#142252] pb-2">
-          <span>POSICIONES OFICIALES & PUNTAJE EN VIVO</span>
-          <span>META DEL EVENTO: 32.000 PTS</span>
+        ${currentView === 'leaderboard' ? `
+          <!-- VISTA 1: MARCADOR GENERAL CON MASCOTAS -->
+          <div class="bg-[#0A1333]/80 border border-[#142252] rounded-2xl py-2 px-5 mb-4 flex items-center justify-between text-xs font-mono shadow-md">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+              <span class="text-slate-300 truncate">
+                ${activeAct ? `<strong class="text-white">EN CANCHA AHORA:</strong> ${activeAct.name.toUpperCase()} • ${activeAct.location.toUpperCase()}` : 'SEMANA DE LAS CARRERAS 2026 • COMPETENCIA OFICIAL DE SEDE'}
+              </span>
+            </div>
+            <span class="text-slate-400 hidden sm:inline shrink-0 font-bold">META OFICIAL: 32.000 PTS</span>
+          </div>
+
+          <div class="space-y-4">
+            ${sorted.map(item => {
+              const place = placesMap[item.key];
+              const isLeader = place === 1 && item.pts > 0;
+              const diffFromLeader = leader.pts - item.pts;
+              const pct = Math.min(100, Math.round((item.pts / MAX_EVENT_POINTS) * 100));
+              const visualWidth = Math.max(8, Math.min(100, (item.pts / MAX_EVENT_POINTS) * 100));
+
+              return `
+                <div class="${item.bgCard} border-2 ${isLeader ? item.glowBorder : item.border} rounded-3xl p-4 sm:p-5 transition-all duration-300 relative overflow-hidden group">
+                  <div class="absolute -right-16 -top-16 w-44 h-44 rounded-full pointer-events-none opacity-25" style="background-color: ${item.themeColor}; filter: blur(40px);"></div>
+
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                      
+                      <!-- Mascota Oficial -->
+                      <div class="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 flex items-center justify-center p-1 rounded-2xl bg-[#050C24]/80 border ${item.border}">
+                        <img src="${item.mascot}" alt="${item.name}" class="w-full h-full object-contain drop-shadow-xl transition-transform group-hover:scale-110">
+                        ${isLeader ? `
+                          <div class="absolute -top-2 -right-2 bg-amber-500 text-black p-1 rounded-full shadow-lg">
+                            <i data-lucide="crown" class="w-3.5 h-3.5"></i>
+                          </div>
+                        ` : ''}
+                      </div>
+
+                      <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <h3 class="font-display font-black text-2xl sm:text-3xl text-white tracking-wider italic">
+                            ALIANZA ${item.name}
+                          </h3>
+                          <span class="text-[11px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${isLeader ? 'bg-amber-950/80 text-amber-300 border-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : item.tag}">
+                            ${isLeader ? '👑 1° LUGAR - LÍDER' : `${place}° LUGAR`}
+                          </span>
+                          ${item.isFav ? `
+                            <span class="text-[10px] font-mono uppercase bg-amber-500 text-black font-black px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+                              <i data-lucide="award" class="w-3 h-3"></i> Mención Honor IA
+                            </span>
+                          ` : ''}
+                        </div>
+                        
+                        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span class="text-xs text-slate-300 font-sans font-medium">${item.carrera}</span>
+                          <span class="text-slate-500 font-mono text-[10px]">• Desafío: <strong class="text-white">${item.desafioName}</strong> ${item.delivered ? '<span class="text-emerald-400 font-bold">(✓ 4.000 pts)</span>' : '<span class="text-slate-500">(Pendiente)</span>'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-left sm:text-right shrink-0">
+                      <div class="flex items-baseline sm:justify-end gap-2">
+                        <span class="text-3xl sm:text-5xl font-mono font-black text-white tracking-tight ${isLeader ? 'text-amber-300 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]' : ''}">
+                          ${item.pts.toLocaleString('es-CL')}
+                        </span>
+                        <span class="text-xs font-mono font-bold text-slate-400">PTS</span>
+                      </div>
+                      
+                      <div class="flex items-center sm:justify-end gap-2 mt-0.5">
+                        ${isLeader ? `
+                          <span class="text-[11px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+                            +${diff12.toLocaleString('es-CL')} pts de ventaja
+                          </span>
+                        ` : `
+                          <span class="text-[11px] font-mono text-slate-400 bg-[#050C24] px-2 py-0.5 rounded border border-[#142252]">
+                            A ${diffFromLeader.toLocaleString('es-CL')} pts del líder
+                          </span>
+                        `}
+                        <span class="text-[11px] font-mono text-slate-400">${pct}% hacia la meta</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Pista de Carrera Neón -->
+                  <div class="mt-3.5 relative w-full bg-[#050C24] h-8 sm:h-9 rounded-2xl overflow-hidden border border-[#142252] p-1 flex items-center shadow-inner">
+                    <div class="absolute left-[25%] top-0 bottom-0 w-px bg-slate-800 pointer-events-none"></div>
+                    <div class="absolute left-[50%] top-0 bottom-0 w-px bg-slate-800 pointer-events-none"></div>
+                    <div class="absolute left-[75%] top-0 bottom-0 w-px bg-slate-800 pointer-events-none"></div>
+
+                    <div 
+                      class="${item.bar} h-full rounded-xl transition-all duration-1000 ease-out shadow-lg relative flex items-center justify-end pr-3" 
+                      style="width: ${visualWidth}%;"
+                    >
+                      ${visualWidth > 12 ? `<span class="text-[11px] font-mono font-black text-white drop-shadow">${pct}%</span>` : ''}
+                    </div>
+
+                    <div class="absolute right-3 top-0 bottom-0 flex items-center pointer-events-none">
+                      <span class="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">META 32.000 PTS</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+        ` : (currentView === 'podium' ? `
+          <!-- VISTA 2: PODIO 3D SHOWDOWN -->
+          <div class="py-4">
+            <div class="text-center mb-6">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-amber-950/60 text-amber-300 border border-amber-600/60 mb-2">
+                <i data-lucide="crown" class="w-3.5 h-3.5"></i>
+                Podio Oficial de la Competencia
+              </span>
+              <h2 class="text-2xl sm:text-4xl font-display font-black text-white italic uppercase tracking-tight">
+                Cuadro de Honor en Vivo
+              </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end max-w-5xl mx-auto pt-6">
+              
+              <!-- 2° LUGAR -->
+              <div class="flex flex-col items-center order-2 md:order-1">
+                <div class="relative w-28 h-28 sm:w-36 sm:h-36 -mb-4 z-10">
+                  <img src="${second.mascot}" alt="${second.name}" class="w-full h-full object-contain drop-shadow-2xl">
+                </div>
+                <div class="w-full bg-[#0A1333] border-2 border-slate-400 rounded-3xl p-5 text-center shadow-xl space-y-2 relative pt-6">
+                  <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-300 text-black px-3 py-0.5 rounded-full font-mono font-black text-xs uppercase shadow">
+                    2° LUGAR
+                  </div>
+                  <h3 class="font-display font-black text-2xl text-white italic uppercase">${second.name}</h3>
+                  <span class="text-xs text-slate-400 font-mono block">${second.carrera}</span>
+                  <div class="pt-2 border-t border-[#142252]">
+                    <span class="text-3xl font-mono font-black text-white block">${second.pts.toLocaleString('es-CL')}</span>
+                    <span class="text-[10px] font-mono text-slate-400">A ${diff12.toLocaleString('es-CL')} pts del 1°</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1° LUGAR (ORO) -->
+              <div class="flex flex-col items-center order-1 md:order-2 -mt-6">
+                <div class="relative w-36 h-36 sm:w-44 sm:h-44 -mb-4 z-20">
+                  <img src="${leader.mascot}" alt="${leader.name}" class="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(245,158,11,0.6)]">
+                  <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-black p-2 rounded-full shadow-2xl animate-bounce">
+                    <i data-lucide="crown" class="w-5 h-5"></i>
+                  </div>
+                </div>
+                <div class="w-full bg-gradient-to-b from-amber-950/60 via-[#0A1333] to-[#050C24] border-2 border-amber-500 rounded-3xl p-6 text-center shadow-2xl space-y-2 relative pt-8 podium-glow-gold">
+                  <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-400 text-black px-4 py-1 rounded-full font-display font-black text-xs uppercase tracking-wider shadow-lg">
+                    👑 LÍDER DEL TORNEO
+                  </div>
+                  <h3 class="font-display font-black text-3xl sm:text-4xl text-amber-300 italic uppercase drop-shadow">${leader.name}</h3>
+                  <span class="text-xs text-slate-300 font-mono block">${leader.carrera}</span>
+                  <div class="pt-3 border-t border-amber-600/40">
+                    <span class="text-4xl sm:text-5xl font-mono font-black text-white block">${leader.pts.toLocaleString('es-CL')}</span>
+                    <span class="text-xs font-mono font-bold text-emerald-400">+${diff12.toLocaleString('es-CL')} pts de ventaja</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3° LUGAR -->
+              <div class="flex flex-col items-center order-3 md:order-3">
+                <div class="relative w-24 h-24 sm:w-32 sm:h-32 -mb-4 z-10">
+                  <img src="${third.mascot}" alt="${third.name}" class="w-full h-full object-contain drop-shadow-xl">
+                </div>
+                <div class="w-full bg-[#0A1333] border-2 border-amber-800/80 rounded-3xl p-5 text-center shadow-xl space-y-2 relative pt-6">
+                  <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-800 text-amber-200 px-3 py-0.5 rounded-full font-mono font-black text-xs uppercase shadow">
+                    3° LUGAR
+                  </div>
+                  <h3 class="font-display font-black text-2xl text-white italic uppercase">${third.name}</h3>
+                  <span class="text-xs text-slate-400 font-mono block">${third.carrera}</span>
+                  <div class="pt-2 border-t border-[#142252]">
+                    <span class="text-3xl font-mono font-black text-white block">${third.pts.toLocaleString('es-CL')}</span>
+                    <span class="text-[10px] font-mono text-slate-400">A ${(leader.pts - third.pts).toLocaleString('es-CL')} pts del 1°</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        ` : `
+          <!-- VISTA 3: EN CANCHA & DESAFÍOS -->
+          <div class="space-y-4 max-w-5xl mx-auto py-2">
+            <div class="bg-gradient-to-r from-[#0A1333] to-[#050C24] border-2 border-[#2D46B9] rounded-3xl p-6 shadow-xl relative overflow-hidden">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-mono uppercase font-bold text-emerald-400 tracking-wider">Actividad en Vivo en Cancha</span>
+              </div>
+              <h3 class="text-2xl sm:text-3xl font-display font-black text-white italic uppercase">
+                ${activeAct ? activeAct.name : 'Descanso / Preparación de Próxima Ronda'}
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-300 mt-1">
+                ${activeAct ? `Ubicación: <strong>${activeAct.location}</strong> • Horario: <strong>${activeAct.schedule || 'En desarrollo'}</strong>` : 'Revisa el cronograma en el portal o acércate a la mesa de control.'}
+              </p>
+              ${nextAct ? `
+                <div class="mt-4 pt-3 border-t border-[#142252] flex items-center justify-between text-xs font-mono text-slate-400">
+                  <span>Próxima actividad: <strong class="text-white">${nextAct.name}</strong></span>
+                  <span>Lugar: <strong class="text-white">${nextAct.location}</strong></span>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              ${sorted.map(item => `
+                <div class="bg-[#0A1333] border ${item.border} rounded-2xl p-4 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-display font-black uppercase ${item.textAccent}">${item.name}</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded border ${item.delivered ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800' : 'text-slate-500 bg-slate-900 border-slate-800'}">
+                      ${item.delivered ? '✓ Entregado (4.000 pts)' : 'Pendiente'}
+                    </span>
+                  </div>
+                  <h4 class="text-sm font-bold text-white">${item.desafioName}</h4>
+                  <p class="text-[11px] text-slate-400 leading-relaxed font-sans">
+                    ${item.desafioName === 'Videojuego IA' ? 'Videojuego de terror original jugable en navegador.' : (item.desafioName === 'Chatbot IA' ? 'Asistente conversacional con IA para la sede.' : 'Collage fotográfico digital sin IA en Adobe.')}
+                  </p>
+                  ${item.isFav ? `
+                    <div class="mt-2 text-[10px] font-mono text-amber-300 bg-amber-950/50 border border-amber-800 p-1 rounded flex items-center gap-1 font-bold">
+                      <i data-lucide="crown" class="w-3 h-3"></i> Mención de Honor Docente
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `)}
+
+      </div>
+
+      <!-- FOOTER PROYECTOR ADMIN -->
+      <div class="relative z-10 border-t border-[#142252] pt-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 font-mono shrink-0">
+        <div class="flex items-center gap-2 overflow-hidden max-w-3xl w-full">
+          <i data-lucide="radio" class="w-4 h-4 text-[#E6194B] shrink-0 animate-pulse"></i>
+          <span class="text-slate-500 font-bold text-[10px] uppercase shrink-0">Avisos Oficiales:</span>
+          <div class="overflow-hidden whitespace-nowrap w-full">
+            <span class="animate-marquee font-medium text-slate-200">
+              ${statsData.announcements && statsData.announcements.length > 0 ? statsData.announcements.map(a => a.text).join(' ••• ') : 'Semana de las Carreras 2026 • TI & Diseño Digital • Sigue los resultados oficiales minuto a minuto.'}
+            </span>
+          </div>
         </div>
 
-        ${alliancesList.map(item => {
-          const place = placesMap[item.name];
-          const isLeader = place === 1 && item.pts > 0;
-          const diffFromLeader = leader.pts - item.pts;
-          const pct = Math.min(100, Math.round((item.pts / MAX_EVENT_POINTS) * 100));
-          const visualWidth = Math.max(6, Math.min(100, (item.pts / MAX_EVENT_POINTS) * 100));
-
-          let diffBadge = '';
-          if (isLeader) {
-            diffBadge = `<span class="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2.5 py-0.5 rounded-md">LÍDER (+${diff12.toLocaleString('es-CL')} pts)</span>`;
-          } else if (leader.pts > 0) {
-            diffBadge = `<span class="text-[11px] font-mono text-slate-400 bg-[#0A1333] border border-[#142252] px-2 py-0.5 rounded-md">A ${diffFromLeader.toLocaleString('es-CL')} pts del líder</span>`;
-          }
-
-          return `
-            <div class="bg-[#0A1333]/30 border ${item.border} rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-3">
-                  <span class="w-3 h-3 rounded-full ${item.dot}"></span>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <h3 class="font-bold font-display text-xl sm:text-2xl text-white tracking-wider">ALIANZA ${item.name}</h3>
-                      <span class="text-xs uppercase font-semibold px-2 py-0.5 rounded border ${item.tag}">
-                        ${place}° LUGAR
-                      </span>
-                    </div>
-                    <span class="text-xs text-slate-400 font-mono">${item.carrera}</span>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-4 text-right">
-                  ${diffBadge}
-                  <div>
-                    <div class="flex items-baseline justify-end gap-1.5">
-                      <span class="text-2xl sm:text-3xl font-mono font-black text-white tracking-tight">
-                        ${item.pts.toLocaleString('es-CL')}
-                      </span>
-                      <span class="text-xs font-mono text-slate-400">PTS</span>
-                    </div>
-                    <span class="text-[11px] font-mono text-slate-500 block">${pct}% hacia la meta</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- PISTA VISUAL -->
-              <div class="relative w-full bg-[#050C24] h-7 sm:h-8 rounded-xl overflow-hidden border border-[#142252]/90 p-1 flex items-center">
-                <div class="absolute left-[25%] top-0 bottom-0 w-px bg-[#0A1333]/80 pointer-events-none"></div>
-                <div class="absolute left-[50%] top-0 bottom-0 w-px bg-[#0A1333]/80 pointer-events-none"></div>
-                <div class="absolute left-[75%] top-0 bottom-0 w-px bg-[#0A1333]/80 pointer-events-none"></div>
-                
-                <div class="${item.bar} h-full rounded-lg transition-all duration-1000 ease-out shadow-md relative flex items-center justify-end pr-2" style="width: ${visualWidth}%;">
-                  ${visualWidth > 15 ? `<span class="text-[10px] font-mono font-bold text-white drop-shadow">${pct}%</span>` : ''}
-                </div>
-                <div class="absolute right-2 top-0 bottom-0 flex items-center pointer-events-none">
-                  <span class="text-[9px] font-mono text-slate-600 uppercase tracking-tighter">META 32K</span>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('')}
+        <div class="text-[10px] shrink-0 text-slate-500 hidden sm:flex items-center gap-2">
+          <span>Controlado desde Panel de Administración</span>
+          <span>•</span>
+          <span>Pantalla Oficial de Cancha</span>
+        </div>
       </div>
 
-      <div class="border-t border-[#142252] pt-3 flex items-center justify-between text-xs text-slate-500 font-mono">
-        <span>Pantalla Oficial de Competencia • Semana Carrera 2026</span>
-        <span>Controlado desde Panel de Administración</span>
-      </div>
     </div>
   `;
 }
@@ -5484,7 +6949,9 @@ async function handleGymkanasTabSearch(alliance, val) {
 
   try {
     const url = `/api/students/search?q=${encodeURIComponent(query)}&alliance=${encodeURIComponent(alliance)}&excludeActivity=gymkanas`;
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
     let students = await res.json();
 
     // Excluir estudiantes ya anotados en gymkanas
@@ -7012,4 +8479,423 @@ function filterMobileAllianceCols(alliance) {
       btns[k].className = 'px-3 py-1.5 rounded-lg text-xs font-mono transition text-slate-400 hover:text-white border border-transparent';
     }
   });
+}
+
+// =========================================================================
+// MÓDULO: LISTA DE ALIANZAS (RESUMEN Y PARTICIPACIONES POR INTEGRANTE)
+// =========================================================================
+let alianzasOverviewCache = null;
+let alianzasFilterAlliance = 'ALL';
+let alianzasFilterParticipation = 'ALL';
+let alianzasSearchQuery = '';
+
+function renderAlianzasPanel() {
+  return `
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#142252] pb-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black font-display text-white flex items-center gap-2 uppercase tracking-tight">
+            <i data-lucide="flag" class="w-6 h-6 text-[#E6194B]"></i>
+            Lista de Alianzas
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Vista general de todas las alianzas, puntajes acumulados y en qué actividades participó cada persona.
+          </p>
+        </div>
+        <button onclick="initAlianzasModule()" class="py-2 px-3.5 rounded-xl bg-[#0A1333] hover:bg-[#142252] border border-[#2D46B9]/60 text-xs font-display font-bold text-white transition flex items-center gap-2 self-start sm:self-auto">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#7F9CF5]"></i>
+          <span>Actualizar</span>
+        </button>
+      </div>
+
+      <div id="alianzas-summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="col-span-full py-10 text-center text-slate-400 text-xs font-mono flex items-center justify-center gap-2">
+          <i data-lucide="loader" class="w-4 h-4 animate-spin text-[#E6194B]"></i> Cargando alianzas e integrantes...
+        </div>
+      </div>
+
+      <div class="bg-[#050C24]/80 border border-[#142252] rounded-2xl p-3 sm:p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button id="alianzas-tab-ALL" onclick="setAlianzasFilterAlliance('ALL')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#2D46B9] text-white transition">Todas</button>
+          <button id="alianzas-tab-Terror" onclick="setAlianzasFilterAlliance('Terror')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition">Terror</button>
+          <button id="alianzas-tab-Shooter" onclick="setAlianzasFilterAlliance('Shooter')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition">Shooter</button>
+          <button id="alianzas-tab-Action" onclick="setAlianzasFilterAlliance('Action')" class="px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition">Action</button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 lg:max-w-lg">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+              type="text"
+              id="alianzas-search-input"
+              oninput="filterAlianzasList()"
+              placeholder="Buscar por nombre, RUT o actividad..."
+              class="w-full pl-9 pr-3 py-2 bg-[#0A1333] border border-[#142252] focus:border-[#2D46B9] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none transition"
+            />
+          </div>
+          <select id="alianzas-participation-filter" onchange="filterAlianzasList()" class="bg-[#0A1333] border border-[#142252] rounded-xl text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-[#2D46B9]">
+            <option value="ALL">Todos</option>
+            <option value="WITH">Con participación</option>
+            <option value="WITHOUT">Sin participación</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="alianzas-list-container" class="space-y-6"></div>
+    </div>
+  `;
+}
+
+async function initAlianzasModule() {
+  try {
+    const res = await fetch('/api/admin/alliances-overview', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (!res.ok) throw new Error('Error al cargar alianzas');
+    alianzasOverviewCache = await res.json();
+    renderAlianzasContent();
+  } catch (err) {
+    console.error('Error en initAlianzasModule:', err);
+    const container = document.getElementById('alianzas-list-container');
+    if (container) {
+      container.innerHTML = `<div class="p-4 rounded-2xl bg-red-950/40 border border-red-800 text-red-200 text-xs">No se pudo cargar la lista de alianzas: ${err.message}</div>`;
+    }
+  }
+}
+
+function setAlianzasFilterAlliance(alliance) {
+  alianzasFilterAlliance = alliance;
+  ['ALL', 'Terror', 'Shooter', 'Action'].forEach(k => {
+    const btn = document.getElementById(`alianzas-tab-${k}`);
+    if (!btn) return;
+    if (k === alliance) {
+      btn.className = 'px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#2D46B9] text-white transition shadow';
+    } else {
+      btn.className = 'px-3 py-1.5 rounded-xl text-xs font-display font-bold bg-[#0A1333] text-slate-300 hover:text-white border border-[#142252] transition';
+    }
+  });
+  renderAlianzasContent();
+}
+
+function filterAlianzasList() {
+  const input = document.getElementById('alianzas-search-input');
+  const select = document.getElementById('alianzas-participation-filter');
+  alianzasSearchQuery = (input ? input.value : '').trim().toLowerCase();
+  alianzasFilterParticipation = select ? select.value : 'ALL';
+  renderAlianzasContent();
+}
+
+function renderAlianzasContent() {
+  if (!alianzasOverviewCache) return;
+  const { alliances } = alianzasOverviewCache;
+
+  const palette = {
+    Terror: { border: 'border-[#E6194B]/60', badge: 'bg-[#E6194B]/20 text-[#ff6b8b] border-[#E6194B]/40', dot: 'bg-[#E6194B]', text: 'text-[#ff6b8b]' },
+    Shooter: { border: 'border-[#2D46B9]/70', badge: 'bg-[#2D46B9]/25 text-[#9FB5F8] border-[#2D46B9]/50', dot: 'bg-[#2D46B9]', text: 'text-[#9FB5F8]' },
+    Action: { border: 'border-emerald-500/60', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', dot: 'bg-emerald-500', text: 'text-emerald-400' }
+  };
+
+  const summaryEl = document.getElementById('alianzas-summary-cards');
+  if (summaryEl) {
+    summaryEl.innerHTML = ['Terror', 'Shooter', 'Action'].map(al => {
+      const info = alliances[al] || { points: 0, rank: '-', totalStudents: 0, attendedCount: 0, participationsCount: 0 };
+      const p = palette[al];
+      return `
+        <div onclick="setAlianzasFilterAlliance('${al}')" class="cursor-pointer bg-[#050C24]/90 border-2 ${p.border} rounded-2xl p-4 hover:scale-[1.01] transition shadow-lg">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full ${p.dot}"></span>
+              <h3 class="font-display font-black text-base text-white uppercase tracking-wide">${al}</h3>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${p.badge}">#${info.rank || '-'}</span>
+          </div>
+          <div class="text-2xl font-black font-display ${p.text} mb-2">${Number(info.points || 0).toLocaleString('es-CL')} <span class="text-xs font-mono text-slate-400 font-normal">pts</span></div>
+          <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#142252] text-[11px] font-mono">
+            <div><span class="text-slate-400 block">Integrantes</span><strong class="text-white">${info.totalStudents}</strong></div>
+            <div><span class="text-slate-400 block">Presentes</span><strong class="text-emerald-400">${info.attendedCount}</strong></div>
+            <div><span class="text-slate-400 block">Participac.</span><strong class="text-amber-400">${info.participationsCount}</strong></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const listEl = document.getElementById('alianzas-list-container');
+  if (!listEl) return;
+
+  const targetAlliances = alianzasFilterAlliance === 'ALL' ? ['Terror', 'Shooter', 'Action'] : [alianzasFilterAlliance];
+
+  listEl.innerHTML = targetAlliances.map(al => {
+    const info = alliances[al] || { students: [], points: 0, totalStudents: 0 };
+    const p = palette[al];
+
+    const filteredMembers = (info.students || []).filter(s => {
+      if (alianzasFilterParticipation === 'WITH' && s.activities.length === 0) return false;
+      if (alianzasFilterParticipation === 'WITHOUT' && s.activities.length > 0) return false;
+      if (!alianzasSearchQuery) return true;
+
+      const actsText = s.activities.map(a => a.activityName).join(' ').toLowerCase();
+      return (
+        (s.name || '').toLowerCase().includes(alianzasSearchQuery) ||
+        (s.rut || '').toLowerCase().includes(alianzasSearchQuery) ||
+        (s.carrera || '').toLowerCase().includes(alianzasSearchQuery) ||
+        actsText.includes(alianzasSearchQuery)
+      );
+    });
+
+    const rowsHtml = filteredMembers.length === 0
+      ? `<div class="p-6 text-center text-xs text-slate-400 font-mono">No hay integrantes que coincidan con el filtro en ${al}.</div>`
+      : filteredMembers.map((s, idx) => {
+          const actBadges = s.activities.length > 0
+            ? s.activities.map(a => {
+                const scoreText = a.score !== null && a.score !== undefined ? ` (${a.score} pts)` : '';
+                return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-mono bg-[#142252] text-[#C7D5FA] border border-[#2D46B9]/50">${escapeHtmlAttr(a.activityName)}${scoreText}</span>`;
+              }).join(' ')
+            : `<span class="text-[11px] text-slate-500 italic">Sin actividades registradas aún</span>`;
+
+          return `
+            <div class="p-3 sm:p-4 border-b border-[#142252] last:border-0 hover:bg-[#0E1E48]/40 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[10px] font-mono text-slate-500">#${idx + 1}</span>
+                  <button type="button" onclick="openStudentProfileModalById('${s.id}')" class="text-sm font-bold text-white hover:text-[#7F9CF5] transition text-left">
+                    ${escapeHtmlAttr(s.name)}
+                  </button>
+                  ${s.isWalkIn ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/40">En cancha</span>` : ''}
+                  ${s.attended
+                    ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Presente</span>`
+                    : `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700">Sin registro</span>`
+                  }
+                </div>
+                <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+                  ${escapeHtmlAttr(s.carrera || '')}${s.rut ? ` • ${escapeHtmlAttr(s.rut)}` : ''}
+                </div>
+              </div>
+              <div class="sm:text-right flex flex-wrap sm:justify-end items-center gap-1.5 max-w-xl">
+                <span class="text-[10px] font-mono uppercase text-slate-400 mr-1">Participó en:</span>
+                ${actBadges}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+    return `
+      <div class="bg-[#050C24]/90 border-2 ${p.border} rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-4 py-3 bg-[#0A1333] border-b border-[#142252] flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${p.dot}"></span>
+            <h3 class="font-display font-black text-sm sm:text-base text-white uppercase tracking-wider">Alianza ${al}</h3>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono border ${p.badge}">${filteredMembers.length} / ${info.totalStudents} integrantes</span>
+          </div>
+          <span class="text-xs font-mono font-bold ${p.text}">${Number(info.points || 0).toLocaleString('es-CL')} pts</span>
+        </div>
+        <div>${rowsHtml}</div>
+      </div>
+    `;
+  }).join('');
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// =========================================================================
+// MÓDULO: TÚNEL REMOTO Y QR PARA EVALUACIÓN DOCENTE
+// =========================================================================
+let tunnelStatusCache = { active: false, url: null, lanUrl: null, startedAt: null, startedBy: null, error: null };
+
+function openTunnelModal() {
+  const modal = document.getElementById('tunnel-modal');
+  const content = document.getElementById('tunnel-modal-content');
+  if (!modal || !content) return;
+
+  modal.classList.remove('hidden');
+  content.innerHTML = `
+    <div class="py-10 text-center text-slate-400 text-xs font-mono flex items-center justify-center gap-2">
+      <i data-lucide="loader" class="w-4 h-4 animate-spin text-[#7F9CF5]"></i> Consultando estado del túnel...
+    </div>
+  `;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  refreshTunnelStatus();
+}
+
+function closeTunnelModal() {
+  const modal = document.getElementById('tunnel-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function refreshTunnelStatus() {
+  try {
+    const res = await fetch('/api/admin/tunnel/status', {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    if (!res.ok) throw new Error('No autorizado o error al consultar estado');
+    tunnelStatusCache = await res.json();
+    renderTunnelModalContent();
+  } catch (err) {
+    const content = document.getElementById('tunnel-modal-content');
+    if (content) {
+      content.innerHTML = `<div class="p-4 rounded-xl bg-red-950/50 border border-red-800 text-red-200 text-xs">${escapeHtmlAttr(err.message)}</div>`;
+    }
+  }
+}
+
+async function startAdminTunnel() {
+  const btn = document.getElementById('btn-start-tunnel');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> <span>Abriendo túnel Cloudflare...</span>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  try {
+    const res = await fetch('/api/admin/tunnel/start', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'No se pudo iniciar el túnel');
+    tunnelStatusCache = data;
+    renderTunnelModalContent();
+  } catch (err) {
+    tunnelStatusCache.error = err.message;
+    renderTunnelModalContent();
+  }
+}
+
+async function stopAdminTunnel() {
+  const btn = document.getElementById('btn-stop-tunnel');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> <span>Cerrando túnel...</span>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  try {
+    const res = await fetch('/api/admin/tunnel/stop', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const data = await res.json();
+    tunnelStatusCache = { active: false, url: null, lanUrl: data.lanUrl, error: null };
+    renderTunnelModalContent();
+  } catch (err) {
+    alert('Error al detener el túnel: ' + err.message);
+  }
+}
+
+function copyTunnelUrl(urlToCopy, btnId) {
+  if (!urlToCopy) return;
+  navigator.clipboard.writeText(urlToCopy).then(() => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const prev = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Copiado</span>`;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    setTimeout(() => {
+      btn.innerHTML = prev;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }, 1800);
+  });
+}
+
+function renderTunnelModalContent() {
+  const content = document.getElementById('tunnel-modal-content');
+  if (!content) return;
+
+  const { active, url, lanUrl, error } = tunnelStatusCache;
+  const qrTargetUrl = active && url ? url : lanUrl;
+
+  content.innerHTML = `
+    <div class="space-y-4">
+      <div class="border-b border-[#142252] pb-3 pr-8">
+        <span class="text-[10px] font-mono uppercase tracking-wider text-[#7F9CF5] font-bold">Acceso Remoto al Servidor Local</span>
+        <h3 class="text-xl font-black font-display text-white mt-0.5 flex items-center gap-2">
+          <i data-lucide="qr-code" class="w-5 h-5 text-[#E6194B]"></i>
+          Link y QR para Docentes
+        </h3>
+        <p class="text-xs text-slate-400 mt-1">
+          Los profesores entran al login desde su celular o notebook (<span class="font-mono text-slate-200">docente1</span> / <span class="font-mono text-slate-200">docente2</span>) y sus notas caen directo en este equipo.
+        </p>
+      </div>
+
+      ${error ? `
+        <div class="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs">
+          ${escapeHtmlAttr(error)}
+        </div>
+      ` : ''}
+
+      <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full ${active ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}"></span>
+            <span class="text-xs font-display font-bold uppercase text-white">
+              ${active ? 'Túnel Público Activo (HTTPS)' : 'Túnel Público Inactivo'}
+            </span>
+          </div>
+          ${active
+            ? `<button id="btn-stop-tunnel" onclick="stopAdminTunnel()" class="py-1.5 px-3 rounded-xl bg-[#E6194B] hover:bg-[#c81440] text-white text-xs font-display font-bold transition flex items-center gap-1.5">
+                 <i data-lucide="square" class="w-3.5 h-3.5"></i> <span>Detener Túnel</span>
+               </button>`
+            : `<button id="btn-start-tunnel" onclick="startAdminTunnel()" class="py-1.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-display font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/20">
+                 <i data-lucide="globe" class="w-3.5 h-3.5"></i> <span>Activar Túnel</span>
+               </button>`
+          }
+        </div>
+
+        ${active && url ? `
+          <div class="p-2.5 rounded-xl bg-[#0A1333] border border-emerald-500/40 flex items-center justify-between gap-2">
+            <a href="${escapeHtmlAttr(url)}" target="_blank" class="text-xs font-mono text-emerald-300 hover:underline truncate">${escapeHtmlAttr(url)}</a>
+            <button id="btn-copy-tunnel" onclick="copyTunnelUrl('${escapeHtmlAttr(url)}', 'btn-copy-tunnel')" class="py-1 px-2.5 rounded-lg bg-[#142252] hover:bg-[#2D46B9] text-white text-[11px] font-mono shrink-0 flex items-center gap-1 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> <span>Copiar</span>
+            </button>
+          </div>
+        ` : `
+          <p class="text-[11px] text-slate-400">
+            Presiona <strong>Activar Túnel</strong> para generar un enlace HTTPS externo (<span class="font-mono">trycloudflare.com</span>) accesible desde cualquier red o datos móviles.
+          </p>
+        `}
+      </div>
+
+      ${qrTargetUrl ? `
+        <div class="bg-[#050C24] border border-[#142252] rounded-2xl p-4 flex flex-col items-center text-center space-y-3">
+          <div id="tunnel-qr-box" class="bg-white p-3 rounded-2xl shadow-lg inline-flex items-center justify-center min-w-[180px] min-h-[180px]"></div>
+          <div class="text-[11px] font-mono text-slate-300">
+            ${active ? 'Escanea para abrir el Login (Túnel Externo)' : 'QR de respaldo (solo misma red Wi-Fi / LAN)'}
+          </div>
+          ${lanUrl ? `
+            <div class="w-full p-2 rounded-xl bg-[#0A1333] border border-[#142252] flex items-center justify-between gap-2 text-left">
+              <div class="min-w-0">
+                <span class="text-[10px] font-mono text-slate-400 block">Alternativa Red Local (Wi-Fi):</span>
+                <span class="text-[11px] font-mono text-[#9FB5F8] truncate block">${escapeHtmlAttr(lanUrl)}</span>
+              </div>
+              <button id="btn-copy-lan" onclick="copyTunnelUrl('${escapeHtmlAttr(lanUrl)}', 'btn-copy-lan')" class="py-1 px-2 rounded-lg bg-[#142252] hover:bg-[#2D46B9] text-white text-[11px] font-mono shrink-0 flex items-center gap-1 transition">
+                <i data-lucide="copy" class="w-3 h-3"></i> <span>Copiar</span>
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  if (qrTargetUrl && typeof qrcode !== 'undefined') {
+    const qrBox = document.getElementById('tunnel-qr-box');
+    if (qrBox) {
+      try {
+        const qr = qrcode(0, 'M');
+        qr.addData(qrTargetUrl);
+        qr.make();
+        qrBox.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 1 });
+        const svg = qrBox.querySelector('svg');
+        if (svg) {
+          svg.setAttribute('width', '190');
+          svg.setAttribute('height', '190');
+          svg.style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error generando QR:', err);
+      }
+    }
+  }
 }

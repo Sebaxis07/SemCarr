@@ -21,30 +21,44 @@ test('Criterio de peso 20: Excelente 20, Bueno 16, Regular 10, Básico 4. Cualqu
   }, /inválido|no permitido/i);
 });
 
-test('Desafío con promedio 80: 2000 por nota', () => {
+test('Desafío entregado: solo al llevarlo gana los 4000 puntos. Las notas docentes no otorgan puntos (gradePts = 0)', () => {
   const creativeChallenges = {
-    status: { Terror: { delivered: false }, Shooter: { delivered: false }, Action: { delivered: false } },
+    status: {
+      Terror: { delivered: true },
+      Shooter: { delivered: false },
+      Action: { delivered: true }
+    },
     rubrics: {
       Terror: { notaPromedio: 80 },
-      Shooter: { notaPromedio: 50 },
-      Action: { notaPromedio: 50 }
+      Shooter: { notaPromedio: 95 },
+      Action: { notaPromedio: 60 }
     }
   };
 
   const res = rules.calculateCreativeScores(creativeChallenges);
-  assert.equal(res.breakdown.Terror.gradePts, 2000, 'Nota promedio 80 debe dar exactamente 2000 puntos docentes');
+  // Al entregar gana 4000 puntos
+  assert.equal(res.pointsAwarded.Terror, 4000, 'Terror entregó, debe ganar exactamente 4000 pts');
+  assert.equal(res.breakdown.Terror.deliveryPts, 4000);
+  assert.equal(res.breakdown.Terror.gradePts, 0, 'La nota docente no suma puntos (0 pts)');
+  assert.equal(res.breakdown.Terror.favoritePts, 0, 'No hay puntos por obra favorita');
+
+  // Sin entrega recibe 0 puntos
+  assert.equal(res.pointsAwarded.Shooter, 0, 'Shooter no entregó, debe tener 0 pts');
+  assert.equal(res.breakdown.Shooter.deliveryPts, 0);
+
+  // Action entregó, gana 4000 puntos
+  assert.equal(res.pointsAwarded.Action, 4000, 'Action entregó, debe ganar 4000 pts');
 });
 
-test('Terror con 83 y 87: 2125. Shooter con 85 y 89: 2175. Action con 85 y 91: 2200, y Action se lleva la obra favorita completa (500)', () => {
-  // Terror: (83 + 87) / 2 = 85 -> 85% de 2500 = 2125
-  // Shooter: (85 + 89) / 2 = 87 -> 87% de 2500 = 2175
-  // Action: (85 + 91) / 2 = 88 -> 88% de 2500 = 2200
-  // Obra favorita: Action tiene la nota más alta (88), se lleva los 500 puntos
+test('Terror con 83 y 87 (85), Shooter con 85 y 89 (87), Action con 85 y 91 (88): Action gana Mención de Honor, pero no suma puntos extra', () => {
+  // Terror: avg 85
+  // Shooter: avg 87
+  // Action: avg 88 -> Mejor nota
   const creativeChallenges = {
     status: {
-      Terror: { delivered: false },
-      Shooter: { delivered: false },
-      Action: { delivered: false }
+      Terror: { delivered: true },
+      Shooter: { delivered: true },
+      Action: { delivered: true }
     },
     rubrics: {
       Terror: { docente1Nota: 83, docente2Nota: 87, notaPromedio: 85 },
@@ -55,20 +69,29 @@ test('Terror con 83 y 87: 2125. Shooter con 85 y 89: 2175. Action con 85 y 91: 2
 
   const res = rules.calculateCreativeScores(creativeChallenges);
 
-  assert.equal(res.breakdown.Terror.gradePts, 2125, 'Terror debe tener 2125 pts por nota');
-  assert.equal(res.breakdown.Shooter.gradePts, 2175, 'Shooter debe tener 2175 pts por nota');
-  assert.equal(res.breakdown.Action.gradePts, 2200, 'Action debe tener 2200 pts por nota');
+  // Todas reciben 4000 pts al entregar
+  assert.equal(res.pointsAwarded.Terror, 4000);
+  assert.equal(res.pointsAwarded.Shooter, 4000);
+  assert.equal(res.pointsAwarded.Action, 4000);
 
-  assert.equal(res.favoritePointsPerAlliance.Action, 500, 'Action debe llevarse los 500 pts de obra favorita');
-  assert.equal(res.favoritePointsPerAlliance.Terror, 0);
-  assert.equal(res.favoritePointsPerAlliance.Shooter, 0);
+  // Ninguna recibe puntos por nota ni por obra favorita
+  assert.equal(res.breakdown.Terror.gradePts, 0);
+  assert.equal(res.breakdown.Shooter.gradePts, 0);
+  assert.equal(res.breakdown.Action.gradePts, 0);
+  assert.equal(res.breakdown.Action.favoritePts, 0);
+
+  // Mención de Honor es para Action (mejor nota)
   assert.equal(res.favoriteAllianceText, 'Action');
+  assert.equal(res.mencionHonorText, 'Action');
+  assert.deepEqual(res.favoriteAlliances, ['Action']);
+  assert.equal(res.breakdown.Action.mencionHonor, true);
+  assert.equal(res.breakdown.Terror.mencionHonor, false);
 });
 
-test('Obra favorita empatada entre dos: 250 y 250. Entre tres: 166,67 cada una.', () => {
-  // Empate entre dos (Terror y Shooter con 88)
+test('Mención de Honor empatada entre dos o tres: mención compartida sin otorgar puntos', () => {
+  // Empate entre Terror y Shooter con 88
   const dosEmpatadas = {
-    status: { Terror: {}, Shooter: {}, Action: {} },
+    status: { Terror: { delivered: true }, Shooter: { delivered: true }, Action: { delivered: true } },
     rubrics: {
       Terror: { notaPromedio: 88 },
       Shooter: { notaPromedio: 88 },
@@ -77,13 +100,18 @@ test('Obra favorita empatada entre dos: 250 y 250. Entre tres: 166,67 cada una.'
   };
 
   const resDos = rules.calculateCreativeScores(dosEmpatadas);
-  assert.equal(resDos.favoritePointsPerAlliance.Terror, 250, 'Terror recibe 250 en empate doble');
-  assert.equal(resDos.favoritePointsPerAlliance.Shooter, 250, 'Shooter recibe 250 en empate doble');
-  assert.equal(resDos.favoritePointsPerAlliance.Action, 0);
+  assert.equal(resDos.pointsAwarded.Terror, 4000);
+  assert.equal(resDos.pointsAwarded.Shooter, 4000);
+  assert.equal(resDos.favoritePointsPerAlliance.Terror, 0, 'No reparte puntos en empate');
+  assert.equal(resDos.favoritePointsPerAlliance.Shooter, 0);
+  assert.match(resDos.favoriteAllianceText, /Terror.*Shooter/);
+  assert.equal(resDos.breakdown.Terror.mencionHonor, true);
+  assert.equal(resDos.breakdown.Shooter.mencionHonor, true);
+  assert.equal(resDos.breakdown.Action.mencionHonor, false);
 
   // Empate triple (las tres con 88)
   const tresEmpatadas = {
-    status: { Terror: {}, Shooter: {}, Action: {} },
+    status: { Terror: { delivered: true }, Shooter: { delivered: true }, Action: { delivered: true } },
     rubrics: {
       Terror: { notaPromedio: 88 },
       Shooter: { notaPromedio: 88 },
@@ -92,21 +120,20 @@ test('Obra favorita empatada entre dos: 250 y 250. Entre tres: 166,67 cada una.'
   };
 
   const resTres = rules.calculateCreativeScores(tresEmpatadas);
-  assert.equal(resTres.favoritePointsPerAlliance.Terror, 166.67, 'Terror recibe 166.67 en empate triple');
-  assert.equal(resTres.favoritePointsPerAlliance.Shooter, 166.67, 'Shooter recibe 166.67 en empate triple');
-  assert.equal(resTres.favoritePointsPerAlliance.Action, 166.67, 'Action recibe 166.67 en empate triple');
-
-  const totalRepartido = resTres.favoritePointsPerAlliance.Terror + resTres.favoritePointsPerAlliance.Shooter + resTres.favoritePointsPerAlliance.Action;
-  assert.ok(totalRepartido <= 500.01, 'El total entregado nunca debe superar 500');
+  assert.equal(resTres.pointsAwarded.Terror, 4000);
+  assert.equal(resTres.pointsAwarded.Shooter, 4000);
+  assert.equal(resTres.pointsAwarded.Action, 4000);
+  assert.equal(resTres.favoritePointsPerAlliance.Terror, 0);
+  assert.equal(resTres.favoritePointsPerAlliance.Shooter, 0);
+  assert.equal(resTres.favoritePointsPerAlliance.Action, 0);
+  assert.equal(resTres.favoriteAlliances.length, 3);
 });
 
-test('Notas 60 y 85: queda en "revisión conjunta pendiente" y no entra a la obra favorita', () => {
+test('Notas 60 y 85: queda en "revisión conjunta pendiente" y no entra a la mención de honor', () => {
   // Terror tiene notas 60 y 85 (diferencia 25 > 20)
-  // Shooter tiene 75 y 75 (promedio 75)
-  // Aunque el promedio provisional de Terror sea 72.5, está en revisión conjunta pendiente
-  // Si Terror tuviera notas 60 y 95 (promedio 77.5), tampoco debe ganar la obra favorita
+  // Shooter tiene 70 y 70 (promedio 70)
   const creativeChallenges = {
-    status: { Terror: {}, Shooter: {}, Action: {} },
+    status: { Terror: { delivered: true }, Shooter: { delivered: true }, Action: { delivered: true } },
     rubrics: {
       Terror: {
         docente1Nota: 60,
@@ -135,8 +162,43 @@ test('Notas 60 y 85: queda en "revisión conjunta pendiente" y no entra a la obr
 
   const res = rules.calculateCreativeScores(creativeChallenges);
 
-  assert.equal(res.breakdown.Terror.isPendingDiscrepancy, true, 'Terror debe estar marcado en discrepancia pendiente');
-  assert.equal(res.favoritePointsPerAlliance.Terror, 0, 'Terror no califica para obra favorita mientras esté pendiente');
-  assert.equal(res.favoritePointsPerAlliance.Shooter, 500, 'Shooter se lleva la obra favorita por ser la nota válida definitiva más alta');
-  assert.equal(res.hasProvisional, true, 'Debe indicar que hay notas provisorias');
+  // Al haber entregado, todas tienen sus 4000 pts
+  assert.equal(res.pointsAwarded.Terror, 4000);
+  assert.equal(res.pointsAwarded.Shooter, 4000);
+
+  // Pero Terror está en discrepancia, por lo que no puede ganar la Mención de Honor
+  assert.equal(res.breakdown.Terror.isPendingDiscrepancy, true);
+  assert.equal(res.breakdown.Terror.mencionHonor, false);
+  assert.equal(res.favoriteAllianceText, 'Shooter', 'Shooter se lleva la mención de honor provisional por ser la nota válida definitiva más alta');
+  assert.equal(res.hasProvisional, true, 'Debe alertar que hay notas provisorias');
 });
+
+test('Asignación docente individual: Prof. Eduardo califica Terror y Shooter (definitiva), Prof. Natalia califica Action (definitiva)', () => {
+  // Prof. Eduardo evalúa Terror (92) y Shooter (86). Prof. Natalia evalúa Action (90).
+  const creativeChallenges = {
+    status: {
+      Terror: { delivered: true, evaluated: true },
+      Shooter: { delivered: true, evaluated: true },
+      Action: { delivered: true, evaluated: true }
+    },
+    rubrics: {
+      Terror: { docente1Nota: 92, notaPromedio: 92, estado: 'definitiva', notaDefinitiva: true },
+      Shooter: { docente1Nota: 86, notaPromedio: 86, estado: 'definitiva', notaDefinitiva: true },
+      Action: { docente2Nota: 90, notaPromedio: 90, estado: 'definitiva', notaDefinitiva: true }
+    }
+  };
+
+  const res = rules.calculateCreativeScores(creativeChallenges);
+
+  // Cada alianza que entregó recibe 4000 pts oficiales
+  assert.equal(res.pointsAwarded.Terror, 4000);
+  assert.equal(res.pointsAwarded.Shooter, 4000);
+  assert.equal(res.pointsAwarded.Action, 4000);
+
+  // Terror tiene la nota más alta (92 de Prof. Eduardo), gana Mención de Honor
+  assert.equal(res.mencionHonorText, 'Terror');
+  assert.equal(res.breakdown.Terror.mencionHonor, true);
+  assert.equal(res.breakdown.Action.mencionHonor, false);
+  assert.equal(res.breakdown.Shooter.mencionHonor, false);
+});
+
